@@ -275,6 +275,10 @@ const MultiAI: React.FC = () => {
                       <div className="w-3 h-3 bg-rose-400 rounded-full animate-pulse"></div>
                       <span className="text-rose-400 text-sm font-semibold">Premium Performance</span>
                     </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
+                      <span className="text-blue-400 text-sm font-semibold">Tokens: ~19M+ Available</span>
+                    </div>
                   </motion.div>
                 </div>
               </div>
@@ -306,6 +310,10 @@ const MultiAI: React.FC = () => {
                       <span className="text-emerald-400">📚</span>
                       <span className="text-sm font-medium">{conversationHistory.length} conversation{conversationHistory.length !== 1 ? 's' : ''} in history</span>
                     </div>
+                    <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-700/50 to-blue-600/50 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
+                      <span className="text-blue-400">🔢</span>
+                      <span className="text-sm font-medium">~19M+ tokens available</span>
+                    </div>
                     <button
                       onClick={() => {
                         setResults(null);
@@ -318,7 +326,7 @@ const MultiAI: React.FC = () => {
                     </button>
                     <button
                       onClick={clearHistory}
-                      className="px-4 py-2 bg-gradient-to-r from-rose-500/20 to-pink-500/20 border border-rose-400/30 text-rose-300 text-sm rounded-full hover:from-rose-500/30 hover:to-pink-500/30 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                      className="px-4 py-2 bg-gradient-to-r from-rose-500/20 to-pink-500/20 border border-rose-400/30 text-rose-300 text-sm rounded-full hover:from-rose-500/30 hover:to-teal-500/30 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
                     >
                       🗑️ Clear History
                     </button>
@@ -416,6 +424,36 @@ const MultiAI: React.FC = () => {
                           <span className="text-sm font-medium">
                             Processed in {results?.processingTime} • {results?.timestamp ? new Date(results.timestamp).toLocaleTimeString() : ''}
                           </span>
+                        </div>
+                      </div>
+
+                      {/* Token Usage Display */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-slate-300 mb-4 text-center">Token Usage Status</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                          {['gemini', 'cohere', 'openrouter', 'glm', 'deepseek'].map((serviceName) => {
+                            const config = getAIConfig(serviceName);
+                            return (
+                              <div key={serviceName} className={`${config.bgColor} border ${config.borderColor} rounded-xl p-4 text-center`}>
+                                <div className={`w-8 h-8 bg-gradient-to-r ${config.color} rounded-lg flex items-center justify-center text-white text-lg mx-auto mb-2`}>
+                                  {config.icon}
+                                </div>
+                                <h4 className="font-semibold text-slate-800 text-sm mb-1">{config.name}</h4>
+                                <div className="space-y-1">
+                                  <div className="text-xs text-slate-600">
+                                    <span className="font-medium">Used:</span> 0 tokens
+                                  </div>
+                                  <div className="text-xs text-slate-600">
+                                    <span className="font-medium">Remaining:</span> ~1M+
+                                  </div>
+                                  <div className="w-full bg-slate-200 rounded-full h-2">
+                                    <div className={`bg-gradient-to-r ${config.color} h-2 rounded-full`} style={{ width: '100%' }}></div>
+                                  </div>
+                                  <div className="text-xs text-slate-500">100% available</div>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
 

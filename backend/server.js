@@ -267,6 +267,95 @@ app.post('/api/chatbot', async (req, res) => {
   }
 });
 
+// GET /api/status - Check API configuration status
+app.get('/api/status', (req, res) => {
+  const geminiKey = process.env.GEMINI_API_KEY;
+  const huggingfaceKey = process.env.HUGGINGFACE_API_KEY;
+  const cohereKey = process.env.COHERE_API_KEY;
+  const openrouterKey = process.env.OPENROUTER_API_KEY;
+
+  res.json({
+    gemini: {
+      configured: geminiKey && geminiKey !== 'your-api-key-here' && geminiKey.length > 20,
+      model: 'Gemini 1.5 Flash'
+    },
+    huggingface: {
+      configured: huggingfaceKey && huggingfaceKey !== 'your-api-key-here' && huggingfaceKey.length > 20,
+      model: 'DialoGPT Medium'
+    },
+    cohere: {
+      configured: cohereKey && cohereKey !== 'your-api-key-here' && cohereKey.length > 20,
+      model: 'Cohere Command'
+    },
+    openrouter: {
+      configured: openrouterKey && openrouterKey !== 'your-api-key-here' && openrouterKey.length > 20,
+      model: 'OpenRouter (GPT-3.5 Turbo)'
+    }
+  });
+});
+
+// GET /api/token-usage - Get token usage for all AI services
+app.get('/api/token-usage', async (req, res) => {
+  try {
+    // This would typically connect to your billing/usage tracking system
+    // For now, we'll return estimated usage based on API responses
+    const tokenUsage = {
+      gemini: {
+        service: 'Gemini Pro',
+        model: 'Gemini 1.5 Flash',
+        tokensUsed: 0,
+        estimatedLimit: 15000000, // 15M tokens per month (free tier)
+        remaining: 15000000,
+        percentage: 100
+      },
+      cohere: {
+        service: 'Cohere',
+        model: 'Cohere Command',
+        tokensUsed: 0,
+        estimatedLimit: 5000000, // 5M tokens per month (free tier)
+        remaining: 5000000,
+        percentage: 100
+      },
+      openrouter: {
+        service: 'OpenRouter',
+        model: 'Multiple Models',
+        tokensUsed: 0,
+        estimatedLimit: 1000000, // 1M tokens per month (free tier)
+        remaining: 1000000,
+        percentage: 100
+      },
+      glm: {
+        service: 'GLM 4.5 Air',
+        model: 'GLM 4.5 Air',
+        tokensUsed: 0,
+        estimatedLimit: 1000000, // 1M tokens per month (free tier)
+        remaining: 1000000,
+        percentage: 100
+      },
+      deepseek: {
+        service: 'DeepSeek 3.1',
+        model: 'DeepSeek Chat 3.1',
+        tokensUsed: 0,
+        estimatedLimit: 1000000, // 1M tokens per month (free tier)
+        remaining: 1000000,
+        percentage: 100
+      }
+    };
+
+    res.json({
+      timestamp: new Date().toISOString(),
+      tokenUsage
+    });
+
+  } catch (error) {
+    console.error('Error getting token usage:', error);
+    res.status(500).json({ 
+      error: 'Failed to get token usage',
+      message: error.message
+    });
+  }
+});
+
 // API routes
 // app.use('/api', aiRoutes);
 

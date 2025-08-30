@@ -95,8 +95,10 @@ export const sendChatbotMessage = async (message: string): Promise<ApiResponse> 
       const geminiResponse = data.responses.gemini;
       const cohereResponse = data.responses.cohere;
       const openrouterResponse = data.responses.openrouter;
+      const glmResponse = data.responses.glm;
+      const deepseekResponse = data.responses.deepseek;
       
-      // Prioritize Gemini, then Cohere, then OpenRouter
+      // Prioritize Gemini, then Cohere, then OpenRouter, then GLM 4.5, then DeepSeek 3.1
       let aiResponse = null;
       if (geminiResponse && geminiResponse.success) {
         aiResponse = geminiResponse;
@@ -104,6 +106,10 @@ export const sendChatbotMessage = async (message: string): Promise<ApiResponse> 
         aiResponse = cohereResponse;
       } else if (openrouterResponse && openrouterResponse.success) {
         aiResponse = openrouterResponse;
+      } else if (glmResponse && glmResponse.success) {
+        aiResponse = glmResponse;
+      } else if (deepseekResponse && deepseekResponse.success) {
+        aiResponse = deepseekResponse;
       }
       
       if (aiResponse && aiResponse.response) {
@@ -127,6 +133,31 @@ export const sendChatbotMessage = async (message: string): Promise<ApiResponse> 
       success: false,
       message: 'Failed to get response from AI. Please try again.',
       error: error
+    };
+  }
+};
+
+// Get token usage information for all AI services
+export const getTokenUsage = async (): Promise<any> => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/token-usage`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching token usage:', error);
+    return {
+      error: 'Failed to fetch token usage',
+      tokenUsage: {}
     };
   }
 };
