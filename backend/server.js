@@ -10,39 +10,29 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Security middleware
-app.use(helmet());
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-app.use(limiter);
-
-// CORS configuration
-app.use(cors({
+// CORS configuration (placed BEFORE helmet and rate limiter)
+const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     // Allow localhost for development
     if (process.env.NODE_ENV !== 'production') {
       if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
         return callback(null, true);
       }
     }
-    
+
     // Allow any Vercel domain for the chatbot project
     if (origin.includes('vercel.app') || origin.includes('yourdomain.com')) {
       return callback(null, true);
     }
-    
+
     // Allow any Netlify domain
     if (origin.includes('netlify.app')) {
       return callback(null, true);
     }
-    
+
     // Allow specific domains
     const allowedOrigins = [
       'https://chatbot-e6sq.vercel.app',
@@ -50,18 +40,29 @@ app.use(cors({
       'https://yourdomain.com',
       'https://chatbotcode.netlify.app'
     ];
-    
+
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    
+
     callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
-}));
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
-// Handle CORS preflight for all routes
-app.options('*', cors());
+// Security middleware
+app.use(helmet());
+
+// Rate limiting (after CORS so preflights include headers)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
