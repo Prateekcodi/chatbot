@@ -42,7 +42,8 @@ const MultiAI: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch('http://localhost:5000/api/ask', {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://your-service-name.onrender.com';
+      const response = await fetch(`${backendUrl}/api/ask`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
