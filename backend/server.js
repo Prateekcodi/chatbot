@@ -38,11 +38,17 @@ app.use(cors({
       return callback(null, true);
     }
     
+    // Allow any Netlify domain
+    if (origin.includes('netlify.app')) {
+      return callback(null, true);
+    }
+    
     // Allow specific domains
     const allowedOrigins = [
       'https://chatbot-e6sq.vercel.app',
       'https://chatbot-kxqa.vercel.app',
-      'https://yourdomain.com'
+      'https://yourdomain.com',
+      'https://chatbotcode.netlify.app'
     ];
     
     if (allowedOrigins.includes(origin)) {
