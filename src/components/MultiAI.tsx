@@ -496,7 +496,7 @@ const MultiAI: React.FC = () => {
             animate={{ opacity: 1 }}
             className="conversation-history w-full space-y-6 max-h-[75vh] overflow-y-auto overflow-x-hidden px-4 pb-8"
           >
-            <div className="relative overflow-hidden">
+            <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-slate-800/40 to-slate-700/40 backdrop-blur-xl rounded-3xl border border-white/10"></div>
               <div className="relative p-6">
                 <h3 className="text-2xl font-bold text-white mb-6 text-center">
@@ -567,8 +567,26 @@ const MultiAI: React.FC = () => {
         )}
       </div>
 
-      {/* Bottom Spacing for Better Scrolling */}
-      <div className="h-8"></div>
+      {/* Footer with Credit */}
+      <footer className="mt-16 pb-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="text-center"
+          >
+            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-xl rounded-full px-6 py-3 border border-white/10">
+              <span className="text-emerald-400">✨</span>
+              <span className="text-slate-300 text-sm font-medium">Made with ❤️ by Prateek</span>
+              <span className="text-violet-400">✨</span>
+            </div>
+            <p className="text-slate-400/60 text-xs mt-3">
+              Multi-AI Studio • Cutting-edge AI comparison platform
+            </p>
+          </motion.div>
+        </div>
+      </footer>
 
       {/* Premium Modal */}
       <AnimatePresence>
