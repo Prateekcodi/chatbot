@@ -30,8 +30,9 @@ export const sendMessageToGemini = async (message: string): Promise<ApiResponse>
       const geminiResponse = data.responses.gemini;
       const cohereResponse = data.responses.cohere;
       const openrouterResponse = data.responses.openrouter;
+      const glmResponse = data.responses.glm;
       
-      // Prioritize Gemini, then Cohere, then OpenRouter
+      // Prioritize Gemini, then Cohere, then OpenRouter, then GLM 4.5
       let aiResponse = null;
       if (geminiResponse && geminiResponse.success) {
         aiResponse = geminiResponse;
@@ -39,6 +40,8 @@ export const sendMessageToGemini = async (message: string): Promise<ApiResponse>
         aiResponse = cohereResponse;
       } else if (openrouterResponse && openrouterResponse.success) {
         aiResponse = openrouterResponse;
+      } else if (glmResponse && glmResponse.success) {
+        aiResponse = glmResponse;
       }
       
       if (aiResponse && aiResponse.response) {

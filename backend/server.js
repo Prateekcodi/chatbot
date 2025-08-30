@@ -122,6 +122,7 @@ app.post('/api/ask', async (req, res) => {
     const geminiService = require('./services/geminiService');
     const cohereService = require('./services/cohereService');
     const openrouterService = require('./services/openrouterService');
+    const glmService = require('./services/glmService');
 
     // Call all AI services concurrently with individual timeouts
     const geminiPromise = Promise.race([
@@ -139,21 +140,28 @@ app.post('/api/ask', async (req, res) => {
       new Promise((_, reject) => setTimeout(() => reject(new Error('OpenRouter timeout')), 10000))
     ]);
 
+    const glmPromise = Promise.race([
+      glmService.generateResponse(prompt),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('GLM 4.5 timeout')), 10000))
+    ]);
+
     // Wait for all services with individual timeouts
-    const [geminiResult, cohereResult, openrouterResult] = await Promise.allSettled([
+    const [geminiResult, cohereResult, openrouterResult, glmResult] = await Promise.allSettled([
       geminiPromise,
       coherePromise,
-      openrouterPromise
+      openrouterPromise,
+      glmPromise
     ]);
 
     const processingTime = Date.now() - startTime;
     const successfulResponses = [
       geminiResult.status === 'fulfilled' ? geminiResult.value : { success: false, error: geminiResult.reason?.message || 'Failed', model: 'Gemini' },
       cohereResult.status === 'fulfilled' ? cohereResult.value : { success: false, error: cohereResult.reason?.message || 'Failed', model: 'Cohere' },
-      openrouterResult.status === 'fulfilled' ? openrouterResult.value : { success: false, error: openrouterResult.reason?.message || 'Failed', model: 'OpenRouter' }
+      openrouterResult.status === 'fulfilled' ? openrouterResult.value : { success: false, error: openrouterResult.reason?.message || 'Failed', model: 'OpenRouter' },
+      glmResult.status === 'fulfilled' ? glmResult.value : { success: false, error: glmResult.reason?.message || 'Failed', model: 'GLM 4.5' }
     ].filter(response => response.success).length;
 
-    console.log(`✅ Completed with ${successfulResponses}/3 successful responses in ${processingTime}ms`);
+    console.log(`✅ Completed with ${successfulResponses}/4 successful responses in ${processingTime}ms`);
 
     res.json({
       prompt: prompt.trim(),
@@ -162,7 +170,8 @@ app.post('/api/ask', async (req, res) => {
       responses: {
         gemini: geminiResult.status === 'fulfilled' ? geminiResult.value : { success: false, error: geminiResult.reason?.message || 'Failed', model: 'Gemini' },
         cohere: cohereResult.status === 'fulfilled' ? cohereResult.value : { success: false, error: cohereResult.reason?.message || 'Failed', model: 'Cohere' },
-        openrouter: openrouterResult.status === 'fulfilled' ? openrouterResult.value : { success: false, error: openrouterResult.reason?.message || 'Failed', model: 'OpenRouter' }
+        openrouter: openrouterResult.status === 'fulfilled' ? openrouterResult.value : { success: false, error: openrouterResult.reason?.message || 'Failed', model: 'OpenRouter' },
+        glm: glmResult.status === 'fulfilled' ? glmResult.value : { success: false, error: glmResult.reason?.message || 'Failed', model: 'GLM 4.5' }
       }
     });
 
@@ -177,7 +186,8 @@ app.post('/api/ask', async (req, res) => {
       responses: {
         gemini: { success: false, error: 'Request failed', model: 'Gemini' },
         cohere: { success: false, error: 'Request failed', model: 'Cohere' },
-        openrouter: { success: false, error: 'Request failed', model: 'OpenRouter' }
+        openrouter: { success: false, error: 'Request failed', model: 'OpenRouter' },
+        glm: { success: false, error: 'Request failed', model: 'GLM 4.5' }
       }
     });
   }

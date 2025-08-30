@@ -116,6 +116,16 @@ const MultiAI: React.FC = () => {
         icon: '🚀',
         description: 'Multi-model AI gateway',
         accent: 'rose'
+      },
+      glm: {
+        name: 'GLM 4.5 Air',
+        color: 'from-blue-400 via-indigo-500 to-purple-600',
+        bgColor: 'bg-gradient-to-br from-blue-50 to-indigo-100',
+        borderColor: 'border-blue-200/50',
+        shadowColor: 'shadow-blue-500/20',
+        icon: '🌟',
+        description: 'Advanced Chinese AI model',
+        accent: 'blue'
       }
     };
     return configs[aiName as keyof typeof configs];
