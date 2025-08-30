@@ -138,6 +138,23 @@ const MultiAI: React.FC = () => {
         accent: 'green'
       }
     };
+    
+    // Add error handling for unknown AI names
+    if (!configs[aiName as keyof typeof configs]) {
+      console.warn(`Unknown AI service: ${aiName}. Available services:`, Object.keys(configs));
+      // Return a default config to prevent crashes
+      return {
+        name: aiName || 'Unknown AI',
+        color: 'from-gray-400 via-gray-500 to-gray-600',
+        bgColor: 'bg-gradient-to-br from-gray-50 to-gray-100',
+        borderColor: 'border-gray-200/50',
+        shadowColor: 'shadow-gray-500/20',
+        icon: '❓',
+        description: 'Unknown AI service',
+        accent: 'gray'
+      };
+    }
+    
     return configs[aiName as keyof typeof configs];
   };
 
@@ -405,6 +422,7 @@ const MultiAI: React.FC = () => {
                       {/* AI Response Cards */}
                       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                         {results && Object.entries(results.responses).map(([aiName, response], index) => {
+                          console.log(`Processing AI service: ${aiName}`, response);
                           const config = getAIConfig(aiName);
                           
                           return (
