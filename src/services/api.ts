@@ -182,7 +182,12 @@ export const getServiceStatus = async (): Promise<any> => {
     console.error('Error fetching service status:', error);
     return {
       error: 'Failed to fetch service status',
-      services: {}
+      services: {},
+      summary: {
+        operational: 0,
+        total: 0,
+        status: 'Service check unavailable'
+      }
     };
   }
 };

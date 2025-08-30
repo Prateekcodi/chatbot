@@ -58,12 +58,30 @@ const MultiAI: React.FC = () => {
     try {
       setIsRefreshing(true);
       const data = await getServiceStatus();
-      if (data.services) {
+      if (data && data.services) {
         setServiceStatus(data.services);
-        setServiceSummary(data.summary);
+        if (data.summary && typeof data.summary.operational === 'number' && typeof data.summary.total === 'number' && typeof data.summary.status === 'string') {
+          setServiceSummary(data.summary);
+        } else {
+          // Compute a safe summary from services map
+          const entries = Object.values(data.services || {});
+          const total = entries.length;
+          const operational = entries.filter((s: any) => s && s.operational === true).length;
+          const status = total > 0
+            ? (operational === total ? 'All systems operational' : `${operational}/${total} services operational`)
+            : 'Service check unavailable';
+          setServiceSummary({ operational, total, status });
+        }
+      } else {
+        // Fallback for missing data
+        setServiceStatus({});
+        setServiceSummary({ operational: 0, total: 0, status: 'Service check unavailable' });
       }
     } catch (error) {
       console.error('Error fetching service status:', error);
+      // Keep UI stable on error
+      setServiceStatus({});
+      setServiceSummary({ operational: 0, total: 0, status: 'Service check unavailable' });
     } finally {
       setIsRefreshing(false);
     }
