@@ -338,44 +338,64 @@ app.get('/api/service-status', async (req, res) => {
   try {
     const testPrompt = "Hello";
     
-    // Test each service with a simple request
+    // Dynamically load services to ensure availability in this scope
+    const geminiService = require('./services/geminiService');
+    const cohereService = require('./services/cohereService');
+    const openrouterService = require('./services/openrouterService');
+    const glmService = require('./services/glmService');
+    const deepseekService = require('./services/deepseekService');
+
+    // Helper to wrap a promise with a timeout
+    const withTimeout = (promise, ms, name) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) => setTimeout(() => reject(new Error(`${name} timeout`)), ms))
+      ]);
+    };
+
+    // Test each service with a simple request and individual timeouts
     const serviceTests = {
       gemini: async () => {
         try {
-          const result = await geminiService.generateResponse(testPrompt);
-          return { operational: true, responseTime: Date.now(), model: 'gemini-2.5-flash-lite' };
+          const start = Date.now();
+          await withTimeout(geminiService.generateResponse(testPrompt), 10000, 'Gemini');
+          return { operational: true, responseTime: Date.now() - start, model: 'gemini-2.5-flash-lite' };
         } catch (error) {
           return { operational: false, error: error.message, model: 'gemini-2.5-flash-lite' };
         }
       },
       cohere: async () => {
         try {
-          const result = await cohereService.generateResponse(testPrompt);
-          return { operational: true, responseTime: Date.now(), model: 'Cohere Command' };
+          const start = Date.now();
+          await withTimeout(cohereService.generateResponse(testPrompt), 10000, 'Cohere');
+          return { operational: true, responseTime: Date.now() - start, model: 'Cohere Command' };
         } catch (error) {
           return { operational: false, error: error.message, model: 'Cohere Command' };
         }
       },
       openrouter: async () => {
         try {
-          const result = await openrouterService.generateResponse(testPrompt);
-          return { operational: true, responseTime: Date.now(), model: 'GPT-3.5 Turbo' };
+          const start = Date.now();
+          await withTimeout(openrouterService.generateResponse(testPrompt, 'openai/gpt-3.5-turbo'), 10000, 'OpenRouter');
+          return { operational: true, responseTime: Date.now() - start, model: 'GPT-3.5 Turbo' };
         } catch (error) {
           return { operational: false, error: error.message, model: 'GPT-3.5 Turbo' };
         }
       },
       glm: async () => {
         try {
-          const result = await glmService.generateResponse(testPrompt);
-          return { operational: true, responseTime: Date.now(), model: 'GLM 4.5 Air' };
+          const start = Date.now();
+          await withTimeout(glmService.generateResponse(testPrompt), 10000, 'GLM 4.5');
+          return { operational: true, responseTime: Date.now() - start, model: 'GLM 4.5 Air' };
         } catch (error) {
           return { operational: false, error: error.message, model: 'GLM 4.5 Air' };
         }
       },
       deepseek: async () => {
         try {
-          const result = await deepseekService.generateResponse(testPrompt);
-          return { operational: true, responseTime: Date.now(), model: 'DeepSeek 3.1' };
+          const start = Date.now();
+          await withTimeout(deepseekService.generateResponse(testPrompt), 10000, 'DeepSeek 3.1');
+          return { operational: true, responseTime: Date.now() - start, model: 'DeepSeek 3.1' };
         } catch (error) {
           return { operational: false, error: error.message, model: 'DeepSeek 3.1' };
         }
