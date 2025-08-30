@@ -135,7 +135,7 @@ app.post('/api/ask', async (req, res) => {
     ]);
 
     const openrouterPromise = Promise.race([
-      openrouterService.generateResponse(prompt, 'anthropic/claude-3-haiku'),
+      openrouterService.generateResponse(prompt, 'openai/gpt-3.5-turbo'),
       new Promise((_, reject) => setTimeout(() => reject(new Error('OpenRouter timeout')), 10000))
     ]);
 
