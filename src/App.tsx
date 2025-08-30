@@ -7,7 +7,7 @@ function App() {
   const [activeComponent, setActiveComponent] = useState<'chatbot' | 'multiai'>('multiai');
 
   return (
-    <div className="App w-screen h-screen overflow-hidden">
+    <div className="App w-screen h-screen overflow-auto-y">
       {/* Navigation Toggle */}
       <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg">
