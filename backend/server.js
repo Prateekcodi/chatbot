@@ -22,9 +22,35 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://chatbot-kxqa.vercel.app', 'https://yourdomain.com'] 
-    : ['http://localhost:3000'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost for development
+    if (process.env.NODE_ENV !== 'production') {
+      if (origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+        return callback(null, true);
+      }
+    }
+    
+    // Allow any Vercel domain for the chatbot project
+    if (origin.includes('vercel.app') || origin.includes('yourdomain.com')) {
+      return callback(null, true);
+    }
+    
+    // Allow specific domains
+    const allowedOrigins = [
+      'https://chatbot-e6sq.vercel.app',
+      'https://chatbot-kxqa.vercel.app',
+      'https://yourdomain.com'
+    ];
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 
