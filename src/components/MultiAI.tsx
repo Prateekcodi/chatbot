@@ -168,7 +168,7 @@ const MultiAI: React.FC = () => {
   }, [modalOpen, navigateToResponse]);
 
   return (
-    <div className="relative min-h-screen bg-[#0A0A0F] overflow-hidden">
+    <div className="relative min-h-screen bg-[#0A0A0F] overflow-y-auto">
       {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] via-transparent to-white/[0.01] opacity-60"></div>
       
