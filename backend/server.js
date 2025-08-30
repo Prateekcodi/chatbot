@@ -23,7 +23,7 @@ app.use(limiter);
 // CORS configuration
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] 
+    ? ['https://chatbot-kxqa.vercel.app', 'https://yourdomain.com'] 
     : ['http://localhost:3000'],
   credentials: true
 }));
