@@ -2,7 +2,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class GeminiService {
   constructor() {
-    this.apiKey = process.env.GEMINI_API_KEY;
+    this.apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     this.model = 'gemini-2.5-flash-lite';
   }
 
