@@ -1,10 +1,11 @@
 // API service for frontend to communicate with backend
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://your-service-name.onrender.com';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com';
 
 export interface ApiResponse {
   success: boolean;
   message: string;
   data?: any;
+  error?: unknown;
 }
 
 export const sendMessageToGemini = async (message: string): Promise<ApiResponse> => {
@@ -35,24 +36,4 @@ export const sendMessageToGemini = async (message: string): Promise<ApiResponse>
       error: error
     };
   }
-};
-
-// Function to format conversation history for context
-export const formatConversationHistory = (messages: ChatMessage[]): string => {
-  return messages
-    .map(msg => `${msg.sender === 'user' ? 'User' : 'Assistant'}: ${msg.text}`)
-    .join('\n');
-};
-
-// Function to validate API configuration
-export const validateApiConfig = (): boolean => {
-  return !!(API_CONFIG.GEMINI_API_KEY && API_CONFIG.GEMINI_API_KEY !== 'your-api-key-here');
-};
-
-// Export default API service
-export default {
-  sendMessageToGemini,
-  formatConversationHistory,
-  validateApiConfig,
-  API_CONFIG
 };
