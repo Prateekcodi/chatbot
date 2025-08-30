@@ -31,8 +31,9 @@ export const sendMessageToGemini = async (message: string): Promise<ApiResponse>
       const cohereResponse = data.responses.cohere;
       const openrouterResponse = data.responses.openrouter;
       const glmResponse = data.responses.glm;
+      const deepseekResponse = data.responses.deepseek;
       
-      // Prioritize Gemini, then Cohere, then OpenRouter, then GLM 4.5
+      // Prioritize Gemini, then Cohere, then OpenRouter, then GLM 4.5, then DeepSeek 3.1
       let aiResponse = null;
       if (geminiResponse && geminiResponse.success) {
         aiResponse = geminiResponse;
@@ -42,6 +43,8 @@ export const sendMessageToGemini = async (message: string): Promise<ApiResponse>
         aiResponse = openrouterResponse;
       } else if (glmResponse && glmResponse.success) {
         aiResponse = glmResponse;
+      } else if (deepseekResponse && deepseekResponse.success) {
+        aiResponse = deepseekResponse;
       }
       
       if (aiResponse && aiResponse.response) {

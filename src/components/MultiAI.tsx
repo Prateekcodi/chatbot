@@ -126,6 +126,16 @@ const MultiAI: React.FC = () => {
         icon: '🌟',
         description: 'Advanced Chinese AI model',
         accent: 'blue'
+      },
+      deepseek: {
+        name: 'DeepSeek 3.1',
+        color: 'from-green-400 via-emerald-500 to-teal-600',
+        bgColor: 'bg-gradient-to-br from-green-50 to-emerald-100',
+        borderColor: 'border-green-200/50',
+        shadowColor: 'shadow-green-500/20',
+        icon: '🔍',
+        description: 'Advanced reasoning AI model',
+        accent: 'green'
       }
     };
     return configs[aiName as keyof typeof configs];

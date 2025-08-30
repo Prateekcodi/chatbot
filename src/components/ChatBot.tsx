@@ -84,6 +84,8 @@ const ChatBot: React.FC = () => {
               aiMessage = fallbackData.responses.openrouter.response;
             } else if (fallbackData.responses?.glm?.success && fallbackData.responses.glm.response) {
               aiMessage = fallbackData.responses.glm.response;
+            } else if (fallbackData.responses?.deepseek?.success && fallbackData.responses.deepseek.response) {
+              aiMessage = fallbackData.responses.deepseek.response;
             }
             
             if (aiMessage) {

@@ -123,6 +123,7 @@ app.post('/api/ask', async (req, res) => {
     const cohereService = require('./services/cohereService');
     const openrouterService = require('./services/openrouterService');
     const glmService = require('./services/glmService');
+    const deepseekService = require('./services/deepseekService');
 
     // Call all AI services concurrently with individual timeouts
     const geminiPromise = Promise.race([
@@ -142,15 +143,21 @@ app.post('/api/ask', async (req, res) => {
 
     const glmPromise = Promise.race([
       glmService.generateResponse(prompt),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('GLM 4.5 timeout')), 10000))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('GLM 4.5 timeout')), 300000))
+    ]);
+
+    const deepseekPromise = Promise.race([
+      deepseekService.generateResponse(prompt),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('DeepSeek 3.1 timeout')), 300000))
     ]);
 
     // Wait for all services with individual timeouts
-    const [geminiResult, cohereResult, openrouterResult, glmResult] = await Promise.allSettled([
+    const [geminiResult, cohereResult, openrouterResult, glmResult, deepseekResult] = await Promise.allSettled([
       geminiPromise,
       coherePromise,
       openrouterPromise,
-      glmPromise
+      glmPromise,
+      deepseekPromise
     ]);
 
     const processingTime = Date.now() - startTime;
@@ -158,10 +165,11 @@ app.post('/api/ask', async (req, res) => {
       geminiResult.status === 'fulfilled' ? geminiResult.value : { success: false, error: geminiResult.reason?.message || 'Failed', model: 'Gemini' },
       cohereResult.status === 'fulfilled' ? cohereResult.value : { success: false, error: cohereResult.reason?.message || 'Failed', model: 'Cohere' },
       openrouterResult.status === 'fulfilled' ? openrouterResult.value : { success: false, error: openrouterResult.reason?.message || 'Failed', model: 'OpenRouter' },
-      glmResult.status === 'fulfilled' ? glmResult.value : { success: false, error: glmResult.reason?.message || 'Failed', model: 'GLM 4.5' }
+      glmResult.status === 'fulfilled' ? glmResult.value : { success: false, error: glmResult.reason?.message || 'Failed', model: 'GLM 4.5' },
+      deepseekResult.status === 'fulfilled' ? deepseekResult.value : { success: false, error: deepseekResult.reason?.message || 'Failed', model: 'DeepSeek 3.1' }
     ].filter(response => response.success).length;
 
-    console.log(`✅ Completed with ${successfulResponses}/4 successful responses in ${processingTime}ms`);
+    console.log(`✅ Completed with ${successfulResponses}/5 successful responses in ${processingTime}ms`);
 
     res.json({
       prompt: prompt.trim(),
@@ -171,7 +179,8 @@ app.post('/api/ask', async (req, res) => {
         gemini: geminiResult.status === 'fulfilled' ? geminiResult.value : { success: false, error: geminiResult.reason?.message || 'Failed', model: 'Gemini' },
         cohere: cohereResult.status === 'fulfilled' ? cohereResult.value : { success: false, error: cohereResult.reason?.message || 'Failed', model: 'Cohere' },
         openrouter: openrouterResult.status === 'fulfilled' ? openrouterResult.value : { success: false, error: openrouterResult.reason?.message || 'Failed', model: 'OpenRouter' },
-        glm: glmResult.status === 'fulfilled' ? glmResult.value : { success: false, error: glmResult.reason?.message || 'Failed', model: 'GLM 4.5' }
+        glm: glmResult.status === 'fulfilled' ? glmResult.value : { success: false, error: glmResult.reason?.message || 'Failed', model: 'GLM 4.5' },
+        deepseek: deepseekResult.status === 'fulfilled' ? deepseekResult.value : { success: false, error: deepseekResult.reason?.message || 'Failed', model: 'DeepSeek 3.1' }
       }
     });
 
@@ -187,7 +196,8 @@ app.post('/api/ask', async (req, res) => {
         gemini: { success: false, error: 'Request failed', model: 'Gemini' },
         cohere: { success: false, error: 'Request failed', model: 'Cohere' },
         openrouter: { success: false, error: 'Request failed', model: 'OpenRouter' },
-        glm: { success: false, error: 'Request failed', model: 'GLM 4.5' }
+        glm: { success: false, error: 'Request failed', model: 'GLM 4.5' },
+        deepseek: { success: false, error: 'Request failed', model: 'DeepSeek 3.1' }
       }
     });
   }
