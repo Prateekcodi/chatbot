@@ -3,7 +3,7 @@ const axios = require('axios');
 class OpenRouterService {
   constructor() {
     this.apiKey = process.env.OPENROUTER_API_KEY;
-    this.apiUrl = process.env.OPENROUTER_API_URL;
+    this.apiUrl = process.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1/chat/completions';
   }
 
   async generateResponse(prompt, model = 'openai/gpt-3.5-turbo') {
