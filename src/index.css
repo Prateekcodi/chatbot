@@ -58,28 +58,38 @@ body::after {
 
 /* Ensure conversation history scrolls properly */
 .conversation-history {
-  max-height: 60vh;
+  max-height: 70vh;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+  padding-bottom: 2rem;
 }
 
 .conversation-history::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .conversation-history::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
 }
 
 .conversation-history::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
 .conversation-history::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  background-clip: content-box;
+}
+
+/* Ensure the conversation history container is properly sized */
+.conversation-history > div {
+  min-height: fit-content;
 }
 
 /* Fix any potential text rendering issues */
