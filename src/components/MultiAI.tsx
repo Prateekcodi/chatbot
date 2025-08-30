@@ -188,7 +188,7 @@ const MultiAI: React.FC = () => {
             <motion.div 
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="relative overflow-hidden"
+              className="relative overflow-auto-y"
             >
               {/* Premium Background */}
               <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl"></div>
@@ -251,7 +251,7 @@ const MultiAI: React.FC = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="relative overflow-hidden"
+              className="relative overflow-auto-y"
             >
               {/* Premium Content Background */}
               <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 via-slate-700/60 to-slate-800/60 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl"></div>
@@ -318,7 +318,7 @@ const MultiAI: React.FC = () => {
                       <button
                         type="submit"
                         disabled={isLoading || !prompt.trim()}
-                        className="relative px-8 py-5 bg-gradient-to-r from-emerald-500 via-violet-500 to-rose-500 text-white font-bold rounded-2xl hover:from-emerald-600 hover:via-violet-600 hover:to-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-emerald-500/25 min-w-[140px] overflow-hidden group"
+                        className="relative px-8 py-5 bg-gradient-to-r from-emerald-500 via-violet-500 to-rose-500 text-white font-bold rounded-2xl hover:from-emerald-600 hover:via-violet-600 hover:to-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-emerald-500/25 min-w-[140px] overflow-auto-y group"
                       >
                         {/* Animated Background */}
                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -392,7 +392,7 @@ const MultiAI: React.FC = () => {
                               initial={{ opacity: 0, scale: 0.9, y: 20 }}
                               animate={{ opacity: 1, scale: 1, y: 0 }}
                               transition={{ delay: index * 0.1 }}
-                              className={`relative group overflow-hidden ${config.bgColor} border ${config.borderColor} rounded-3xl shadow-2xl backdrop-blur-sm h-96 flex flex-col transform transition-all duration-500 hover:scale-105 hover:shadow-2xl`}
+                              className={`relative group overflow-auto-y ${config.bgColor} border ${config.borderColor} rounded-3xl shadow-2xl backdrop-blur-sm h-96 flex flex-col transform transition-all duration-500 hover:scale-105 hover:shadow-2xl`}
                             >
                               {/* Animated Border */}
                               <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${config.color} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
@@ -411,10 +411,10 @@ const MultiAI: React.FC = () => {
                               </div>
 
                               {/* Response Content */}
-                              <div className="relative flex-1 px-6 pb-6 space-y-4 overflow-hidden">
+                              <div className="relative flex-1 px-6 pb-6 space-y-4 overflow-auto-y">
                                 {response.success ? (
                                   <>
-                                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm flex-1 overflow-hidden">
+                                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm flex-1 overflow-auto-y">
                                       <p className="text-slate-800 text-sm leading-relaxed line-clamp-6">
                                         {response.response}
                                       </p>
@@ -602,7 +602,7 @@ const MultiAI: React.FC = () => {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden border border-white/20"
+              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[90vh] overflow-auto-y border border-white/20"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
