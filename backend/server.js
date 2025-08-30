@@ -139,8 +139,6 @@ app.post('/api/ask', async (req, res) => {
       new Promise((_, reject) => setTimeout(() => reject(new Error('OpenRouter timeout')), 10000))
     ]);
 
-
-
     // Wait for all services with individual timeouts
     const [geminiResult, cohereResult, openrouterResult] = await Promise.allSettled([
       geminiPromise,
@@ -181,6 +179,64 @@ app.post('/api/ask', async (req, res) => {
         cohere: { success: false, error: 'Request failed', model: 'Cohere' },
         openrouter: { success: false, error: 'Request failed', model: 'OpenRouter' }
       }
+    });
+  }
+});
+
+// Dedicated Chatbot endpoint with simpler response format
+app.post('/api/chatbot', async (req, res) => {
+  const { prompt } = req.body;
+  
+  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+    return res.status(400).json({ 
+      error: 'Invalid prompt. Please provide a non-empty string.' 
+    });
+  }
+
+  const startTime = Date.now();
+  console.log(`💬 Chatbot request: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
+
+  try {
+    // Load Gemini service for chatbot (most reliable)
+    const geminiService = require('./services/geminiService');
+    
+    const geminiResult = await Promise.race([
+      geminiService.generateResponse(prompt),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Gemini timeout')), 15000))
+    ]);
+
+    const processingTime = Date.now() - startTime;
+    
+    if (geminiResult.success) {
+      console.log(`✅ Chatbot response generated in ${processingTime}ms`);
+      res.json({
+        success: true,
+        message: geminiResult.response,
+        model: geminiResult.model,
+        processingTime: `${processingTime}ms`,
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      console.log(`❌ Chatbot Gemini failed: ${geminiResult.error}`);
+      res.json({
+        success: false,
+        message: 'Sorry, I am having trouble responding right now. Please try again.',
+        error: geminiResult.error,
+        processingTime: `${processingTime}ms`,
+        timestamp: new Date().toISOString()
+      });
+    }
+
+  } catch (error) {
+    console.error('Chatbot Error:', error);
+    const processingTime = Date.now() - startTime;
+    
+    res.status(500).json({ 
+      success: false,
+      message: 'Sorry, I encountered an error. Please try again later.',
+      error: error.message,
+      processingTime: `${processingTime}ms`,
+      timestamp: new Date().toISOString()
     });
   }
 });

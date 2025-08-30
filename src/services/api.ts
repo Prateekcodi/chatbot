@@ -23,13 +23,100 @@ export const sendMessageToGemini = async (message: string): Promise<ApiResponse>
     }
 
     const data = await response.json();
+    
+    // Check if we have successful responses from any AI service
+    if (data.responses) {
+      // Find the first successful response (preferably Gemini)
+      const geminiResponse = data.responses.gemini;
+      const cohereResponse = data.responses.cohere;
+      const openrouterResponse = data.responses.openrouter;
+      
+      // Prioritize Gemini, then Cohere, then OpenRouter
+      let aiResponse = null;
+      if (geminiResponse && geminiResponse.success) {
+        aiResponse = geminiResponse;
+      } else if (cohereResponse && cohereResponse.success) {
+        aiResponse = cohereResponse;
+      } else if (openrouterResponse && openrouterResponse.success) {
+        aiResponse = openrouterResponse;
+      }
+      
+      if (aiResponse && aiResponse.response) {
+        return {
+          success: true,
+          message: aiResponse.response,
+          data: data
+        };
+      }
+    }
+    
+    // If no successful response found
     return {
-      success: true,
-      message: data.responses?.[0]?.text || 'No response from AI',
+      success: false,
+      message: 'No response from AI',
       data: data
     };
   } catch (error) {
     console.error('Error calling backend:', error);
+    return {
+      success: false,
+      message: 'Failed to get response from AI. Please try again.',
+      error: error
+    };
+  }
+};
+
+// Dedicated Chatbot function using the simpler endpoint
+export const sendChatbotMessage = async (message: string): Promise<ApiResponse> => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/ask`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt: message }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Check if we have successful responses from any AI service
+    if (data.responses) {
+      // Find the first successful response (preferably Gemini)
+      const geminiResponse = data.responses.gemini;
+      const cohereResponse = data.responses.cohere;
+      const openrouterResponse = data.responses.openrouter;
+      
+      // Prioritize Gemini, then Cohere, then OpenRouter
+      let aiResponse = null;
+      if (geminiResponse && geminiResponse.success) {
+        aiResponse = geminiResponse;
+      } else if (cohereResponse && cohereResponse.success) {
+        aiResponse = cohereResponse;
+      } else if (openrouterResponse && openrouterResponse.success) {
+        aiResponse = openrouterResponse;
+      }
+      
+      if (aiResponse && aiResponse.response) {
+        return {
+          success: true,
+          message: aiResponse.response,
+          data: data
+        };
+      }
+    }
+    
+    // If no successful response found
+    return {
+      success: false,
+      message: 'No response from AI',
+      data: data
+    };
+  } catch (error) {
+    console.error('Error calling chatbot backend:', error);
     return {
       success: false,
       message: 'Failed to get response from AI. Please try again.',

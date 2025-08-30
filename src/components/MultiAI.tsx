@@ -42,7 +42,8 @@ const MultiAI: React.FC = () => {
     setError(null);
 
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://your-service-name.onrender.com';
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com';
+
       const response = await fetch(`${backendUrl}/api/ask`, {
         method: 'POST',
         headers: {
