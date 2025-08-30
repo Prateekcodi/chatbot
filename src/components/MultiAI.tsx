@@ -168,23 +168,20 @@ const MultiAI: React.FC = () => {
   }, [modalOpen, navigateToResponse]);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0F] relative overflow-hidden">
-      {/* Premium Background Effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-purple-900/20 to-pink-900/20"></div>
-      
-      {/* Animated Gradient Mesh */}
+    <div className="relative min-h-screen bg-[#0A0A0F] overflow-hidden">
+      {/* Animated Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/[0.01] via-transparent to-white/[0.01] opacity-60"></div>
       
-      {/* Floating Orbs with Premium Gradients */}
+      {/* Floating Orbs */}
       <div className="absolute top-20 left-20 w-96 h-96 bg-gradient-to-r from-emerald-400/20 via-teal-500/20 to-cyan-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse"></div>
-      <div className="absolute top-40 right-20 w-96 h-96 bg-gradient-to-r from-violet-400/20 via-purple-500/20 to-indigo-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '2s' }}></div>
-      <div className="absolute -bottom-20 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-gradient-to-r from-rose-400/20 via-pink-500/20 to-fuchsia-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '4s' }}></div>
+      <div className="absolute top-40 right-20 w-80 h-80 bg-gradient-to-r from-violet-400/20 via-purple-500/20 to-indigo-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute bottom-20 left-1/2 w-72 h-72 bg-gradient-to-r from-rose-400/20 via-pink-500/20 to-fuchsia-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '4s' }}></div>
       
       {/* Premium Glass Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-black/[0.03] backdrop-blur-[0.5px]"></div>
-
-      {/* Main Container */}
-      <div className="relative z-10 min-h-screen flex flex-col">
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-purple-900/30 to-slate-900/50 backdrop-blur-sm"></div>
+      
+      {/* Main Content */}
+      <div className="relative z-10 w-full min-h-screen flex flex-col">
         {/* Premium Header */}
         <header className="w-full px-6 py-8">
           <div className="max-w-7xl mx-auto">
@@ -495,9 +492,9 @@ const MultiAI: React.FC = () => {
         {/* Conversation History */}
         {conversationHistory.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-7xl mx-auto mb-8 px-6"
+            className="conversation-history w-full space-y-6"
           >
             <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-slate-800/40 to-slate-700/40 backdrop-blur-xl rounded-3xl border border-white/10"></div>

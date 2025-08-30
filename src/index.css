@@ -32,6 +32,37 @@ body {
   box-sizing: border-box;
 }
 
+/* Fix scrolling issues */
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Ensure proper scrolling containers */
+.scroll-container {
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Hide any potential stray characters */
+body::after {
+  content: none;
+}
+
+/* Ensure conversation history scrolls properly */
+.conversation-history {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .App {
   min-height: 100vh;
   width: 100%;
