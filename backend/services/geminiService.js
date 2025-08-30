@@ -1,9 +1,9 @@
-const axios = require('axios');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 class GeminiService {
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY;
-    this.apiUrl = process.env.GEMINI_API_URL;
+    this.model = 'gemini-2.5-flash-lite';
   }
 
   async generateResponse(prompt) {
@@ -11,28 +11,30 @@ class GeminiService {
       if (!this.apiKey || this.apiKey === 'your-api-key-here') {
         throw new Error('Gemini API key not configured');
       }
+      const genAI = new GoogleGenerativeAI(this.apiKey);
+      const model = genAI.getGenerativeModel({ model: this.model });
 
-      const response = await axios.post(this.apiUrl, {
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1000,
+      const contents = [
+        {
+          role: 'user',
+          parts: [ { text: prompt } ]
         }
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        params: {
-          key: this.apiKey
-        },
-        timeout: 15000 // 15 seconds timeout
+      ];
+
+      const generationConfig = {
+        temperature: 0.7,
+        maxOutputTokens: 1000
+      };
+
+      const tools = [ { googleSearch: {} } ];
+
+      const result = await model.generateContent({
+        contents,
+        tools,
+        generationConfig
       });
 
-      const responseText = response.data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const responseText = result?.response?.text?.() || result?.response?.text || '';
       
       if (!responseText) {
         throw new Error('No response text received from Gemini');
@@ -41,8 +43,7 @@ class GeminiService {
       return {
         success: true,
         response: responseText,
-        model: 'Gemini 1.5 Flash',
-        tokens: response.data.usageMetadata?.totalTokenCount || 0
+        model: 'gemini-2.5-flash-lite'
       };
 
     } catch (error) {
@@ -52,14 +53,14 @@ class GeminiService {
         return {
           success: false,
           error: 'Rate limit exceeded. Please try again later.',
-          model: 'Gemini 1.5 Flash'
+          model: 'gemini-2.5-flash-lite'
         };
       }
 
       return {
         success: false,
         error: error.message || 'Failed to get response from Gemini',
-        model: 'Gemini 1.5 Flash'
+        model: 'gemini-2.5-flash-lite'
       };
     }
   }

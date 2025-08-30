@@ -60,6 +60,9 @@ app.use(cors({
   credentials: true
 }));
 
+// Handle CORS preflight for all routes
+app.options('*', cors());
+
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -277,7 +280,7 @@ app.get('/api/status', (req, res) => {
   res.json({
     gemini: {
       configured: geminiKey && geminiKey !== 'your-api-key-here' && geminiKey.length > 20,
-      model: 'Gemini 1.5 Flash'
+      model: 'gemini-2.5-flash-lite'
     },
     huggingface: {
       configured: huggingfaceKey && huggingfaceKey !== 'your-api-key-here' && huggingfaceKey.length > 20,
@@ -302,7 +305,7 @@ app.get('/api/token-usage', async (req, res) => {
     const tokenUsage = {
       gemini: {
         service: 'Gemini Pro',
-        model: 'Gemini 1.5 Flash',
+        model: 'gemini-2.5-flash-lite',
         tokensUsed: Math.floor(Math.random() * 50000) + 1000, // Simulate usage
         estimatedLimit: 15000000, // 15M tokens per month (free tier)
         remaining: 0,
@@ -373,9 +376,9 @@ app.get('/api/service-status', async (req, res) => {
       gemini: async () => {
         try {
           const result = await geminiService.generateResponse(testPrompt);
-          return { operational: true, responseTime: Date.now(), model: 'Gemini 1.5 Flash' };
+          return { operational: true, responseTime: Date.now(), model: 'gemini-2.5-flash-lite' };
         } catch (error) {
-          return { operational: false, error: error.message, model: 'Gemini 1.5 Flash' };
+          return { operational: false, error: error.message, model: 'gemini-2.5-flash-lite' };
         }
       },
       cohere: async () => {

@@ -92,7 +92,7 @@ router.get('/status', (req, res) => {
   res.json({
     gemini: {
       configured: geminiKey && geminiKey !== 'your-api-key-here' && geminiKey.length > 20,
-      model: 'Gemini 1.5 Flash'
+      model: 'gemini-2.5-flash-lite'
     },
     huggingface: {
       configured: huggingfaceKey && huggingfaceKey !== 'your-api-key-here' && huggingfaceKey.length > 20,
