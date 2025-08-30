@@ -494,7 +494,7 @@ const MultiAI: React.FC = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="conversation-history w-full space-y-6 max-h-[70vh] overflow-y-auto overflow-x-hidden px-4 pb-8"
+            className="conversation-history w-full space-y-6 max-h-[75vh] overflow-y-auto overflow-x-hidden px-4 pb-8"
           >
             <div className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-slate-800/40 to-slate-700/40 backdrop-blur-xl rounded-3xl border border-white/10"></div>
@@ -503,7 +503,7 @@ const MultiAI: React.FC = () => {
                   📚 Conversation History
                 </h3>
                 
-                <div className="space-y-4 max-h-[50vh] overflow-y-auto overflow-x-hidden pr-2">
+                <div className="space-y-4">
                   {conversationHistory.map((conversation, index) => (
                     <motion.div
                       key={index}
