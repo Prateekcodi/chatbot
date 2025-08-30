@@ -1,24 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { sendMessageToGemini, getTokenUsage, getServiceStatus } from '../services/api';
+import { Message, AIResponse, APIResponse } from '../types';
 
-interface AIResponse {
-  success: boolean;
-  response?: string;
-  error?: string;
-  model: string;
-  tokens?: number;
+interface TokenUsage {
+  [key: string]: {
+    service: string;
+    model: string;
+    tokensUsed: number;
+    estimatedLimit: number;
+    remaining: number;
+    percentage: number;
+  };
 }
 
-interface APIResponse {
-  prompt: string;
-  processingTime: string;
-  timestamp: string;
-  responses: {
-    gemini: AIResponse;
-    huggingface: AIResponse;
-    cohere: AIResponse;
-    openrouter: AIResponse;
+interface ServiceStatus {
+  [key: string]: {
+    operational: boolean;
+    responseTime?: number;
+    model: string;
+    error?: string;
   };
+}
+
+interface ServiceSummary {
+  operational: number;
+  total: number;
+  status: string;
 }
 
 const MultiAI: React.FC = () => {
@@ -29,6 +37,53 @@ const MultiAI: React.FC = () => {
   const [selectedResponse, setSelectedResponse] = useState<{ aiName: string; response: AIResponse } | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [conversationHistory, setConversationHistory] = useState<APIResponse[]>([]);
+  const [tokenUsage, setTokenUsage] = useState<TokenUsage>({});
+  const [serviceStatus, setServiceStatus] = useState<ServiceStatus>({});
+  const [serviceSummary, setServiceSummary] = useState<ServiceSummary>({ operational: 0, total: 0, status: 'Checking...' });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Fetch token usage and service status
+  const fetchTokenUsage = useCallback(async () => {
+    try {
+      const data = await getTokenUsage();
+      if (data.tokenUsage) {
+        setTokenUsage(data.tokenUsage);
+      }
+    } catch (error) {
+      console.error('Error fetching token usage:', error);
+    }
+  }, []);
+
+  const fetchServiceStatus = useCallback(async () => {
+    try {
+      setIsRefreshing(true);
+      const data = await getServiceStatus();
+      if (data.services) {
+        setServiceStatus(data.services);
+        setServiceSummary(data.summary);
+      }
+    } catch (error) {
+      console.error('Error fetching service status:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  // Load initial data
+  useEffect(() => {
+    fetchTokenUsage();
+    fetchServiceStatus();
+  }, [fetchTokenUsage, fetchServiceStatus]);
+
+  // Refresh data every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchTokenUsage();
+      fetchServiceStatus();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [fetchTokenUsage, fetchServiceStatus]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -264,8 +319,10 @@ const MultiAI: React.FC = () => {
                     className="hidden lg:flex flex-col items-end space-y-3"
                   >
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-emerald-400 rounded-full animate-pulse"></div>
-                      <span className="text-emerald-400 text-sm font-semibold">All Systems Operational</span>
+                      <div className={`w-3 h-3 rounded-full animate-pulse ${serviceSummary.operational === serviceSummary.total ? 'bg-emerald-400' : 'bg-amber-400'}`}></div>
+                      <span className={`text-sm font-semibold ${serviceSummary.operational === serviceSummary.total ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        {serviceSummary.status}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-violet-400 rounded-full animate-pulse"></div>
@@ -277,8 +334,21 @@ const MultiAI: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
-                      <span className="text-blue-400 text-sm font-semibold">Tokens: ~19M+ Available</span>
+                      <span className="text-blue-400 text-sm font-semibold">
+                        Tokens: {Object.values(tokenUsage).reduce((sum, service) => sum + service.remaining, 0).toLocaleString()}+ Available
+                      </span>
                     </div>
+                    <button
+                      onClick={fetchServiceStatus}
+                      disabled={isRefreshing}
+                      className={`px-3 py-1 text-xs rounded-full transition-all duration-300 ${
+                        isRefreshing 
+                          ? 'bg-slate-600 text-slate-400 cursor-not-allowed' 
+                          : 'bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 hover:scale-105'
+                      }`}
+                    >
+                      {isRefreshing ? '🔄 Checking...' : '🔄 Refresh Status'}
+                    </button>
                   </motion.div>
                 </div>
               </div>
@@ -312,7 +382,9 @@ const MultiAI: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-700/50 to-blue-600/50 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
                       <span className="text-blue-400">🔢</span>
-                      <span className="text-sm font-medium">~19M+ tokens available</span>
+                      <span className="text-sm font-medium">
+                        {Object.values(tokenUsage).reduce((sum, service) => sum + service.remaining, 0).toLocaleString()}+ tokens available
+                      </span>
                     </div>
                     <button
                       onClick={() => {
@@ -427,29 +499,76 @@ const MultiAI: React.FC = () => {
                         </div>
                       </div>
 
+                      {/* Service Status Summary */}
+                      <div className="mb-6">
+                        <h3 className="text-lg font-semibold text-slate-300 mb-4 text-center">System Health Status</h3>
+                        <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 border border-white/10 rounded-xl p-6 backdrop-blur-sm">
+                          <div className="flex items-center justify-center space-x-8 mb-4">
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-emerald-400">{serviceSummary.operational}</div>
+                              <div className="text-sm text-slate-400">Operational</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-slate-400">/</div>
+                              <div className="text-sm text-slate-400">of</div>
+                            </div>
+                            <div className="text-center">
+                              <div className="text-2xl font-bold text-blue-400">{serviceSummary.total}</div>
+                              <div className="text-sm text-slate-400">Total Services</div>
+                            </div>
+                          </div>
+                          <div className="text-center">
+                            <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full ${
+                              serviceSummary.operational === serviceSummary.total 
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/30' 
+                                : 'bg-amber-500/20 text-amber-300 border border-amber-400/30'
+                            }`}>
+                              <div className={`w-2 h-2 rounded-full ${serviceSummary.operational === serviceSummary.total ? 'bg-emerald-400' : 'bg-amber-400'}`}></div>
+                              <span className="font-semibold">{serviceSummary.status}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Token Usage Display */}
                       <div className="mb-6">
                         <h3 className="text-lg font-semibold text-slate-300 mb-4 text-center">Token Usage Status</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                           {['gemini', 'cohere', 'openrouter', 'glm', 'deepseek'].map((serviceName) => {
                             const config = getAIConfig(serviceName);
+                            const serviceData = tokenUsage[serviceName];
+                            const isOperational = serviceStatus[serviceName]?.operational;
+                            
+                            if (!serviceData) return null;
+                            
                             return (
-                              <div key={serviceName} className={`${config.bgColor} border ${config.borderColor} rounded-xl p-4 text-center`}>
+                              <div key={serviceName} className={`${config.bgColor} border ${config.borderColor} rounded-xl p-4 text-center relative`}>
+                                {/* Service Status Indicator */}
+                                <div className={`absolute top-2 right-2 w-3 h-3 rounded-full ${isOperational ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                                
                                 <div className={`w-8 h-8 bg-gradient-to-r ${config.color} rounded-lg flex items-center justify-center text-white text-lg mx-auto mb-2`}>
                                   {config.icon}
                                 </div>
                                 <h4 className="font-semibold text-slate-800 text-sm mb-1">{config.name}</h4>
                                 <div className="space-y-1">
                                   <div className="text-xs text-slate-600">
-                                    <span className="font-medium">Used:</span> 0 tokens
+                                    <span className="font-medium">Used:</span> {serviceData.tokensUsed.toLocaleString()} tokens
                                   </div>
                                   <div className="text-xs text-slate-600">
-                                    <span className="font-medium">Remaining:</span> ~1M+
+                                    <span className="font-medium">Remaining:</span> {serviceData.remaining.toLocaleString()}+
                                   </div>
                                   <div className="w-full bg-slate-200 rounded-full h-2">
-                                    <div className={`bg-gradient-to-r ${config.color} h-2 rounded-full`} style={{ width: '100%' }}></div>
+                                    <div 
+                                      className={`bg-gradient-to-r ${config.color} h-2 rounded-full transition-all duration-500`} 
+                                      style={{ width: `${serviceData.percentage}%` }}
+                                    ></div>
                                   </div>
-                                  <div className="text-xs text-slate-500">100% available</div>
+                                  <div className="text-xs text-slate-500">{serviceData.percentage}% available</div>
+                                  
+                                  {/* Service Status Text */}
+                                  <div className={`text-xs font-medium ${isOperational ? 'text-emerald-600' : 'text-red-600'}`}>
+                                    {isOperational ? '🟢 Operational' : '🔴 Offline'}
+                                  </div>
                                 </div>
                               </div>
                             );

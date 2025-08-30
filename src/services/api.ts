@@ -161,3 +161,28 @@ export const getTokenUsage = async (): Promise<any> => {
     };
   }
 };
+
+// Get service status for all AI services
+export const getServiceStatus = async (): Promise<any> => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/service-status`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching service status:', error);
+    return {
+      error: 'Failed to fetch service status',
+      services: {}
+    };
+  }
+};
