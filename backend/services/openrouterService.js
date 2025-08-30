@@ -47,11 +47,20 @@ class OpenRouterService {
 
     } catch (error) {
       console.error('OpenRouter API Error:', error.message);
+      console.error('OpenRouter API Response:', error.response?.data);
       
       if (error.response?.status === 401) {
+        const errorMessage = error.response?.data?.error?.message || 'Authentication failed';
+        if (errorMessage.includes('User not found')) {
+          return {
+            success: false,
+            error: 'OpenRouter API key is invalid or expired. Please check your API key.',
+            model: 'OpenRouter'
+          };
+        }
         return {
           success: false,
-          error: 'Invalid OpenRouter API key. Please check your API key.',
+          error: `OpenRouter authentication failed: ${errorMessage}`,
           model: 'OpenRouter'
         };
       }
