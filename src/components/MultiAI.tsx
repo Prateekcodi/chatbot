@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { sendMessageToGemini, getTokenUsage, getServiceStatus } from '../services/api';
-import { Message, AIResponse, APIResponse } from '../types';
+import { getTokenUsage, getServiceStatus } from '../services/api';
+import { AIResponse, APIResponse } from '../types';
 
 interface TokenUsage {
   [key: string]: {
