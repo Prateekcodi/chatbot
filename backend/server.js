@@ -67,6 +67,20 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Debug endpoint to check environment variables
+app.get('/debug-env', (req, res) => {
+  res.json({
+    NODE_ENV: process.env.NODE_ENV,
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ? 
+      `${process.env.OPENROUTER_API_KEY.substring(0, 10)}...` : 'NOT SET',
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY ? 
+      `${process.env.GEMINI_API_KEY.substring(0, 10)}...` : 'NOT SET',
+    COHERE_API_KEY: process.env.COHERE_API_KEY ? 
+      `${process.env.COHERE_API_KEY.substring(0, 10)}...` : 'NOT SET',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Simple test endpoint
 app.get('/test', (req, res) => {
   res.json({ 
