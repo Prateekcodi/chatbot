@@ -1,5 +1,16 @@
 // API service for frontend to communicate with backend
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com';
+// Support both Vite and CRA environment variables
+const getEnv = (viteKey: string, craKey: string) => {
+  // Vite at build-time
+  // @ts-ignore
+  const viteVal = typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[viteKey];
+  // CRA at build-time
+  // @ts-ignore
+  const craVal = typeof process !== 'undefined' && process.env && process.env[craKey];
+  return (viteVal as string) || (craVal as string) || '';
+};
+
+const BACKEND_URL = getEnv('VITE_BACKEND_URL', 'REACT_APP_BACKEND_URL') || 'https://chatbot-1-u7m0.onrender.com';
 
 export interface ApiResponse {
   success: boolean;
