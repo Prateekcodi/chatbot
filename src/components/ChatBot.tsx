@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Message } from '../types';
-import { sendChatbotMessage } from '../services/api';
+import { streamChatbotMessage } from '../services/api';
 
 const ChatBot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -46,72 +46,21 @@ const ChatBot: React.FC = () => {
     setIsTyping(true);
 
     try {
-      // Simulate typing effect
-      setTimeout(() => setIsTyping(false), 1000);
-      
-      // Use the API service to get response
-      const response = await sendChatbotMessage(userMessage.text);
-      
-      if (response.success) {
-        const botMessage: Message = {
-          id: generateId(),
-          text: response.message,
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        setMessages((prev: Message[]) => [...prev, botMessage]);
-      } else {
-        // Try fallback to the original endpoint
-        try {
-          const fallbackResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com'}/api/ask`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ prompt: userMessage.text }),
-          });
+      // Start with an empty bot message and stream in chunks
+      const botMessageId = generateId();
+      let accumulated = '';
+      setMessages((prev: Message[]) => [
+        ...prev,
+        { id: botMessageId, text: '', sender: 'bot', timestamp: new Date() }
+      ]);
 
-          if (fallbackResponse.ok) {
-            const fallbackData = await fallbackResponse.json();
-            
-            // Try to get a response from any working AI service
-            let aiMessage = null;
-            if (fallbackData.responses?.gemini?.success && fallbackData.responses.gemini.response) {
-              aiMessage = fallbackData.responses.gemini.response;
-            } else if (fallbackData.responses?.cohere?.success && fallbackData.responses.cohere.response) {
-              aiMessage = fallbackData.responses.cohere.response;
-            } else if (fallbackData.responses?.openrouter?.success && fallbackData.responses.openrouter.response) {
-              aiMessage = fallbackData.responses.openrouter.response;
-            } else if (fallbackData.responses?.glm?.success && fallbackData.responses.glm.response) {
-              aiMessage = fallbackData.responses.glm.response;
-            } else if (fallbackData.responses?.deepseek?.success && fallbackData.responses.deepseek.response) {
-              aiMessage = fallbackData.responses.deepseek.response;
-            }
-            
-            if (aiMessage) {
-              const botMessage: Message = {
-                id: generateId(),
-                text: aiMessage,
-                sender: 'bot',
-                timestamp: new Date()
-              };
-              setMessages((prev: Message[]) => [...prev, botMessage]);
-              return;
-            }
-          }
-        } catch (fallbackError) {
-          console.error('Fallback API call failed:', fallbackError);
-        }
-        
-        // If all else fails, show error message
-        const errorMessage: Message = {
-          id: generateId(),
-          text: response.message || 'Sorry, I encountered an error. Please try again.',
-          sender: 'bot',
-          timestamp: new Date()
-        };
-        setMessages((prev: Message[]) => [...prev, errorMessage]);
+      for await (const chunk of streamChatbotMessage(userMessage.text)) {
+        accumulated += chunk;
+        setMessages((prev: Message[]) => prev.map(m => (
+          m.id === botMessageId ? { ...m, text: accumulated } : m
+        )));
       }
+      setIsTyping(false);
     } catch (error) {
       console.error('Error in handleSendMessage:', error);
       const errorMessage: Message = {

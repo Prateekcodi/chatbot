@@ -137,6 +137,35 @@ export const sendChatbotMessage = async (message: string): Promise<ApiResponse> 
   }
 };
 
+// Stream chatbot response via chunked HTTP
+export async function* streamChatbotMessage(message: string): AsyncGenerator<string, void, unknown> {
+  const response = await fetch(`${BACKEND_URL}/api/chatbot-stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt: message })
+  });
+
+  if (!response.ok || !response.body) {
+    throw new Error(`Stream error: ${response.status}`);
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      const chunk = decoder.decode(value, { stream: true });
+      if (chunk) {
+        yield chunk;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 // Get token usage information for all AI services
 export const getTokenUsage = async (): Promise<any> => {
   try {

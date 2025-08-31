@@ -237,6 +237,72 @@ app.post('/api/chatbot', async (req, res) => {
   }
 });
 
+// Streaming Chatbot endpoint (chunked HTTP streaming)
+app.post('/api/chatbot-stream', async (req, res) => {
+  try {
+    const { prompt } = req.body || {};
+
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+      return res.status(400).json({ 
+        error: 'Invalid prompt. Please provide a non-empty string.' 
+      });
+    }
+
+    const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+    if (!apiKey || apiKey === 'your-api-key-here') {
+      return res.status(500).json({ error: 'Gemini API key not configured' });
+    }
+
+    // Prepare streaming headers
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+    const contents = [
+      {
+        role: 'user',
+        parts: [{ text: prompt.trim() }]
+      }
+    ];
+
+    const generationConfig = {
+      temperature: 0.7,
+      maxOutputTokens: 2048
+      // Note: ThinkingConfig is currently a Python SDK feature. Not exposed in Node SDK yet.
+    };
+
+    const result = await model.generateContentStream({
+      contents,
+      generationConfig
+    });
+
+    for await (const chunk of result.stream) {
+      const text = typeof chunk.text === 'function' ? chunk.text() : chunk.text;
+      if (text) {
+        res.write(text);
+      }
+    }
+
+    res.end();
+  } catch (error) {
+    console.error('Streaming Chatbot Error:', error);
+    try {
+      if (!res.headersSent) {
+        return res.status(500).json({ error: 'Failed to stream response' });
+      }
+      res.end();
+    } catch (_) {
+      // ignore
+    }
+  }
+});
+
 // GET /api/status - Check API configuration status
 app.get('/api/status', (req, res) => {
   const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
