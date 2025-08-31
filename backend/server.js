@@ -282,10 +282,11 @@ app.post('/api/chatbot-stream', async (req, res) => {
       generationConfig
     });
 
+    const clean = (t) => t.replace(/(^|\n)\s*\*\s+/g, '$1');
     for await (const chunk of result.stream) {
-      const text = typeof chunk.text === 'function' ? chunk.text() : chunk.text;
-      if (text) {
-        res.write(text);
+      const raw = typeof chunk.text === 'function' ? chunk.text() : chunk.text;
+      if (raw) {
+        res.write(clean(raw));
       }
     }
 

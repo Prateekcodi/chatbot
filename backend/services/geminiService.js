@@ -6,6 +6,14 @@ class GeminiService {
     this.model = 'gemini-2.5-flash-lite';
   }
 
+  // Remove leading markdown bullet asterisks at line starts: "* "
+  _cleanText(text) {
+    if (!text) return text;
+    return text
+      .replace(/(^|\n)\s*\*\s+/g, '$1')
+      .trim();
+  }
+
   async generateResponse(prompt) {
     try {
       if (!this.apiKey || this.apiKey === 'your-api-key-here') {
@@ -35,14 +43,15 @@ class GeminiService {
       });
 
       const responseText = result?.response?.text?.() || result?.response?.text || '';
+      const cleaned = this._cleanText(responseText);
       
-      if (!responseText) {
+      if (!cleaned) {
         throw new Error('No response text received from Gemini');
       }
 
       return {
         success: true,
-        response: responseText,
+        response: cleaned,
         model: 'gemini-2.5-flash-lite'
       };
 
