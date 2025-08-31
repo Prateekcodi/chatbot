@@ -54,11 +54,15 @@ const ChatBot: React.FC = () => {
         { id: botMessageId, text: '', sender: 'bot', timestamp: new Date() }
       ]);
 
+      const updateBotMessage = (id: string, text: string) => {
+        setMessages((prev: Message[]) => prev.map(m => (
+          m.id === id ? { ...m, text } : m
+        )));
+      };
+
       for await (const chunk of streamChatbotMessage(userMessage.text)) {
         accumulated += chunk;
-        setMessages((prev: Message[]) => prev.map(m => (
-          m.id === botMessageId ? { ...m, text: accumulated } : m
-        )));
+        updateBotMessage(botMessageId, accumulated);
       }
       setIsTyping(false);
     } catch (error) {
