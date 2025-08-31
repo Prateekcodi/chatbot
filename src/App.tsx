@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import ChatBot from './components/ChatBot';
 import MultiAI from './components/MultiAI';
 import AuthPage from './components/auth/AuthPage';
 import { AuthProvider, useAuth } from './lib/auth';
+import { supabase } from './lib/supabaseClient';
 import './index.css';
 
 function Protected({ children }: { children: React.ReactNode }) {
@@ -38,6 +39,7 @@ function App() {
         <div className="App w-screen h-screen overflow-auto-y">
           <Nav />
           <div className="w-full h-full">
+            <ProfileUpsertOnAuth />
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/chatbot" element={<Protected><ChatBot /></Protected>} />
@@ -49,6 +51,24 @@ function App() {
       </HashRouter>
     </AuthProvider>
   );
+}
+
+function ProfileUpsertOnAuth() {
+  useEffect(() => {
+    let mounted = true;
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!mounted) return;
+      if (event === 'SIGNED_IN' && session?.user) {
+        await supabase.from('profiles').upsert({
+          id: session.user.id,
+          email: session.user.email || null,
+          full_name: (session.user.user_metadata as any)?.full_name || null,
+        }, { onConflict: 'id' });
+      }
+    });
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
+  }, []);
+  return null;
 }
 
 export default App;
