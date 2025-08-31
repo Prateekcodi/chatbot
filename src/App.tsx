@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import ChatBot from './components/ChatBot';
 import MultiAI from './components/MultiAI';
 import AuthPage from './components/auth/AuthPage';
@@ -34,7 +34,7 @@ function Nav() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <HashRouter>
         <div className="App w-screen h-screen overflow-auto-y">
           <Nav />
           <div className="w-full h-full">
@@ -46,7 +46,7 @@ function App() {
             </Routes>
           </div>
         </div>
-      </BrowserRouter>
+      </HashRouter>
     </AuthProvider>
   );
 }
