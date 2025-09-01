@@ -11,8 +11,17 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // CORS configuration (placed BEFORE helmet and rate limiter)
+const allowedOrigins = [
+  'https://chatbotcode.netlify.app',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000'
+];
 const corsOptions = {
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(null, false);
+  },
   credentials: false,
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -20,8 +29,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
-// Security middleware
-app.use(helmet());
+// Security middleware (relax CORP for API JSON responses)
+app.use(helmet({
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 
 // Rate limiting (after CORS so preflights include headers)
 const limiter = rateLimit({
