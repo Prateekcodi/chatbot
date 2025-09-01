@@ -100,6 +100,7 @@ app.post('/api/ask', async (req, res) => {
     const openrouterService = require('./services/openrouterService');
     const glmService = require('./services/glmService');
     const deepseekService = require('./services/deepseekService');
+    const { saveConversation } = require('./services/supabaseClient');
 
     // Call all AI services concurrently with individual timeouts
     const geminiPromise = Promise.race([
@@ -147,7 +148,7 @@ app.post('/api/ask', async (req, res) => {
 
     console.log(`✅ Completed with ${successfulResponses}/5 successful responses in ${processingTime}ms`);
 
-    res.json({
+    const responsePayload = {
       prompt: prompt.trim(),
       processingTime: `${processingTime}ms`,
       timestamp: new Date().toISOString(),
@@ -158,7 +159,18 @@ app.post('/api/ask', async (req, res) => {
         glm: glmResult.status === 'fulfilled' ? glmResult.value : { success: false, error: glmResult.reason?.message || 'Failed', model: 'GLM 4.5' },
         deepseek: deepseekResult.status === 'fulfilled' ? deepseekResult.value : { success: false, error: deepseekResult.reason?.message || 'Failed', model: 'DeepSeek 3.1' }
       }
-    });
+    };
+
+    // Fire-and-forget save to Supabase (do not block response)
+    saveConversation({
+      type: 'multibot',
+      prompt: responsePayload.prompt,
+      responses: responsePayload.responses,
+      processing_time_ms: processingTime,
+      created_at: new Date().toISOString()
+    }).catch(() => {});
+
+    res.json(responsePayload);
 
   } catch (error) {
     console.error('Error processing AI requests:', error);
@@ -195,6 +207,7 @@ app.post('/api/chatbot', async (req, res) => {
   try {
     // Load Gemini service for chatbot (most reliable)
     const geminiService = require('./services/geminiService');
+    const { saveConversation } = require('./services/supabaseClient');
     
     const geminiResult = await Promise.race([
       geminiService.generateResponse(prompt),
@@ -205,22 +218,40 @@ app.post('/api/chatbot', async (req, res) => {
     
     if (geminiResult.success) {
       console.log(`✅ Chatbot response generated in ${processingTime}ms`);
-      res.json({
+      const payload = {
         success: true,
         message: geminiResult.response,
         model: geminiResult.model,
         processingTime: `${processingTime}ms`,
         timestamp: new Date().toISOString()
-      });
+      };
+      // Save asynchronously
+      saveConversation({
+        type: 'chatbot',
+        prompt: prompt.trim(),
+        response: geminiResult.response,
+        model: geminiResult.model,
+        processing_time_ms: processingTime,
+        created_at: new Date().toISOString()
+      }).catch(() => {});
+      res.json(payload);
     } else {
       console.log(`❌ Chatbot Gemini failed: ${geminiResult.error}`);
-      res.json({
+      const payload = {
         success: false,
         message: 'Sorry, I am having trouble responding right now. Please try again.',
         error: geminiResult.error,
         processingTime: `${processingTime}ms`,
         timestamp: new Date().toISOString()
-      });
+      };
+      saveConversation({
+        type: 'chatbot',
+        prompt: prompt.trim(),
+        error: geminiResult.error,
+        processing_time_ms: processingTime,
+        created_at: new Date().toISOString()
+      }).catch(() => {});
+      res.json(payload);
     }
 
   } catch (error) {
