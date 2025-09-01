@@ -12,10 +12,14 @@ class OpenRouterService {
         .map(k => k.trim())
         .filter(Boolean);
     }
-    // Ensure primary key is first if present
-    if (this.apiKey && !this.apiKeys.includes(this.apiKey)) {
-      this.apiKeys.unshift(this.apiKey);
+    // If OPENROUTER_API_KEY contains commas, split it too
+    if (this.apiKey && this.apiKey.includes(',')) {
+      const splitKeys = this.apiKey.split(',').map(k => k.trim()).filter(Boolean);
+      this.apiKeys = [...splitKeys, ...this.apiKeys];
+      this.apiKey = splitKeys[0];
     }
+    // Ensure primary key is first if present (and not already included)
+    if (this.apiKey && !this.apiKeys.includes(this.apiKey)) this.apiKeys.unshift(this.apiKey);
     this.apiUrl = process.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1/chat/completions';
     this.referer = process.env.FRONTEND_URL || process.env.PUBLIC_ORIGIN || 'https://chatbotcode.netlify.app';
     this.title = process.env.APP_TITLE || 'Multi-AI Comparison Tool';

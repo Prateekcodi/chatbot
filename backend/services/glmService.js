@@ -8,6 +8,11 @@ class GLMService {
     if (keysEnv && typeof keysEnv === 'string') {
       this.apiKeys = keysEnv.split(',').map(k => k.trim()).filter(Boolean);
     }
+    if (this.apiKey && this.apiKey.includes(',')) {
+      const splitKeys = this.apiKey.split(',').map(k => k.trim()).filter(Boolean);
+      this.apiKeys = [...splitKeys, ...this.apiKeys];
+      this.apiKey = splitKeys[0];
+    }
     if (this.apiKey && !this.apiKeys.includes(this.apiKey)) {
       this.apiKeys.unshift(this.apiKey);
     }
