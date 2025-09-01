@@ -15,7 +15,8 @@ function getSupabase() {
   if (!supabase) {
     const key = SUPABASE_SERVICE_ROLE_KEY || SUPABASE_ANON_KEY;
     supabase = createClient(SUPABASE_URL, key, {
-      auth: { persistSession: false }
+      auth: { persistSession: false },
+      db: { schema: 'public' }
     });
   }
   return supabase;

@@ -36,6 +36,21 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+// Explicit fallback CORS headers (defensive; some platforms strip defaults)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  next();
+});
+
 // Rate limiting (after CORS so preflights include headers)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -60,6 +75,9 @@ app.get('/health', (req, res) => {
 app.get('/debug-env', (req, res) => {
   res.json({
     NODE_ENV: process.env.NODE_ENV,
+    SUPABASE_URL_SET: !!process.env.SUPABASE_URL,
+    SUPABASE_ANON_KEY_SET: !!process.env.SUPABASE_ANON_KEY,
+    SUPABASE_SERVICE_ROLE_KEY_SET: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ? 
       `${process.env.OPENROUTER_API_KEY.substring(0, 10)}...` : 'NOT SET',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY ? 
@@ -181,7 +199,13 @@ app.post('/api/ask', async (req, res) => {
       responses: responsePayload.responses,
       processing_time_ms: processingTime,
       created_at: new Date().toISOString()
-    }).catch(() => {});
+    }).then((r) => {
+      if (!r?.saved) {
+        console.error('Supabase save multibot failed:', r?.error);
+      }
+    }).catch((e) => {
+      console.error('Supabase save multibot exception:', e?.message || e);
+    });
 
     res.json(responsePayload);
 
@@ -246,7 +270,13 @@ app.post('/api/chatbot', async (req, res) => {
         model: geminiResult.model,
         processing_time_ms: processingTime,
         created_at: new Date().toISOString()
-      }).catch(() => {});
+      }).then((r) => {
+        if (!r?.saved) {
+          console.error('Supabase save chatbot success-case failed:', r?.error);
+        }
+      }).catch((e) => {
+        console.error('Supabase save chatbot success-case exception:', e?.message || e);
+      });
       res.json(payload);
     } else {
       console.log(`❌ Chatbot Gemini failed: ${geminiResult.error}`);
@@ -263,7 +293,13 @@ app.post('/api/chatbot', async (req, res) => {
         error: geminiResult.error,
         processing_time_ms: processingTime,
         created_at: new Date().toISOString()
-      }).catch(() => {});
+      }).then((r) => {
+        if (!r?.saved) {
+          console.error('Supabase save chatbot error-case failed:', r?.error);
+        }
+      }).catch((e) => {
+        console.error('Supabase save chatbot error-case exception:', e?.message || e);
+      });
       res.json(payload);
     }
 
@@ -567,6 +603,44 @@ app.get('/api/conversations', async (req, res) => {
     res.json(result);
   } catch (err) {
     res.status(200).json({ data: [], total: 0 });
+  }
+});
+
+// Debug: test Supabase connectivity and simple select
+app.get('/api/debug-supabase', async (req, res) => {
+  try {
+    const { getSupabase } = require('./services/supabaseClient');
+    const client = getSupabase();
+    if (!client) {
+      return res.status(200).json({ ok: false, reason: 'Supabase not configured' });
+    }
+    const { data, error, count } = await client
+      .from('conversations')
+      .select('*', { count: 'exact', head: true })
+      .limit(0);
+    if (error) {
+      return res.status(200).json({ ok: false, error: error.message });
+    }
+    res.json({ ok: true, reachable: true, table: 'conversations', count: count ?? null });
+  } catch (e) {
+    res.status(200).json({ ok: false, exception: e?.message || String(e) });
+  }
+});
+
+// Debug: attempt an insert with minimal payload
+app.post('/api/debug-supabase/insert', async (req, res) => {
+  try {
+    const { saveConversation } = require('./services/supabaseClient');
+    const payload = {
+      type: 'debug',
+      prompt: 'debug-insert',
+      processing_time_ms: 0,
+      created_at: new Date().toISOString()
+    };
+    const result = await saveConversation(payload);
+    res.json({ ok: !!result?.saved, result });
+  } catch (e) {
+    res.status(200).json({ ok: false, exception: e?.message || String(e) });
   }
 });
 
