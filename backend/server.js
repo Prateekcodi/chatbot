@@ -12,10 +12,16 @@ const PORT = process.env.PORT || 5000;
 
 // CORS configuration (placed BEFORE helmet and rate limiter)
 const corsOptions = {
-  origin: true,
+  origin: [
+    'https://chatbotcode.netlify.app',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://localhost:3000',
+    'https://localhost:5173'
+  ],
   credentials: false,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
