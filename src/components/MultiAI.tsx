@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getTokenUsage } from '../services/api';
+import { getTokenUsage, getConversations } from '../services/api';
 import { AIResponse, APIResponse } from '../types';
 
 interface TokenUsage {
@@ -41,6 +41,23 @@ const MultiAI: React.FC = () => {
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>({});
   const [serviceSummary, setServiceSummary] = useState<ServiceSummary>({ operational: 0, total: 0, status: 'Checking...' });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [historyItems, setHistoryItems] = useState<any[]>([]);
+  const [historyTotal, setHistoryTotal] = useState(0);
+  const [historyPage, setHistoryPage] = useState(1);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+
+  const loadHistory = useCallback(async (page = 1) => {
+    try {
+      setIsHistoryLoading(true);
+      const { data, total } = await getConversations(page, 20, 'multibot');
+      setHistoryItems(data);
+      setHistoryTotal(total);
+      setHistoryPage(page);
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  }, []);
 
   // Fetch token usage and service status
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -349,6 +366,14 @@ const MultiAI: React.FC = () => {
                           return isFinite(total) && total > 0 ? total.toLocaleString() + '+' : '—';
                         })()} Available
                       </span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={() => { setShowHistory(true); loadHistory(1); }}
+                        className="px-3 py-1 text-xs font-semibold rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+                      >
+                        View History
+                      </button>
                     </div>
                     <button
                       onClick={fetchServiceStatus}
@@ -797,6 +822,72 @@ const MultiAI: React.FC = () => {
           </motion.div>
         </div>
       </footer>
+
+      {/* History Modal */}
+      <AnimatePresence>
+        {showHistory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+            onClick={() => setShowHistory(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[85vh] overflow-hidden border border-white/20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between p-6 border-b border-white/10">
+                <h3 className="text-xl font-bold text-white">Conversation History</h3>
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => loadHistory(Math.max(1, historyPage - 1))}
+                    className="px-3 py-1 text-xs rounded-full bg-white/10 text-white hover:bg-white/20"
+                    disabled={isHistoryLoading || historyPage <= 1}
+                  >Prev</button>
+                  <span className="text-slate-300 text-xs">Page {historyPage}</span>
+                  <button
+                    onClick={() => loadHistory(historyPage + 1)}
+                    className="px-3 py-1 text-xs rounded-full bg-white/10 text-white hover:bg-white/20"
+                    disabled={isHistoryLoading || historyItems.length < 20}
+                  >Next</button>
+                  <button
+                    onClick={() => setShowHistory(false)}
+                    className="px-3 py-1 text-xs rounded-full bg-white/10 text-white hover:bg-white/20"
+                  >Close</button>
+                </div>
+              </div>
+              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-3">
+                {isHistoryLoading && <div className="text-slate-300 text-sm">Loading...</div>}
+                {!isHistoryLoading && historyItems.length === 0 && (
+                  <div className="text-slate-400 text-sm">No conversations yet</div>
+                )}
+                {!isHistoryLoading && historyItems.map((item) => (
+                  <div key={item.id} className="bg-white/5 rounded-xl p-4 border border-white/10">
+                    <div className="flex items-center justify-between">
+                      <div className="text-white text-sm font-semibold truncate">{item.prompt}</div>
+                      <div className="text-slate-400 text-xs">{new Date(item.created_at || item.timestamp).toLocaleString()}</div>
+                    </div>
+                    {item.responses && (
+                      <div className="mt-2 grid grid-cols-2 lg:grid-cols-4 gap-2">
+                        {Object.entries(item.responses || {}).map(([k, v]: any) => (
+                          <div key={k} className="text-xs text-slate-300 truncate bg-white/5 rounded p-2">{k}: {(v as any)?.success ? (v as any)?.response?.slice(0, 60) + '…' : (v as any)?.error?.slice(0,60) + '…'}</div>
+                        ))}
+                      </div>
+                    )}
+                    {item.response && (
+                      <div className="mt-2 text-slate-300 text-sm truncate">{item.response}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Premium Modal */}
       <AnimatePresence>

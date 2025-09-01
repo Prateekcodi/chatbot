@@ -541,6 +541,21 @@ app.get('/api/service-status', async (req, res) => {
 
 // API routes
 // app.use('/api', aiRoutes);
+app.get('/api/conversations', async (req, res) => {
+  try {
+    const page = parseInt(req.query.page || '1', 10);
+    const limit = Math.min(parseInt(req.query.limit || '20', 10), 100);
+    const type = req.query.type;
+    const { fetchConversations } = require('./services/supabaseClient');
+    const result = await fetchConversations({ page, limit, type });
+    if (result.error) {
+      return res.status(200).json({ data: [], total: 0 });
+    }
+    res.json(result);
+  } catch (err) {
+    res.status(200).json({ data: [], total: 0 });
+  }
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {

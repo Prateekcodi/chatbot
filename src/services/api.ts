@@ -232,3 +232,26 @@ export const getServiceStatus = async (run: boolean = false): Promise<any> => {
     };
   }
 };
+
+// Fetch saved conversations from backend (Supabase-backed)
+export const getConversations = async (
+  page: number = 1,
+  limit: number = 20,
+  type?: 'multibot' | 'chatbot'
+): Promise<{ data: any[]; total: number }> => {
+  try {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (type) params.set('type', type);
+    const response = await fetch(`${BACKEND_URL}/api/conversations?${params.toString()}`, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return { data: data.data || [], total: data.total || 0 };
+  } catch (error) {
+    return { data: [], total: 0 };
+  }
+};
