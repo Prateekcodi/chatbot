@@ -72,6 +72,16 @@ const MultiAI: React.FC = () => {
     }
   }, []);
 
+  // Fetch token usage once on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getTokenUsage();
+        if (data.tokenUsage) setTokenUsage(data.tokenUsage);
+      } catch {}
+    })();
+  }, []);
+
   const fetchServiceStatus = useCallback(async () => {
     try {
       setIsRefreshing(true);
@@ -411,34 +421,35 @@ const MultiAI: React.FC = () => {
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center justify-center space-x-4 text-slate-300 mb-8"
+                    className="flex flex-wrap gap-3 sm:gap-4 items-center justify-center text-slate-300 mb-8"
                   >
-                    <div className="flex items-center space-x-2 bg-gradient-to-r from-slate-700/50 to-slate-600/50 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
+                    <div className="flex items-center space-x-2 bg-gradient-to-r from-slate-700/50 to-slate-600/50 px-3 sm:px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
                       <span className="text-emerald-400">📚</span>
                       <span className="text-sm font-medium">{conversationHistory.length} conversation{conversationHistory.length !== 1 ? 's' : ''} in history</span>
                     </div>
-                    <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-700/50 to-blue-600/50 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
-                      <span className="text-blue-400">🔢</span>
-                      <span className="text-sm font-medium">
-                        {(() => {
-                          const total = Object.values(tokenUsage || {}).reduce((sum, service) => sum + (service?.remaining || 0), 0);
-                          return isFinite(total) && total > 0 ? total.toLocaleString() + '+ tokens available' : 'Tokens unavailable';
-                        })()}
-                      </span>
-                    </div>
+                    {(() => {
+                      const total = Object.values(tokenUsage || {}).reduce((sum, service: any) => sum + (service?.remaining || 0), 0);
+                      if (!isFinite(total) || total <= 0) return null;
+                      return (
+                        <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-700/50 to-blue-600/50 px-3 sm:px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
+                          <span className="text-blue-400">🔢</span>
+                          <span className="text-sm font-medium">{total.toLocaleString()}+ tokens available</span>
+                        </div>
+                      );
+                    })()}
                     <button
                       onClick={() => {
                         setResults(null);
                         setSelectedResponse(null);
                         setModalOpen(false);
                       }}
-                      className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 text-sm rounded-full hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 text-sm rounded-full hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
                     >
                       🆕 New Conversation
                     </button>
                     <button
                       onClick={clearHistory}
-                      className="px-4 py-2 bg-gradient-to-r from-rose-500/20 to-pink-500/20 border border-rose-400/30 text-rose-300 text-sm rounded-full hover:from-rose-500/30 hover:to-teal-500/30 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
+                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-rose-500/20 to-pink-500/20 border border-rose-400/30 text-rose-300 text-sm rounded-full hover:from-rose-500/30 hover:to-teal-500/30 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
                     >
                       🗑️ Clear History
                     </button>

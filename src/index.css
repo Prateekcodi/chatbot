@@ -103,6 +103,15 @@ body::after {
   scrollbar-gutter: stable;
 }
 
+/* Hide scrollbar for horizontal nav scroller on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 /* Fix any potential text rendering issues */
 * {
   text-rendering: optimizeLegibility;

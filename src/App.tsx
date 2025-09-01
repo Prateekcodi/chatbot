@@ -19,11 +19,11 @@ function Nav() {
   // Hide nav on auth page
   if (location.pathname === '/auth') return null;
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg">
-        <div className="flex space-x-2 items-center">
-          <Link to="/multiai" className="px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Multi-AI Tool</Link>
-          <Link to="/chatbot" className="px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Chatbot</Link>
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[95vw] sm:w-auto">
+      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg overflow-x-auto no-scrollbar">
+        <div className="flex items-center space-x-2 whitespace-nowrap">
+          <Link to="/multiai" className="px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Multi-AI Tool</Link>
+          <Link to="/chatbot" className="px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Chatbot</Link>
           {session ? (
             <LogoutButton onLogout={signOut} />
           ) : (
