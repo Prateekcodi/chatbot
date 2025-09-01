@@ -43,16 +43,16 @@ const MultiAI: React.FC = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [historyItems, setHistoryItems] = useState<any[]>([]);
-  const [historyTotal, setHistoryTotal] = useState(0);
+  // const [historyTotal, setHistoryTotal] = useState(0);
   const [historyPage, setHistoryPage] = useState(1);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
   const loadHistory = useCallback(async (page = 1) => {
     try {
       setIsHistoryLoading(true);
-      const { data, total } = await getConversations(page, 20, 'multibot');
+      const { data/*, total*/ } = await getConversations(page, 20, 'multibot');
       setHistoryItems(data);
-      setHistoryTotal(total);
+      // setHistoryTotal(total);
       setHistoryPage(page);
     } finally {
       setIsHistoryLoading(false);
