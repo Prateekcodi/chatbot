@@ -611,6 +611,29 @@ app.get('/api/conversations', async (req, res) => {
   }
 });
 
+// Debug: inspect OpenRouter keys (masked) and referer header used
+app.get('/api/debug-openrouter', (req, res) => {
+  try {
+    const single = process.env.OPENROUTER_API_KEY || '';
+    const list = (process.env.OPENROUTER_API_KEYS || '')
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
+    const keys = [];
+    if (single) keys.push(single);
+    for (const k of list) if (!keys.includes(k)) keys.push(k);
+    const tails = keys.map(k => k.slice(-6));
+    const referer = process.env.FRONTEND_URL || process.env.PUBLIC_ORIGIN || 'https://chatbotcode.netlify.app';
+    res.json({
+      count: keys.length,
+      tails,
+      referer
+    });
+  } catch (e) {
+    res.status(200).json({ ok: false, exception: e?.message || String(e) });
+  }
+});
+
 // Debug: test Supabase connectivity and simple select
 app.get('/api/debug-supabase', async (req, res) => {
   try {
