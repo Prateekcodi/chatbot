@@ -130,18 +130,23 @@ app.post('/api/ask', async (req, res) => {
   console.log(`🤖 Processing prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
 
   try {
-    // Cache lookup: return previous answer if the same prompt exists
+    // Cache lookup: only serve cached when all AIs previously succeeded
     try {
       const { findConversationByPrompt } = require('./services/supabaseClient');
       const cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
       if (cached && cached.data && cached.data.responses) {
-        console.log('⚡ Serving from cache');
-        return res.json({
-          prompt: cached.data.prompt,
-          processingTime: '0ms (cached)',
-          timestamp: new Date().toISOString(),
-          responses: cached.data.responses
-        });
+        const r = cached.data.responses || {};
+        const names = ['gemini','cohere','openrouter','glm','deepseek'];
+        const allOk = names.every(n => r[n] && r[n].success === true);
+        if (allOk) {
+          console.log('⚡ Serving from cache (all providers succeeded)');
+          return res.json({
+            prompt: cached.data.prompt,
+            processingTime: '0ms (cached)',
+            timestamp: new Date().toISOString(),
+            responses: cached.data.responses
+          });
+        }
       }
     } catch (_) {}
 
@@ -212,20 +217,24 @@ app.post('/api/ask', async (req, res) => {
       }
     };
 
-    // Fire-and-forget save to Supabase (do not block response)
-    saveConversation({
-      type: 'multibot',
-      prompt: responsePayload.prompt,
-      responses: responsePayload.responses,
-      processing_time_ms: processingTime,
-      created_at: new Date().toISOString()
-    }).then((r) => {
-      if (!r?.saved) {
-        console.error('Supabase save multibot failed:', r?.error);
-      }
-    }).catch((e) => {
-      console.error('Supabase save multibot exception:', e?.message || e);
-    });
+    // Save only if all providers succeeded, to avoid caching error runs
+    const allOkToSave = ['gemini','cohere','openrouter','glm','deepseek']
+      .every(n => (responsePayload.responses as any)[n]?.success === true);
+    if (allOkToSave) {
+      saveConversation({
+        type: 'multibot',
+        prompt: responsePayload.prompt,
+        responses: responsePayload.responses,
+        processing_time_ms: processingTime,
+        created_at: new Date().toISOString()
+      }).then((r) => {
+        if (!r?.saved) {
+          console.error('Supabase save multibot failed:', r?.error);
+        }
+      }).catch((e) => {
+        console.error('Supabase save multibot exception:', e?.message || e);
+      });
+    }
 
     res.json(responsePayload);
 
@@ -323,19 +332,7 @@ app.post('/api/chatbot', async (req, res) => {
         processingTime: `${processingTime}ms`,
         timestamp: new Date().toISOString()
       };
-      saveConversation({
-        type: 'chatbot',
-        prompt: prompt.trim(),
-        error: geminiResult.error,
-        processing_time_ms: processingTime,
-        created_at: new Date().toISOString()
-      }).then((r) => {
-        if (!r?.saved) {
-          console.error('Supabase save chatbot error-case failed:', r?.error);
-        }
-      }).catch((e) => {
-        console.error('Supabase save chatbot error-case exception:', e?.message || e);
-      });
+      // Do not save error runs into history
       res.json(payload);
     }
 
