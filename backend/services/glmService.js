@@ -1,50 +1,74 @@
-const { OpenAI } = require('openai');
+const axios = require('axios');
 
 class GLMService {
   constructor() {
     this.apiKey = process.env.OPENROUTER_API_KEY;
-    this.client = new OpenAI({
-      baseURL: "https://openrouter.ai/api/v1",
-      apiKey: this.apiKey,
-    });
+    const keysEnv = process.env.OPENROUTER_API_KEYS;
+    this.apiKeys = [];
+    if (keysEnv && typeof keysEnv === 'string') {
+      this.apiKeys = keysEnv.split(',').map(k => k.trim()).filter(Boolean);
+    }
+    if (this.apiKey && !this.apiKeys.includes(this.apiKey)) {
+      this.apiKeys.unshift(this.apiKey);
+    }
+    this.apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
     this.referer = process.env.FRONTEND_URL || process.env.PUBLIC_ORIGIN || 'https://chatbotcode.netlify.app';
     this.title = process.env.APP_TITLE || 'Multi-AI Comparison Tool';
   }
 
   async generateResponse(prompt) {
     try {
-      if (!this.apiKey || this.apiKey === 'your-api-key-here') {
+      const keysToTry = (this.apiKeys && this.apiKeys.length) ? this.apiKeys : (this.apiKey ? [this.apiKey] : []);
+      if (!keysToTry.length || (keysToTry[0] === 'your-api-key-here')) {
         throw new Error('OpenRouter API key not configured');
       }
 
       console.log(`🤖 Calling GLM 4.5 API via OpenRouter`);
-      
-      const completion = await this.client.chat.completions.create({
-        extra_headers: {
-          "HTTP-Referer": this.referer,
-          "X-Title": this.title
-        },
-        extra_body: {},
-        model: "z-ai/glm-4.5-air:free",
-        messages: [
-          {
-            "role": "user",
-            "content": prompt
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.7
-      });
-
-      const responseText = completion.choices[0].message.content;
-      const tokenCount = completion.usage?.total_tokens || responseText.split(' ').length;
-
-      return {
-        success: true,
-        response: responseText,
-        model: 'GLM 4.5 Air',
-        tokens: tokenCount
+      const tryWithKey = async (key) => {
+        return axios.post(this.apiUrl, {
+          model: 'z-ai/glm-4.5-air:free',
+          messages: [
+            { role: 'user', content: prompt }
+          ],
+          max_tokens: 1000,
+          temperature: 0.7
+        }, {
+          headers: {
+            'Authorization': `Bearer ${key}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': this.referer,
+            'X-Title': this.title
+          },
+          timeout: 15000
+        });
       };
+
+      let lastError = null;
+      for (const key of keysToTry) {
+        try {
+          const response = await tryWithKey(key);
+          const responseText = response.data.choices[0].message.content;
+          const tokenCount = response.data.usage?.total_tokens || responseText.split(' ').length;
+          return {
+            success: true,
+            response: responseText,
+            model: 'GLM 4.5 Air',
+            tokens: tokenCount
+          };
+        } catch (error) {
+          lastError = error;
+          const status = error.response?.status;
+          const message = error.response?.data?.error?.message || error.message || '';
+          const isRateLimit = status === 429 || /rate limit|credits/i.test(message);
+          const isAuth = status === 401;
+          console.error('GLM via OpenRouter Error (key tail):', key?.slice(-6), status, message);
+          if (isRateLimit || isAuth) continue;
+          throw error;
+        }
+      }
+
+      if (lastError) throw lastError;
+      throw new Error('GLM via OpenRouter: all keys failed');
 
     } catch (error) {
       console.error('GLM 4.5 API Error:', error.message);
