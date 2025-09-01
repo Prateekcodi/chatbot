@@ -606,6 +606,44 @@ app.get('/api/conversations', async (req, res) => {
   }
 });
 
+// Debug: test Supabase connectivity and simple select
+app.get('/api/debug-supabase', async (req, res) => {
+  try {
+    const { getSupabase } = require('./services/supabaseClient');
+    const client = getSupabase();
+    if (!client) {
+      return res.status(200).json({ ok: false, reason: 'Supabase not configured' });
+    }
+    const { data, error, count } = await client
+      .from('conversations')
+      .select('*', { count: 'exact', head: true })
+      .limit(0);
+    if (error) {
+      return res.status(200).json({ ok: false, error: error.message });
+    }
+    res.json({ ok: true, reachable: true, table: 'conversations', count: count ?? null });
+  } catch (e) {
+    res.status(200).json({ ok: false, exception: e?.message || String(e) });
+  }
+});
+
+// Debug: attempt an insert with minimal payload
+app.post('/api/debug-supabase/insert', async (req, res) => {
+  try {
+    const { saveConversation } = require('./services/supabaseClient');
+    const payload = {
+      type: 'debug',
+      prompt: 'debug-insert',
+      processing_time_ms: 0,
+      created_at: new Date().toISOString()
+    };
+    const result = await saveConversation(payload);
+    res.json({ ok: !!result?.saved, result });
+  } catch (e) {
+    res.status(200).json({ ok: false, exception: e?.message || String(e) });
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('Error:', err);
