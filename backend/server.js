@@ -218,8 +218,9 @@ app.post('/api/ask', async (req, res) => {
     };
 
     // Save only if all providers succeeded, to avoid caching error runs
+    const rps = responsePayload.responses || {};
     const allOkToSave = ['gemini','cohere','openrouter','glm','deepseek']
-      .every(n => (responsePayload.responses as any)[n]?.success === true);
+      .every(n => rps[n] && rps[n].success === true);
     if (allOkToSave) {
       saveConversation({
         type: 'multibot',
