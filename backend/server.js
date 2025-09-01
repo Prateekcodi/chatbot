@@ -75,6 +75,9 @@ app.get('/health', (req, res) => {
 app.get('/debug-env', (req, res) => {
   res.json({
     NODE_ENV: process.env.NODE_ENV,
+    SUPABASE_URL_SET: !!process.env.SUPABASE_URL,
+    SUPABASE_ANON_KEY_SET: !!process.env.SUPABASE_ANON_KEY,
+    SUPABASE_SERVICE_ROLE_KEY_SET: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ? 
       `${process.env.OPENROUTER_API_KEY.substring(0, 10)}...` : 'NOT SET',
     GEMINI_API_KEY: process.env.GEMINI_API_KEY ? 
@@ -196,7 +199,13 @@ app.post('/api/ask', async (req, res) => {
       responses: responsePayload.responses,
       processing_time_ms: processingTime,
       created_at: new Date().toISOString()
-    }).catch(() => {});
+    }).then((r) => {
+      if (!r?.saved) {
+        console.error('Supabase save multibot failed:', r?.error);
+      }
+    }).catch((e) => {
+      console.error('Supabase save multibot exception:', e?.message || e);
+    });
 
     res.json(responsePayload);
 
@@ -261,7 +270,13 @@ app.post('/api/chatbot', async (req, res) => {
         model: geminiResult.model,
         processing_time_ms: processingTime,
         created_at: new Date().toISOString()
-      }).catch(() => {});
+      }).then((r) => {
+        if (!r?.saved) {
+          console.error('Supabase save chatbot success-case failed:', r?.error);
+        }
+      }).catch((e) => {
+        console.error('Supabase save chatbot success-case exception:', e?.message || e);
+      });
       res.json(payload);
     } else {
       console.log(`❌ Chatbot Gemini failed: ${geminiResult.error}`);
@@ -278,7 +293,13 @@ app.post('/api/chatbot', async (req, res) => {
         error: geminiResult.error,
         processing_time_ms: processingTime,
         created_at: new Date().toISOString()
-      }).catch(() => {});
+      }).then((r) => {
+        if (!r?.saved) {
+          console.error('Supabase save chatbot error-case failed:', r?.error);
+        }
+      }).catch((e) => {
+        console.error('Supabase save chatbot error-case exception:', e?.message || e);
+      });
       res.json(payload);
     }
 
