@@ -78,19 +78,44 @@ async function findConversationByPrompt({ prompt, type }) {
     return { data: null, error: 'Supabase not configured' };
   }
   try {
-    let query = client
+    // Normalize helper: trim, lowercase, collapse internal whitespace
+    const normalizePrompt = (s) => (s || '')
+      .toString()
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+
+    const target = normalizePrompt(prompt);
+
+    // Try a quick case-insensitive exact match via ilike
+    let q = client
       .from('conversations')
-      .select('*')
-      .eq('prompt', prompt)
+      .select('prompt,responses,response,model,created_at')
       .order('created_at', { ascending: false })
-      .limit(1);
-    if (type) query = query.eq('type', type);
-    const { data, error } = await query;
+      .limit(1)
+      .ilike('prompt', prompt);
+    if (type) q = q.eq('type', type);
+    let { data, error } = await q;
     if (error) {
-      console.error('Supabase find error:', error.message);
-      return { data: null, error: error.message };
+      console.error('Supabase find error (ilike):', error.message);
     }
-    return { data: (data && data[0]) || null };
+    // If ilike didn't find or whitespace differs, fetch recent and compare normalized
+    if (!data || data.length === 0 || normalizePrompt(data[0]?.prompt) !== target) {
+      let q2 = client
+        .from('conversations')
+        .select('prompt,responses,response,model,created_at')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      if (type) q2 = q2.eq('type', type);
+      const { data: recent, error: err2 } = await q2;
+      if (err2) {
+        console.error('Supabase find error (recent):', err2.message);
+        return { data: null, error: err2.message };
+      }
+      const found = (recent || []).find(row => normalizePrompt(row.prompt) === target) || null;
+      return { data: found };
+    }
+    return { data: data[0] };
   } catch (err) {
     console.error('Supabase find exception:', err.message);
     return { data: null, error: err.message };
