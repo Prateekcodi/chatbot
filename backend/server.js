@@ -130,6 +130,21 @@ app.post('/api/ask', async (req, res) => {
   console.log(`🤖 Processing prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
 
   try {
+    // Cache lookup: return previous answer if the same prompt exists
+    try {
+      const { findConversationByPrompt } = require('./services/supabaseClient');
+      const cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
+      if (cached && cached.data && cached.data.responses) {
+        console.log('⚡ Serving from cache');
+        return res.json({
+          prompt: cached.data.prompt,
+          processingTime: '0ms (cached)',
+          timestamp: new Date().toISOString(),
+          responses: cached.data.responses
+        });
+      }
+    } catch (_) {}
+
     // Load services dynamically only when needed
     const geminiService = require('./services/geminiService');
     const cohereService = require('./services/cohereService');
@@ -247,6 +262,22 @@ app.post('/api/chatbot', async (req, res) => {
   console.log(`💬 Chatbot request: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
 
   try {
+    // Cache lookup first
+    try {
+      const { findConversationByPrompt } = require('./services/supabaseClient');
+      const cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'chatbot' });
+      if (cached && cached.data && cached.data.response) {
+        console.log('⚡ Chatbot serving from cache');
+        return res.json({
+          success: true,
+          message: cached.data.response,
+          model: cached.data.model || 'Gemini',
+          processingTime: '0ms (cached)',
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (_) {}
+
     // Load Gemini service for chatbot (most reliable)
     const geminiService = require('./services/geminiService');
     const { saveConversation } = require('./services/supabaseClient');

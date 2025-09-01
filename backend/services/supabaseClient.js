@@ -72,5 +72,30 @@ async function fetchConversations({ page = 1, limit = 20, type } = {}) {
   }
 }
 
-module.exports = { getSupabase, saveConversation, fetchConversations };
+async function findConversationByPrompt({ prompt, type }) {
+  const client = getSupabase();
+  if (!client) {
+    return { data: null, error: 'Supabase not configured' };
+  }
+  try {
+    let query = client
+      .from('conversations')
+      .select('*')
+      .eq('prompt', prompt)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (type) query = query.eq('type', type);
+    const { data, error } = await query;
+    if (error) {
+      console.error('Supabase find error:', error.message);
+      return { data: null, error: error.message };
+    }
+    return { data: (data && data[0]) || null };
+  } catch (err) {
+    console.error('Supabase find exception:', err.message);
+    return { data: null, error: err.message };
+  }
+}
+
+module.exports = { getSupabase, saveConversation, fetchConversations, findConversationByPrompt };
 
