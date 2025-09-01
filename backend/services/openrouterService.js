@@ -3,47 +3,88 @@ const axios = require('axios');
 class OpenRouterService {
   constructor() {
     this.apiKey = process.env.OPENROUTER_API_KEY;
+    // Support multiple keys via comma-separated env OPENROUTER_API_KEYS
+    const keysEnv = process.env.OPENROUTER_API_KEYS;
+    this.apiKeys = [];
+    if (keysEnv && typeof keysEnv === 'string') {
+      this.apiKeys = keysEnv
+        .split(',')
+        .map(k => k.trim())
+        .filter(Boolean);
+    }
+    // Ensure primary key is first if present
+    if (this.apiKey && !this.apiKeys.includes(this.apiKey)) {
+      this.apiKeys.unshift(this.apiKey);
+    }
     this.apiUrl = process.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1/chat/completions';
   }
 
   async generateResponse(prompt, model = 'openai/gpt-3.5-turbo') {
-    // Check if API key is configured
-    if (!this.apiKey || this.apiKey === 'your-api-key-here') {
-      throw new Error('OpenRouter API key not configured. Please add OPENROUTER_API_KEY to your .env file.');
+    // Check if API key(s) are configured
+    if ((!this.apiKey && this.apiKeys.length === 0) || this.apiKey === 'your-api-key-here') {
+      throw new Error('OpenRouter API key not configured. Please add OPENROUTER_API_KEY or OPENROUTER_API_KEYS to your backend env.');
     }
 
     try {
       console.log(`🤖 Calling OpenRouter API with model: ${model}`);
       
-      const response = await axios.post(this.apiUrl, {
-        model: model,
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_tokens: 1000,
-        temperature: 0.7
-      }, {
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'http://localhost:3000',
-          'X-Title': 'Multi-AI Comparison Tool'
-        },
-        timeout: 15000 // 15 seconds timeout
-      });
-
-      const responseText = response.data.choices[0].message.content;
-      const tokenCount = response.data.usage?.total_tokens || responseText.split(' ').length;
-
-      return {
-        success: true,
-        response: responseText,
-        model: `OpenRouter (${model})`,
-        tokens: tokenCount
+      const tryWithKey = async (key) => {
+        return axios.post(this.apiUrl, {
+          model: model,
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: 1000,
+          temperature: 0.7
+        }, {
+          headers: {
+            'Authorization': `Bearer ${key}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': 'http://localhost:3000',
+            'X-Title': 'Multi-AI Comparison Tool'
+          },
+          timeout: 15000
+        });
       };
+
+      let lastError = null;
+      const keysToTry = this.apiKeys.length ? this.apiKeys : [this.apiKey];
+      for (const key of keysToTry) {
+        try {
+          const response = await tryWithKey(key);
+          const responseText = response.data.choices[0].message.content;
+          const tokenCount = response.data.usage?.total_tokens || responseText.split(' ').length;
+
+          return {
+            success: true,
+            response: responseText,
+            model: `OpenRouter (${model})`,
+            tokens: tokenCount
+          };
+        } catch (error) {
+          // Save last error and decide whether to try next key
+          lastError = error;
+          const status = error.response?.status;
+          const message = error.response?.data?.error?.message || error.message || '';
+          const isRateLimit = status === 429 || /rate limit|credits/i.test(message);
+          const isAuth = status === 401;
+          console.error('OpenRouter API Error (key tail):', key?.slice(-6), status, message);
+          if (isRateLimit || isAuth) {
+            // try next key
+            continue;
+          }
+          // Other errors: stop early
+          throw error;
+        }
+      }
+
+      // If we reach here, all keys failed
+      if (lastError) throw lastError;
+
+      throw new Error('OpenRouter: all keys failed');
 
     } catch (error) {
       console.error('OpenRouter API Error:', error.message);
