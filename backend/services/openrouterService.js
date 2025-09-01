@@ -17,6 +17,8 @@ class OpenRouterService {
       this.apiKeys.unshift(this.apiKey);
     }
     this.apiUrl = process.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1/chat/completions';
+    this.referer = process.env.FRONTEND_URL || process.env.PUBLIC_ORIGIN || 'https://chatbotcode.netlify.app';
+    this.title = process.env.APP_TITLE || 'Multi-AI Comparison Tool';
   }
 
   async generateResponse(prompt, model = 'openai/gpt-3.5-turbo') {
@@ -43,8 +45,8 @@ class OpenRouterService {
           headers: {
             'Authorization': `Bearer ${key}`,
             'Content-Type': 'application/json',
-            'HTTP-Referer': 'http://localhost:3000',
-            'X-Title': 'Multi-AI Comparison Tool'
+            'HTTP-Referer': this.referer,
+            'X-Title': this.title
           },
           timeout: 15000
         });

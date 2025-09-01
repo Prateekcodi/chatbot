@@ -7,6 +7,8 @@ class GLMService {
       baseURL: "https://openrouter.ai/api/v1",
       apiKey: this.apiKey,
     });
+    this.referer = process.env.FRONTEND_URL || process.env.PUBLIC_ORIGIN || 'https://chatbotcode.netlify.app';
+    this.title = process.env.APP_TITLE || 'Multi-AI Comparison Tool';
   }
 
   async generateResponse(prompt) {
@@ -19,8 +21,8 @@ class GLMService {
       
       const completion = await this.client.chat.completions.create({
         extra_headers: {
-          "HTTP-Referer": "https://chatbot-1-u7m0.onrender.com",
-          "X-Title": "Multi-AI Comparison Tool"
+          "HTTP-Referer": this.referer,
+          "X-Title": this.title
         },
         extra_body: {},
         model: "z-ai/glm-4.5-air:free",
