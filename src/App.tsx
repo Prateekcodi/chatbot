@@ -36,10 +36,12 @@ function Nav() {
 }
 
 function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
-  const handle = async () => {
-    await onLogout();
-    // Use hard redirect to fully reset app state and hash route
-    window.location.replace('#/auth');
+  const handle = () => {
+    // Fire sign-out, then force redirect regardless of result
+    onLogout().finally(() => {
+      // Use hard redirect to fully reset app state and hash route
+      window.location.replace('#/auth');
+    });
   };
   return <button onClick={handle} className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20">Logout</button>;
 }

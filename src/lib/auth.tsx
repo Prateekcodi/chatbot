@@ -17,16 +17,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
+    let canceled = false;
     supabase.auth.getSession().then(({ data }) => {
+      if (canceled) return;
       setSession(data.session ?? null);
       setUser(data.session?.user ?? null);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
+      if (canceled) return;
       setSession(sess);
       setUser(sess?.user ?? null);
     });
-    return () => { sub.subscription.unsubscribe(); };
+    return () => { canceled = true; sub.subscription.unsubscribe(); };
   }, []);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
@@ -46,23 +49,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut();
+    } catch (_) {
+      // ignore
     } finally {
       // Eagerly clear local auth state to update UI immediately
       setSession(null);
       setUser(null);
       try {
-        // Clear Supabase cached tokens in localStorage (best-effort)
         if (typeof window !== 'undefined') {
-          const keys = Object.keys(window.localStorage);
-          for (const key of keys) {
-            if (key.startsWith('sb-')) {
-              window.localStorage.removeItem(key);
+          // Clear Supabase cached tokens in localStorage/sessionStorage
+          for (const store of [window.localStorage, window.sessionStorage]) {
+            const keys = Object.keys(store);
+            for (const key of keys) {
+              if (key.startsWith('sb-')) {
+                store.removeItem(key);
+              }
             }
           }
+          // Also clear our own app cache if any
+          storeSafeRemove('persist:root');
         }
       } catch (_) {}
     }
   }, []);
+
+function storeSafeRemove(key: string) {
+  try { window.localStorage.removeItem(key); } catch (_) {}
+  try { window.sessionStorage.removeItem(key); } catch (_) {}
+}
 
   const value: AuthContextValue = { session, user, signInWithEmail, signUpWithEmail, signOut };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
