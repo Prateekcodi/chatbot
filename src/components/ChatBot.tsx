@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { Message } from '../types';
 import { streamChatbotMessage } from '../services/api';
 
@@ -90,17 +92,50 @@ const ChatBot: React.FC = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
-  const sanitizeText = (text: string) => {
+  const renderMarkdown = (text: string) => {
     if (!text) return text;
-    let t = text;
-    t = t.replace(/```(?:[\w-]+\n)?([\s\S]*?)```/g, '$1');
-    t = t.replace(/`([^`]*)`/g, '$1');
-    t = t.replace(/^\s{0,3}#{1,6}\s+/gm, '');
-    t = t.replace(/\*\*([^*]+)\*\*/g, '$1');
-    t = t.replace(/\*([^*]+)\*/g, '$1');
-    t = t.replace(/_{1,3}([^_]+)_{1,3}/g, '$1');
-    t = t.replace(/^\s*[-*+]\s+/gm, '');
-    return t.trim();
+    return (
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]}
+        components={{
+          p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+          strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
+          em: ({ children }) => <em className="italic text-slate-700">{children}</em>,
+          h1: ({ children }) => <h1 className="text-xl font-bold text-slate-900 mb-3 mt-4 first:mt-0">{children}</h1>,
+          h2: ({ children }) => <h2 className="text-lg font-bold text-slate-900 mb-2 mt-3 first:mt-0">{children}</h2>,
+          h3: ({ children }) => <h3 className="text-base font-bold text-slate-900 mb-2 mt-2 first:mt-0">{children}</h3>,
+          h4: ({ children }) => <h4 className="text-sm font-bold text-slate-900 mb-1 mt-2 first:mt-0">{children}</h4>,
+          h5: ({ children }) => <h5 className="text-xs font-bold text-slate-900 mb-1 mt-1 first:mt-0">{children}</h5>,
+          h6: ({ children }) => <h6 className="text-xs font-bold text-slate-900 mb-1 mt-1 first:mt-0">{children}</h6>,
+          ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+          li: ({ children }) => <li className="text-slate-800">{children}</li>,
+          code: ({ children, className }) => {
+            const isInline = !className;
+            if (isInline) {
+              return <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-xs font-mono">{children}</code>;
+            }
+            return (
+              <pre className="bg-slate-100 text-slate-800 p-2 rounded-lg overflow-x-auto mb-2">
+                <code className="text-xs font-mono">{children}</code>
+              </pre>
+            );
+          },
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-slate-300 pl-3 italic text-slate-700 mb-2">
+              {children}
+            </blockquote>
+          ),
+          a: ({ children, href }) => (
+            <a href={href} className="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    );
   };
 
   return (
@@ -260,7 +295,9 @@ const ChatBot: React.FC = () => {
                         }}
                         transition={{ duration: 0.3 }}
                       >
-                        <p className="text-sm leading-relaxed font-medium">{message.sender === 'bot' ? sanitizeText(message.text) : message.text}</p>
+                        <div className="text-sm leading-relaxed font-medium">
+                          {message.sender === 'bot' ? renderMarkdown(message.text) : message.text}
+                        </div>
                         <div className={`flex items-center justify-between mt-3 ${
                           message.sender === 'user' ? 'text-emerald-100' : 'text-slate-400'
                         }`}>

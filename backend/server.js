@@ -765,18 +765,92 @@ app.post('/api/chatbot-stream', async (req, res) => {
       });
     }
 
+    // Prepare streaming headers
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    // Check cache first
+    const { findConversationByPrompt } = require('./services/supabaseClient');
+    let cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'chatbot' });
+
+    // If no exact match, try AI-powered semantic matching
+    if (!cached || !cached.data) {
+      try {
+        const geminiService = require('./services/geminiService');
+        
+        // Get recent questions for AI comparison
+        const { fetchConversations } = require('./services/supabaseClient');
+        const { data: recent, error } = await fetchConversations({ page: 1, limit: 10, type: 'chatbot' });
+        
+        if (recent && recent.length > 0) {
+          const recentQuestions = recent.map(row => row.prompt);
+          
+          // Use Gemini to check if the new question matches any existing question
+          const aiCheckPrompt = `You are a cache system. Check if the NEW QUESTION is semantically similar to any of the EXISTING QUESTIONS.
+
+NEW QUESTION: "${prompt.trim()}"
+
+EXISTING QUESTIONS:
+${recentQuestions.map((q, i) => `${i + 1}. "${q}"`).join('\n')}
+
+Rules:
+- If the NEW QUESTION is asking for the same information as any EXISTING QUESTION, respond with: MATCH: [number]
+- If no match found, respond with: NO_MATCH
+- Consider synonyms, paraphrases, typos, and different ways of asking the same thing
+- Be strict - only match if they're asking for essentially the same information
+
+Response:`;
+
+          const aiResponse = await geminiService.generateResponse(aiCheckPrompt);
+          console.log('🤖 ChatBot AI Cache Check Response:', aiResponse);
+          
+          // Parse AI response
+          if (aiResponse && aiResponse.includes('MATCH:')) {
+            const matchNumber = parseInt(aiResponse.match(/MATCH:\s*(\d+)/)?.[1]);
+            if (matchNumber && matchNumber > 0 && matchNumber <= recentQuestions.length) {
+              const matchedQuestion = recentQuestions[matchNumber - 1];
+              const matchedRow = recent.find(row => row.prompt === matchedQuestion);
+              
+              if (matchedRow) {
+                console.log(`🤖 ChatBot AI found matching cached question: "${matchedRow.prompt}"`);
+                cached = { data: matchedRow };
+              }
+            }
+          }
+        }
+      } catch (aiError) {
+        console.error('ChatBot AI cache check failed:', aiError.message);
+        // Continue without cache if AI check fails
+      }
+    }
+
+    // If we found a cached response, stream it with typing simulation
+    if (cached && cached.data && cached.data.response) {
+      console.log('⚡ ChatBot: Serving from cache with typing simulation');
+      const cachedResponse = cached.data.response;
+      const words = cachedResponse.split(' ');
+      
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i];
+        res.write(word + (i < words.length - 1 ? ' ' : ''));
+        
+        // Simulate typing delay
+        await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 100));
+      }
+      
+      res.end();
+      return;
+    }
+
+    // No cache found, proceed with AI generation
     const { GoogleGenerativeAI } = require('@google/generative-ai');
 
     const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     if (!apiKey || apiKey === 'your-api-key-here') {
       return res.status(500).json({ error: 'Gemini API key not configured' });
     }
-
-    // Prepare streaming headers
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Transfer-Encoding', 'chunked');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
