@@ -1160,28 +1160,85 @@ const MultiAI: React.FC = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Loading State */}
+                {/* Modern Loading State */}
                 <AnimatePresence>
                   {isLoading && (
                     <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="text-center py-16"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.5 }}
+                      className="text-center py-12 sm:py-16"
                     >
-                      <div className="flex flex-col items-center space-y-6">
+                      <div className="flex flex-col items-center space-y-6 sm:space-y-8">
+                        {/* Modern Animated Loader */}
                         <div className="relative">
-                          <div className="w-20 h-20 border-4 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
-                          <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-violet-500 rounded-full animate-spin" style={{ animationDelay: '0.5s' }}></div>
-                          <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-rose-500 rounded-full animate-spin" style={{ animationDelay: '1s' }}></div>
+                          {/* Outer Ring */}
+                          <motion.div 
+                            className="w-16 h-16 sm:w-20 sm:h-20 border-4 border-slate-200/30 border-t-emerald-500 rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                          />
+                          {/* Middle Ring */}
+                          <motion.div 
+                            className="absolute inset-0 w-16 h-16 sm:w-20 sm:h-20 border-4 border-transparent border-t-violet-500 rounded-full"
+                            animate={{ rotate: -360 }}
+                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+                          />
+                          {/* Inner Ring */}
+                          <motion.div 
+                            className="absolute inset-2 w-12 h-12 sm:w-16 sm:h-16 border-4 border-transparent border-t-rose-500 rounded-full"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          />
+                          {/* Center Dot */}
+                          <motion.div 
+                            className="absolute inset-1/2 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-full transform -translate-x-1/2 -translate-y-1/2"
+                            animate={{ 
+                              scale: [1, 1.5, 1],
+                              opacity: [0.7, 1, 0.7]
+                            }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          />
                         </div>
-                        <div className="text-slate-300">
-                          <p className="text-xl font-semibold">
+                        
+                        {/* Loading Text */}
+                        <div className="text-slate-300 space-y-2 sm:space-y-3">
+                          <motion.p 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.2 }}
+                            className="text-lg sm:text-xl font-semibold"
+                          >
                             {streamingMode ? 'Processing with AI Services...' : 'Processing with AI Services (Non-Streaming)...'}
-                          </p>
-                          <p className="text-sm opacity-80">
+                          </motion.p>
+                          <motion.p 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="text-sm sm:text-base opacity-80 max-w-md mx-auto"
+                          >
                             {streamingMode ? 'This may take a few seconds' : 'This may take up to 2 minutes - all AI services are being called simultaneously'}
-                          </p>
+                          </motion.p>
+                        </div>
+                        
+                        {/* Animated Dots */}
+                        <div className="flex space-x-2">
+                          {[...Array(3)].map((_, i) => (
+                            <motion.div
+                              key={i}
+                              className="w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-full"
+                              animate={{
+                                scale: [1, 1.5, 1],
+                                opacity: [0.5, 1, 0.5],
+                              }}
+                              transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                delay: i * 0.2,
+                              }}
+                            />
+                          ))}
                         </div>
                       </div>
                     </motion.div>
@@ -1357,103 +1414,160 @@ const MultiAI: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Premium Modal */}
+      {/* Modern Premium Modal */}
       <AnimatePresence>
         {modalOpen && selectedResponse && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-2xl z-50 flex items-center justify-center p-4"
             onClick={closeModal}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-full sm:max-w-5xl w-full max-h-[90vh] overflow-y-auto overscroll-contain border border-white/20"
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-5xl w-full max-h-[90vh] overflow-y-auto overscroll-contain border border-white/20 backdrop-blur-2xl"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Animated Border */}
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-violet-400/20 to-rose-400/20 rounded-2xl sm:rounded-3xl animate-pulse"></div>
+                <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl"></div>
+              </div>
+              
               {/* Modal Header */}
-              <div className="bg-gradient-to-r from-slate-800 to-slate-700 p-8 border-b border-white/10">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-6">
-                    <div className="w-16 h-16 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-2xl flex items-center justify-center text-3xl shadow-xl">
+              <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 sm:p-8 border-b border-white/10 backdrop-blur-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center space-x-4 sm:space-x-6">
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                      className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xl"
+                    >
                       {selectedResponse && getAIConfig(selectedResponse.aiName).icon}
-                    </div>
+                    </motion.div>
                     <div>
-                      <h2 className="text-3xl font-bold text-white">{selectedResponse && getAIConfig(selectedResponse.aiName).name}</h2>
-                      <p className="text-slate-300 text-lg">{selectedResponse && getAIConfig(selectedResponse.aiName).description}</p>
+                      <motion.h2 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-xl sm:text-3xl font-bold text-white"
+                      >
+                        {selectedResponse && getAIConfig(selectedResponse.aiName).name}
+                      </motion.h2>
+                      <motion.p 
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4 }}
+                        className="text-slate-300 text-sm sm:text-lg"
+                      >
+                        {selectedResponse && getAIConfig(selectedResponse.aiName).description}
+                      </motion.p>
                     </div>
                   </div>
-                  <button
+                  <motion.button
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={closeModal}
-                    className="w-12 h-12 bg-slate-700/50 hover:bg-slate-600/50 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 backdrop-blur-sm"
+                    className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-700/50 hover:bg-slate-600/50 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm self-start sm:self-auto"
                   >
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
               {/* Modal Content */}
-              <div className="p-8 max-h-[60vh] overflow-y-auto overscroll-contain">
+              <div className="relative p-6 sm:p-8 max-h-[60vh] overflow-y-auto overscroll-contain">
                 {selectedResponse && selectedResponse.response.success ? (
-                  <div className="space-y-6">
-                    <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/50 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
-                      <h3 className="font-semibold text-white text-xl mb-4">Response:</h3>
-                      <div className="text-slate-200 leading-relaxed text-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="space-y-6"
+                  >
+                    <div className="bg-gradient-to-br from-slate-800/60 to-slate-700/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 backdrop-blur-sm">
+                      <h3 className="font-semibold text-white text-lg sm:text-xl mb-4">Response:</h3>
+                      <div className="text-slate-200 leading-relaxed text-base sm:text-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-3 sm:[&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 sm:[&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
                         {renderMarkdown((selectedResponse.response as any).response)}
                       </div>
                     </div>
-                    <div className="flex justify-between items-center text-sm text-slate-400">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-sm text-slate-400">
                       <span>Model: {selectedResponse.response.model}</span>
                       {selectedResponse.response.tokens && <span>{selectedResponse.response.tokens} tokens</span>}
                     </div>
-                  </div>
+                  </motion.div>
                 ) : (
-                  <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 border border-red-400/30 rounded-2xl p-6">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.6 }}
+                    className="bg-gradient-to-br from-red-900/60 to-pink-900/60 border border-red-400/30 rounded-xl sm:rounded-2xl p-4 sm:p-6"
+                  >
                     <div className="flex items-center space-x-3 text-red-300 mb-4">
-                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
-                      <span className="font-medium text-lg">Error</span>
+                      <span className="font-medium text-base sm:text-lg">Error</span>
                     </div>
-                    <p className="text-red-200 text-lg leading-relaxed">{selectedResponse && selectedResponse.response.error}</p>
-                  </div>
+                    <p className="text-red-200 text-base sm:text-lg leading-relaxed">{selectedResponse && selectedResponse.response.error}</p>
+                  </motion.div>
                 )}
               </div>
 
               {/* Modal Footer with Navigation */}
-              <div className="bg-gradient-to-r from-slate-800 to-slate-700 p-8 border-t border-white/10">
-                <div className="flex items-center justify-between">
-                  <button
+              <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 sm:p-8 border-t border-white/10 backdrop-blur-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <motion.button
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => navigateToResponse('prev')}
-                    className="flex items-center space-x-3 px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 border border-white/20 text-white text-lg rounded-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+                    className="flex items-center justify-center space-x-3 px-4 sm:px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 border border-white/20 text-white text-sm sm:text-lg rounded-xl transition-all duration-300 backdrop-blur-sm"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                     <span>Previous AI</span>
-                  </button>
+                  </motion.button>
                   
-                  <div className="text-slate-300 text-center">
-                    <div className="text-lg font-semibold">{selectedResponse && getAIConfig(selectedResponse.aiName).name}</div>
-                    <div className="text-sm opacity-80">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.8 }}
+                    className="text-slate-300 text-center"
+                  >
+                    <div className="text-base sm:text-lg font-semibold">{selectedResponse && getAIConfig(selectedResponse.aiName).name}</div>
+                    <div className="text-xs sm:text-sm opacity-80">
                       {results && selectedResponse ? `${Object.keys(results.responses).indexOf(selectedResponse.aiName) + 1} of ${Object.keys(results.responses).length}` : '1 of 1'}
                     </div>
-                  </div>
+                  </motion.div>
                   
-                  <button
+                  <motion.button
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => navigateToResponse('next')}
-                    className="flex items-center space-x-3 px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 border border-white/20 text-white text-lg rounded-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+                    className="flex items-center justify-center space-x-3 px-4 sm:px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 border border-white/20 text-white text-sm sm:text-lg rounded-xl transition-all duration-300 backdrop-blur-sm"
                   >
                     <span>Next AI</span>
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </motion.div>
