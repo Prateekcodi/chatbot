@@ -1370,26 +1370,152 @@ const MultiAI: React.FC = () => {
                               initial={{ opacity: 0, scale: 0.8 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.15 + 0.5 }}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
+                              whileHover={{ 
+                                scale: 1.08, 
+                                y: -3,
+                                transition: { duration: 0.2 }
+                              }}
+                              whileTap={{ scale: 0.92 }}
                               onClick={() => {
                                 setResults(conversation);
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
+                                // Add vibration feedback on mobile
+                                if (navigator.vibrate) {
+                                  navigator.vibrate(50);
+                                }
                               }}
-                              className="px-4 py-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-400/30 text-violet-300 text-sm rounded-xl hover:from-violet-500/30 hover:to-purple-500/30 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-violet-500/25"
+                              className="relative group overflow-hidden px-4 sm:px-5 py-2 sm:py-3 bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 border border-emerald-400/30 text-emerald-300 text-sm sm:text-base rounded-xl sm:rounded-2xl hover:from-emerald-500/30 hover:via-teal-500/30 hover:to-cyan-500/30 transition-all duration-500 backdrop-blur-sm shadow-lg hover:shadow-emerald-500/25 hover:shadow-xl"
                             >
-                              🔍 View Details
+                              {/* Animated Background Shimmer */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                              
+                              {/* Animated Border Glow */}
+                              <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-400/20 via-teal-400/20 to-cyan-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                              
+                              <span className="relative z-10 flex items-center space-x-2">
+                                <motion.span
+                                  animate={{ 
+                                    scale: [1, 1.1, 1],
+                                    rotate: [0, 10, -10, 0]
+                                  }}
+                                  transition={{ 
+                                    duration: 3,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                  }}
+                                  className="text-base sm:text-lg"
+                                >
+                                  🔍
+                                </motion.span>
+                                <span className="font-semibold">View Details</span>
+                                
+                                {/* Animated Sparkle */}
+                                <motion.span
+                                  animate={{ 
+                                    scale: [1, 1.2, 1],
+                                    opacity: [0.6, 1, 0.6]
+                                  }}
+                                  transition={{ 
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    delay: 0.3
+                                  }}
+                                  className="text-blue-400 text-xs"
+                                >
+                                  ✨
+                                </motion.span>
+                              </span>
+                              
+                              {/* Pulse Ring Effect */}
+                              <motion.div
+                                className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-emerald-400/30"
+                                animate={{ 
+                                  scale: [1, 1.1, 1], 
+                                  opacity: [0.4, 0, 0.4] 
+                                }}
+                                transition={{ 
+                                  duration: 2.5, 
+                                  repeat: Infinity,
+                                  delay: 0.8
+                                }}
+                              />
                             </motion.button>
                             <motion.button
                               initial={{ opacity: 0, scale: 0.8 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.15 + 0.6 }}
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                              className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 text-sm rounded-xl hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-emerald-500/25"
+                              whileHover={{ 
+                                scale: 1.08, 
+                                y: -3,
+                                transition: { duration: 0.2 }
+                              }}
+                              whileTap={{ scale: 0.92 }}
+                              onClick={() => {
+                                // Enhanced scroll to top with better functionality
+                                window.scrollTo({ 
+                                  top: 0, 
+                                  behavior: 'smooth' 
+                                });
+                                // Add a subtle vibration feedback on mobile
+                                if (navigator.vibrate) {
+                                  navigator.vibrate(50);
+                                }
+                              }}
+                              className="relative group overflow-hidden px-4 sm:px-5 py-2 sm:py-3 bg-gradient-to-r from-rose-500/20 via-pink-500/20 to-violet-500/20 border border-rose-400/30 text-rose-300 text-sm sm:text-base rounded-xl sm:rounded-2xl hover:from-rose-500/30 hover:via-pink-500/30 hover:to-violet-500/30 transition-all duration-500 backdrop-blur-sm shadow-lg hover:shadow-rose-500/25 hover:shadow-xl"
                             >
-                              ⬆️ Top
+                              {/* Animated Background Shimmer */}
+                              <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                              
+                              {/* Animated Border Glow */}
+                              <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-rose-400/20 via-pink-400/20 to-violet-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                              
+                              <span className="relative z-10 flex items-center space-x-2">
+                                <motion.span
+                                  animate={{ 
+                                    y: [-2, 2, -2],
+                                    rotate: [0, 5, -5, 0]
+                                  }}
+                                  transition={{ 
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut"
+                                  }}
+                                  className="text-base sm:text-lg"
+                                >
+                                  ⬆️
+                                </motion.span>
+                                <span className="font-semibold">Top</span>
+                                
+                                {/* Animated Sparkle */}
+                                <motion.span
+                                  animate={{ 
+                                    scale: [1, 1.3, 1],
+                                    opacity: [0.7, 1, 0.7]
+                                  }}
+                                  transition={{ 
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                    delay: 0.5
+                                  }}
+                                  className="text-yellow-400 text-xs"
+                                >
+                                  ✨
+                                </motion.span>
+                              </span>
+                              
+                              {/* Pulse Ring Effect */}
+                              <motion.div
+                                className="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-rose-400/30"
+                                animate={{ 
+                                  scale: [1, 1.1, 1], 
+                                  opacity: [0.5, 0, 0.5] 
+                                }}
+                                transition={{ 
+                                  duration: 2, 
+                                  repeat: Infinity,
+                                  delay: 1
+                                }}
+                              />
                             </motion.button>
                           </div>
                         </div>
