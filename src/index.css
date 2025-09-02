@@ -109,21 +109,43 @@ body {
   .smooth-scroll {
     /* Better mobile scrolling */
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    /* Ensure full scroll range */
-    height: 100vh;
-    height: -webkit-fill-available;
+    overscroll-behavior: auto;
+    /* Allow full content scrolling */
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    /* Ensure content can scroll beyond viewport */
+    height: auto;
+    max-height: none;
   }
   
   /* Fix mobile viewport issues */
   html, body {
-    height: 100vh;
-    height: -webkit-fill-available;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    height: auto;
   }
   
   #root {
-    height: 100vh;
-    height: -webkit-fill-available;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    height: auto;
+  }
+  
+  /* Ensure content can extend beyond viewport */
+  .App {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+  
+  /* Fix mobile scroll container */
+  .App > div:last-child {
+    min-height: calc(100vh - 4rem);
+    min-height: calc(-webkit-fill-available - 4rem);
+  }
+  
+  /* Ensure smooth scrolling works on mobile */
+  * {
+    -webkit-overflow-scrolling: touch;
   }
 }
 

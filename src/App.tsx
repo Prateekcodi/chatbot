@@ -300,9 +300,9 @@ function App() {
   return (
     <AuthProvider>
       <HashRouter>
-        <div className="App w-screen h-screen overflow-hidden">
+        <div className="App w-screen min-h-screen overflow-hidden">
           <Nav />
-          <div className="w-full h-full pt-16 overflow-y-auto overflow-x-hidden smooth-scroll">
+          <div className="w-full min-h-full pt-16 overflow-y-auto overflow-x-hidden smooth-scroll">
             <ProfileUpsertOnAuth />
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
