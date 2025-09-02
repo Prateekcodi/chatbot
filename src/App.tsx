@@ -301,11 +301,17 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
 function AppContent() {
   const location = useLocation();
   
+  console.log('AppContent - current pathname:', location.pathname);
+  console.log('AppContent - current hash:', window.location.hash);
+  
   return (
     <div className="App w-screen min-h-screen overflow-hidden bg-[#0A0A0F]">
       <Nav />
       <div className={`w-full min-h-full overflow-y-auto overflow-x-hidden smooth-scroll ${location.pathname !== '/auth' ? 'pt-16' : ''}`}>
         <ProfileUpsertOnAuth />
+        <div style={{ color: 'white', padding: '1rem', backgroundColor: 'red' }}>
+          Debug: Current path = {location.pathname}, Hash = {window.location.hash}
+        </div>
         <Routes>
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/chatbot" element={<Protected><ChatBot /></Protected>} />
