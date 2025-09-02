@@ -52,14 +52,14 @@ function Nav() {
   
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-slate-900/80 backdrop-blur-2xl border-b border-white/10' : 'bg-transparent'
+      scrolled ? 'bg-[#0A0A0F]/95 backdrop-blur-2xl border-b border-slate-700/30' : 'bg-[#0A0A0F]/80 backdrop-blur-xl'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Desktop Navigation */}
         <div className="hidden sm:flex items-center justify-between h-16">
           {/* Logo/Brand */}
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-sm">AI</span>
             </div>
             <span className="text-white font-semibold text-lg">Multi-AI Studio</span>
@@ -71,8 +71,8 @@ function Nav() {
               to="/multiai" 
               className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
                 location.pathname === '/multiai' 
-                  ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
-                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+                  ? 'bg-gradient-to-r from-emerald-500/30 to-violet-500/30 text-white border border-emerald-400/50 shadow-lg' 
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
               }`}
             >
               <span className="flex items-center space-x-2">
@@ -84,8 +84,8 @@ function Nav() {
               to="/chatbot" 
               className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
                 location.pathname === '/chatbot' 
-                  ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
-                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+                  ? 'bg-gradient-to-r from-emerald-500/30 to-violet-500/30 text-white border border-emerald-400/50 shadow-lg' 
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
               }`}
             >
               <span className="flex items-center space-x-2">
@@ -108,7 +108,7 @@ function Nav() {
             ) : (
               <Link 
                 to="/auth" 
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white hover:from-emerald-500/30 hover:to-violet-500/30 border border-emerald-400/30 transition-all duration-300"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500/30 to-violet-500/30 text-white hover:from-emerald-500/40 hover:to-violet-500/40 border border-emerald-400/50 transition-all duration-300 shadow-lg"
               >
                 Login
               </Link>
@@ -121,7 +121,7 @@ function Nav() {
           <div className="flex items-center justify-between h-16">
             {/* Mobile Logo */}
             <div className="flex items-center space-x-2">
-              <div className="w-7 h-7 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-lg flex items-center justify-center">
+              <div className="w-7 h-7 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-xs">AI</span>
               </div>
               <span className="text-white font-semibold text-base">AI Studio</span>
@@ -131,7 +131,7 @@ function Nav() {
             <button 
               aria-label="Toggle menu" 
               onClick={() => setOpen(!open)} 
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-300"
+              className="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 text-white transition-all duration-300 border border-slate-600/30"
             >
               <svg 
                 className={`w-6 h-6 transition-transform duration-300 ${open ? 'rotate-90' : ''}`} 
@@ -155,18 +155,18 @@ function Nav() {
             </button>
           </div>
           
-          {/* Mobile Menu Dropdown */}
-          <div className={`overflow-hidden transition-all duration-300 ${
-            open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          {/* Mobile Menu Dropdown - Fixed positioning to prevent overlap */}
+          <div className={`absolute top-full left-0 right-0 bg-[#0A0A0F]/98 backdrop-blur-2xl border-b border-slate-700/30 shadow-2xl transition-all duration-300 ${
+            open ? 'max-h-96 opacity-100 visible' : 'max-h-0 opacity-0 invisible'
           }`}>
-            <div className="py-4 space-y-2">
+            <div className="px-4 py-4 space-y-2">
               <Link 
                 onClick={() => setOpen(false)} 
                 to="/multiai" 
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
                   location.pathname === '/multiai' 
-                    ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
-                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-gradient-to-r from-emerald-500/30 to-violet-500/30 text-white border border-emerald-400/50 shadow-lg' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
                 }`}
               >
                 <span className="text-lg">🤖</span>
@@ -177,8 +177,8 @@ function Nav() {
                 to="/chatbot" 
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
                   location.pathname === '/chatbot' 
-                    ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
-                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-gradient-to-r from-emerald-500/30 to-violet-500/30 text-white border border-emerald-400/50 shadow-lg' 
+                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
                 }`}
               >
                 <span className="text-lg">💬</span>
@@ -288,7 +288,7 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
       id="logout-btn" 
       onClick={handle} 
       disabled={isLoggingOut}
-      className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500/20 to-pink-500/20 text-white hover:from-rose-500/30 hover:to-pink-500/30 border border-rose-400/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2"
+      className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500/30 to-pink-500/30 text-white hover:from-rose-500/40 hover:to-pink-500/40 border border-rose-400/50 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2 shadow-lg"
     >
       <span className="text-sm">🚪</span>
       <span className="font-medium">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
