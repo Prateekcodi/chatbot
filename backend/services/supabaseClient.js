@@ -62,8 +62,24 @@ async function fetchConversations({ page = 1, limit = 20, type } = {}) {
 
     const { data, error, count } = await query;
     if (error) {
-      console.error('Supabase fetch error:', JSON.stringify(error, null, 2));
-      return { data: [], total: 0, error: error.message };
+      // Handle different error types safely
+      let errorMessage = 'Unknown error';
+      try {
+        if (typeof error === 'string') {
+          errorMessage = error;
+        } else if (error.message) {
+          errorMessage = error.message;
+        } else if (error.details) {
+          errorMessage = error.details;
+        } else {
+          errorMessage = JSON.stringify(error);
+        }
+      } catch (e) {
+        errorMessage = 'Error parsing error message';
+      }
+      
+      console.error('Supabase fetch error:', errorMessage);
+      return { data: [], total: 0, error: errorMessage };
     }
     return { data: data || [], total: count || 0 };
   } catch (err) {

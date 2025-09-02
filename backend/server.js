@@ -130,76 +130,87 @@ app.post('/api/ask', async (req, res) => {
   console.log(`🤖 Processing prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
 
   try {
-    // Cache lookup: enhanced matching for word order independence
-    try {
-      const { findConversationByPrompt } = require('./services/supabaseClient');
-      
-      // First try exact match
-      let cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
-      
-      // If no exact match, try word-order-independent matching
-      if (!cached || !cached.data) {
-        // Create a word-set based matcher
-        const normalizeForWordSet = (s) => s
-          .toLowerCase()
-          .replace(/[^\w\s]/g, ' ') // remove punctuation
-          .replace(/\s+/g, ' ')
-          .trim()
-          .split(' ')
-          .filter(word => word.length > 0)
-          .sort()
-          .join(' ');
-        
-        const targetWordSet = normalizeForWordSet(prompt.trim());
-        
-        // Get recent conversations and check for word-set matches
-        const { fetchConversations } = require('./services/supabaseClient');
-        
-        // Search multiple pages to find matches
-        let found = false;
-        for (let page = 1; page <= 5 && !found; page++) {
-          try {
-            const { data: recent, error } = await fetchConversations({ page, limit: 100, type: 'multibot' });
-            
-            if (error) {
-              console.error(`Supabase fetch error on page ${page}:`, error);
-              break; // Stop searching if there's an error
-            }
-            
-            if (recent && recent.length > 0) {
-              for (const conv of recent) {
-                const convWordSet = normalizeForWordSet(conv.prompt);
-                if (convWordSet === targetWordSet) {
-                  cached = { data: conv };
-                  found = true;
-                  break;
-                }
+          // Cache lookup: enhanced matching for word order independence
+      // Make cache lookup resilient to database errors
+      let cacheLookupFailed = false;
+      try {
+        const { findConversationByPrompt } = require('./services/supabaseClient');
+
+        // First try exact match
+        let cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
+
+        // If no exact match, try word-order-independent matching
+        if (!cached || !cached.data) {
+          // Create a word-set based matcher
+          const normalizeForWordSet = (s) => s
+            .toLowerCase()
+            .replace(/[^\w\s]/g, ' ') // remove punctuation
+            .replace(/\s+/g, ' ')
+            .trim()
+            .split(' ')
+            .filter(word => word.length > 0)
+            .sort()
+            .join(' ');
+
+          const targetWordSet = normalizeForWordSet(prompt.trim());
+          
+          // Get recent conversations and check for word-set matches
+          const { fetchConversations } = require('./services/supabaseClient');
+          
+          // Search multiple pages to find matches
+          let found = false;
+          for (let page = 1; page <= 3 && !found; page++) { // Reduced to 3 pages to minimize errors
+            try {
+              const { data: recent, error } = await fetchConversations({ page, limit: 50, type: 'multibot' }); // Reduced limit
+              
+              if (error) {
+                console.error(`Supabase fetch error on page ${page}:`, error.message || error);
+                cacheLookupFailed = true;
+                break; // Stop searching if there's an error
               }
-            } else {
-              break; // No more data
+              
+              if (recent && recent.length > 0) {
+                for (const conv of recent) {
+                  const convWordSet = normalizeForWordSet(conv.prompt);
+                  if (convWordSet === targetWordSet) {
+                    cached = { data: conv };
+                    found = true;
+                    break;
+                  }
+                }
+              } else {
+                break; // No more data
+              }
+            } catch (err) {
+              console.error(`Error fetching conversations page ${page}:`, err.message);
+              cacheLookupFailed = true;
+              break; // Stop searching if there's an exception
             }
-          } catch (err) {
-            console.error(`Error fetching conversations page ${page}:`, err.message);
-            break; // Stop searching if there's an exception
           }
         }
-      }
-      
-      if (cached && cached.data && cached.data.responses) {
-        const r = cached.data.responses || {};
-        const names = ['gemini','cohere','openrouter','glm','deepseek'];
-        const allOk = names.every(n => r[n] && r[n].success === true);
-        if (allOk) {
-          console.log('⚡ Serving from cache (word-order-independent match, all providers succeeded)');
-          return res.json({
-            prompt: cached.data.prompt,
-            processingTime: '0ms (cached)',
-            timestamp: new Date().toISOString(),
-            responses: cached.data.responses
-          });
+
+        if (cached && cached.data && cached.data.responses) {
+          const r = cached.data.responses || {};
+          const names = ['gemini','cohere','openrouter','glm','deepseek'];
+          const allOk = names.every(n => r[n] && r[n].success === true);
+          if (allOk) {
+            console.log('⚡ Serving from cache (word-order-independent match, all providers succeeded)');
+            return res.json({
+              prompt: cached.data.prompt,
+              processingTime: '0ms (cached)',
+              timestamp: new Date().toISOString(),
+              responses: cached.data.responses
+            });
+          }
         }
+      } catch (err) {
+        console.error('Cache lookup failed:', err.message);
+        cacheLookupFailed = true;
       }
-    } catch (_) {}
+
+      if (cacheLookupFailed) {
+        console.log('⚠️ Cache lookup failed, proceeding with AI calls...');
+      }
 
     // Load services dynamically only when needed
     const geminiService = require('./services/geminiService');
