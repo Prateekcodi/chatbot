@@ -167,9 +167,38 @@ const MultiAI: React.FC = () => {
             }
           },
           (data) => {
-            // Handle completion
+            // Handle completion - convert streaming responses to normal results format
             console.log('Streaming complete:', data);
-            setPrompt('');
+            
+            // Get current streaming responses before clearing them
+            setStreamingResponses(currentStreamingResponses => {
+              // Convert streaming responses to the normal results format
+              const finalResults: APIResponse = {
+                prompt: prompt.trim(),
+                processingTime: data.processingTime || '0ms',
+                timestamp: data.timestamp || new Date().toISOString(),
+                responses: {}
+              };
+
+              // Convert streaming responses to normal format
+              Object.entries(currentStreamingResponses).forEach(([aiName, response]) => {
+                if (response.text) {
+                  finalResults.responses[aiName] = {
+                    success: true,
+                    response: response.text,
+                    model: response.model,
+                    tokens: 0 // We don't have token count in streaming
+                  };
+                }
+              });
+
+              // Save to conversation history and set as results
+              setConversationHistory(prev => [...prev, finalResults]);
+              setResults(finalResults);
+              setPrompt('');
+              
+              return {}; // Clear streaming responses
+            });
           },
           (error) => {
             setError(error);
@@ -612,7 +641,7 @@ const MultiAI: React.FC = () => {
                 </motion.div>
 
                 {/* Streaming Responses Display */}
-                {streamingMode && Object.keys(streamingResponses).length > 0 && (
+                {streamingMode && Object.keys(streamingResponses).length > 0 && !results && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
