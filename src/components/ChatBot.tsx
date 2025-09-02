@@ -139,7 +139,7 @@ const ChatBot: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 w-screen h-screen bg-[#0A0A0F] overflow-hidden" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
+    <div className="w-full h-full bg-[#0A0A0F] overflow-hidden">
       {/* Premium Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/30 via-purple-900/30 to-pink-900/30"></div>
       
@@ -158,7 +158,7 @@ const ChatBot: React.FC = () => {
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0A0A0F] via-[#0A0A0F]/80 to-transparent"></div>
 
       {/* Main Container */}
-      <div className="relative z-10 w-full h-full flex items-center justify-center p-4 pt-20">
+      <div className="relative z-10 w-full h-full flex items-center justify-center p-4">
         <motion.div 
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
