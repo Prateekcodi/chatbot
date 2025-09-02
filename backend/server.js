@@ -395,44 +395,110 @@ app.post('/api/ask-stream', async (req, res) => {
           }
         }
         
-        // If word-order-independent matching failed, try semantic matching
+        // If word-order-independent matching failed, try AI-powered semantic matching
         if (!found) {
           try {
             const geminiService = require('./services/geminiService');
-            const { matchQuestions } = require('./services/supabaseClient');
             
-            const embedding = await geminiService.embed(prompt.trim());
-            const { data: semanticMatches } = await matchQuestions({ 
-              queryEmbedding: embedding, 
-              matchThreshold: 0.8, 
-              matchCount: 1 
-            });
+            // Get recent questions for AI comparison
+            const recentQuestions = [];
+            for (let page = 1; page <= 2; page++) {
+              try {
+                const { data: recent, error } = await fetchConversations({ page, limit: 25, type: 'multibot' });
+                if (error) continue;
+                if (recent && recent.length > 0) {
+                  recentQuestions.push(...recent.map(row => row.prompt));
+                }
+              } catch (pageError) {
+                continue;
+              }
+            }
             
-            if (semanticMatches && semanticMatches.length > 0 && semanticMatches[0].similarity > 0.8) {
-              // Find the corresponding conversation from recent data
-              for (let page = 1; page <= 3; page++) {
-                try {
-                  const { data: recent, error } = await fetchConversations({ page, limit: 50, type: 'multibot' });
-                  if (error) continue;
+            if (recentQuestions.length > 0) {
+              // Use Gemini to check if the new question matches any existing question
+              const aiCheckPrompt = `You are a cache system. Check if the NEW QUESTION is semantically similar to any of the EXISTING QUESTIONS.
+
+NEW QUESTION: "${prompt.trim()}"
+
+EXISTING QUESTIONS:
+${recentQuestions.slice(0, 10).map((q, i) => `${i + 1}. "${q}"`).join('\n')}
+
+Rules:
+- If the NEW QUESTION is asking for the same information as any EXISTING QUESTION, respond with: MATCH: [number]
+- If no match found, respond with: NO_MATCH
+- Consider synonyms, paraphrases, typos, and different ways of asking the same thing
+- Be strict - only match if they're asking for essentially the same information
+
+Response:`;
+
+              const aiResponse = await geminiService.generateResponse(aiCheckPrompt);
+              console.log('🤖 Streaming AI Cache Check Response:', aiResponse);
+              
+              // Parse AI response
+              if (aiResponse && aiResponse.includes('MATCH:')) {
+                const matchNumber = parseInt(aiResponse.match(/MATCH:\s*(\d+)/)?.[1]);
+                if (matchNumber && matchNumber > 0 && matchNumber <= Math.min(10, recentQuestions.length)) {
+                  const matchedQuestion = recentQuestions[matchNumber - 1];
                   
-                  const semanticMatch = (recent || []).find(conv => 
-                    conv.prompt === semanticMatches[0].question || 
-                    normalizeForWordSet(conv.prompt) === normalizeForWordSet(semanticMatches[0].question)
-                  );
-                  
-                  if (semanticMatch) {
-                    console.log(`🧠 Streaming: Found semantically similar cached question: "${semanticMatch.prompt}" (similarity: ${(semanticMatches[0].similarity * 100).toFixed(1)}%)`);
-                    cached = { data: semanticMatch };
-                    found = true;
-                    break;
+                  // Find the corresponding conversation
+                  for (let page = 1; page <= 2; page++) {
+                    try {
+                      const { data: recent, error } = await fetchConversations({ page, limit: 25, type: 'multibot' });
+                      if (error) continue;
+                      
+                      const matchedRow = (recent || []).find(conv => conv.prompt === matchedQuestion);
+                      if (matchedRow) {
+                        console.log(`🤖 Streaming AI found matching cached question: "${matchedRow.prompt}"`);
+                        cached = { data: matchedRow };
+                        found = true;
+                        break;
+                      }
+                    } catch (pageError) {
+                      continue;
+                    }
                   }
-                } catch (pageError) {
-                  continue;
                 }
               }
             }
-          } catch (embedError) {
-            console.error('Streaming semantic matching failed:', embedError.message);
+          } catch (aiError) {
+            console.error('Streaming AI cache check failed:', aiError.message);
+            // Fallback to embedding-based matching if AI check fails
+            try {
+              const geminiService = require('./services/geminiService');
+              const { matchQuestions } = require('./services/supabaseClient');
+              
+              const embedding = await geminiService.embed(prompt.trim());
+              const { data: semanticMatches } = await matchQuestions({ 
+                queryEmbedding: embedding, 
+                matchThreshold: 0.8, 
+                matchCount: 1 
+              });
+              
+              if (semanticMatches && semanticMatches.length > 0 && semanticMatches[0].similarity > 0.8) {
+                for (let page = 1; page <= 2; page++) {
+                  try {
+                    const { data: recent, error } = await fetchConversations({ page, limit: 25, type: 'multibot' });
+                    if (error) continue;
+                    
+                    const semanticMatch = (recent || []).find(conv => 
+                      conv.prompt === semanticMatches[0].question || 
+                      normalizeForWordSet(conv.prompt) === normalizeForWordSet(semanticMatches[0].question)
+                    );
+                    
+                    if (semanticMatch) {
+                      console.log(`🧠 Streaming Fallback: Found semantically similar cached question: "${semanticMatch.prompt}" (similarity: ${(semanticMatches[0].similarity * 100).toFixed(1)}%)`);
+                      cached = { data: semanticMatch };
+                      found = true;
+                      break;
+                    }
+                  } catch (pageError) {
+                    continue;
+                  }
+                }
+              }
+            } catch (embedError) {
+              console.error('Streaming fallback semantic matching also failed:', embedError.message);
+            }
           }
         }
       }

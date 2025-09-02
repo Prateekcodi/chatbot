@@ -207,34 +207,80 @@ async function findConversationByPrompt({ prompt, type }) {
         }
       }
       
-      // If still no match, try semantic similarity using embeddings
+      // If still no match, try AI-powered semantic similarity using Gemini
       if (!found) {
         try {
           const geminiService = require('./geminiService');
-          const embedding = await geminiService.embed(target);
           
-          // Use the existing matchQuestions function for semantic matching
-          const { data: semanticMatches } = await matchQuestions({ 
-            queryEmbedding: embedding, 
-            matchThreshold: 0.8, 
-            matchCount: 1 
-          });
+          // Get recent questions for AI comparison
+          const recentQuestions = (recent || []).slice(0, 10).map(row => row.prompt);
           
-          if (semanticMatches && semanticMatches.length > 0 && semanticMatches[0].similarity > 0.8) {
-            // Find the corresponding conversation from our recent data
-            const semanticMatch = (recent || []).find(row => 
-              row.prompt === semanticMatches[0].question || 
-              normalizePrompt(row.prompt) === normalizePrompt(semanticMatches[0].question)
-            );
+          if (recentQuestions.length > 0) {
+            // Use Gemini to check if the new question matches any existing question
+            const aiCheckPrompt = `You are a cache system. Check if the NEW QUESTION is semantically similar to any of the EXISTING QUESTIONS.
+
+NEW QUESTION: "${prompt}"
+
+EXISTING QUESTIONS:
+${recentQuestions.map((q, i) => `${i + 1}. "${q}"`).join('\n')}
+
+Rules:
+- If the NEW QUESTION is asking for the same information as any EXISTING QUESTION, respond with: MATCH: [number]
+- If no match found, respond with: NO_MATCH
+- Consider synonyms, paraphrases, typos, and different ways of asking the same thing
+- Be strict - only match if they're asking for essentially the same information
+
+Examples:
+- "what is quantum physics" matches "explain quantum mechanics" → MATCH: 1
+- "how does light work" matches "what is light" → MATCH: 2
+- "tell me about cars" does NOT match "what is quantum physics" → NO_MATCH
+
+Response:`;
+
+            const aiResponse = await geminiService.generateResponse(aiCheckPrompt);
+            console.log('🤖 AI Cache Check Response:', aiResponse);
             
-            if (semanticMatch) {
-              console.log(`🧠 Found semantically similar cached question: "${semanticMatch.prompt}" (semantic similarity: ${(semanticMatches[0].similarity * 100).toFixed(1)}%)`);
-              found = semanticMatch;
+            // Parse AI response
+            if (aiResponse && aiResponse.includes('MATCH:')) {
+              const matchNumber = parseInt(aiResponse.match(/MATCH:\s*(\d+)/)?.[1]);
+              if (matchNumber && matchNumber > 0 && matchNumber <= recentQuestions.length) {
+                const matchedQuestion = recentQuestions[matchNumber - 1];
+                const matchedRow = (recent || []).find(row => row.prompt === matchedQuestion);
+                
+                if (matchedRow) {
+                  console.log(`🤖 AI found matching cached question: "${matchedRow.prompt}"`);
+                  found = matchedRow;
+                }
+              }
             }
           }
-        } catch (embedError) {
-          console.error('Semantic matching failed:', embedError.message);
-          // Continue without semantic matching if it fails
+        } catch (aiError) {
+          console.error('AI cache check failed:', aiError.message);
+          // Fallback to embedding-based matching if AI check fails
+          try {
+            const geminiService = require('./geminiService');
+            const embedding = await geminiService.embed(target);
+            
+            const { data: semanticMatches } = await matchQuestions({ 
+              queryEmbedding: embedding, 
+              matchThreshold: 0.8, 
+              matchCount: 1 
+            });
+            
+            if (semanticMatches && semanticMatches.length > 0 && semanticMatches[0].similarity > 0.8) {
+              const semanticMatch = (recent || []).find(row => 
+                row.prompt === semanticMatches[0].question || 
+                normalizePrompt(row.prompt) === normalizePrompt(semanticMatches[0].question)
+              );
+              
+              if (semanticMatch) {
+                console.log(`🧠 Fallback: Found semantically similar cached question: "${semanticMatch.prompt}" (similarity: ${(semanticMatches[0].similarity * 100).toFixed(1)}%)`);
+                found = semanticMatch;
+              }
+            }
+          } catch (embedError) {
+            console.error('Fallback semantic matching also failed:', embedError.message);
+          }
         }
       }
       
