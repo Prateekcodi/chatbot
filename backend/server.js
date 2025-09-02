@@ -347,10 +347,8 @@ app.post('/api/ask-stream', async (req, res) => {
     let cacheLookupFailed = false;
     let cached = null;
     try {
-      console.log('🔍 Starting cache lookup for streaming prompt:', prompt.trim());
       const { findConversationByPrompt } = require('./services/supabaseClient');
       cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
-      console.log('🔍 Initial cache lookup result:', { hasCached: !!cached, hasData: !!cached?.data });
 
       if (!cached || !cached.data) {
         const normalizeForWordSet = (s) => s
@@ -394,13 +392,7 @@ app.post('/api/ask-stream', async (req, res) => {
         const r = cached.data.responses || {};
         const names = ['gemini','cohere','openrouter','glm','deepseek'];
         const allOk = names.every(n => r[n] && r[n].success === true);
-        console.log('🔍 Cache check (streaming):', { 
-          hasCached: !!cached, 
-          hasData: !!cached?.data, 
-          hasResponses: !!cached?.data?.responses,
-          allOk,
-          availableServices: Object.keys(r)
-        });
+
         if (allOk) {
           console.log('⚡ Serving from cache (streaming)');
           
@@ -455,16 +447,8 @@ app.post('/api/ask-stream', async (req, res) => {
     }
 
     // Only proceed with AI calls if cache lookup failed or no cache found
-    console.log('🔍 Final cache check:', { 
-      cacheLookupFailed, 
-      hasCached: !!cached, 
-      hasData: !!cached?.data, 
-      hasResponses: !!cached?.data?.responses 
-    });
-    
     if (!cacheLookupFailed && cached && cached.data && cached.data.responses) {
       // Cache was found and served above, so we're done
-      console.log('✅ Cache found, skipping AI calls');
       return;
     }
 
