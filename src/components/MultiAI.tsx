@@ -1915,8 +1915,8 @@ const MultiAI: React.FC = () => {
                       cursor: 'pointer',
                       transition: 'background-color 0.2s'
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                    onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                    onMouseLeave={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                     disabled={isHistoryLoading || historyPage <= 1}
                   >Prev</button>
                   <span style={{
@@ -1935,8 +1935,8 @@ const MultiAI: React.FC = () => {
                       cursor: 'pointer',
                       transition: 'background-color 0.2s'
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                    onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                    onMouseLeave={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                     disabled={isHistoryLoading || historyItems.length < 20}
                   >Next</button>
                   <button
@@ -1951,8 +1951,8 @@ const MultiAI: React.FC = () => {
                       cursor: 'pointer',
                       transition: 'background-color 0.2s'
                     }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                    onMouseEnter={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                    onMouseLeave={(e) => (e.target as HTMLButtonElement).style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                   >Close</button>
                 </div>
               </div>
