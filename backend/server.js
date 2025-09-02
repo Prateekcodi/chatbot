@@ -196,9 +196,9 @@ app.post('/api/ask', async (req, res) => {
         if (cached && cached.data && cached.data.responses) {
           const r = cached.data.responses || {};
           const names = ['gemini','cohere','openrouter','glm','deepseek'];
-          const allOk = names.every(n => r[n] && r[n].success === true);
-          if (allOk) {
-            console.log('⚡ Serving from cache (word-order-independent match, all providers succeeded)');
+          const anyOk = names.some(n => r[n] && r[n].success === true);
+          if (anyOk) {
+            console.log('⚡ Serving from cache (semantic/word-set match, at least one provider succeeded)');
             return res.json({
               prompt: cached.data.prompt,
               processingTime: '0ms (cached)',
@@ -283,11 +283,11 @@ app.post('/api/ask', async (req, res) => {
       }
     };
 
-    // Save only if all providers succeeded, to avoid caching error runs
+    // Save if at least one provider succeeded (so cache can serve partials)
     const rps = responsePayload.responses || {};
-    const allOkToSave = ['gemini','cohere','openrouter','glm','deepseek']
-      .every(n => rps[n] && rps[n].success === true);
-    if (allOkToSave) {
+    const anyOkToSave = ['gemini','cohere','openrouter','glm','deepseek']
+      .some(n => rps[n] && rps[n].success === true);
+    if (anyOkToSave) {
       saveConversation({
         type: 'multibot',
         prompt: responsePayload.prompt,
@@ -511,10 +511,10 @@ Response:`;
       if (cached && cached.data && cached.data.responses) {
         const r = cached.data.responses || {};
         const names = ['gemini','cohere','openrouter','glm','deepseek'];
-        const allOk = names.every(n => r[n] && r[n].success === true);
+        const anyOk = names.some(n => r[n] && r[n].success === true);
 
-        if (allOk) {
-          console.log('⚡ Serving from cache (streaming)');
+        if (anyOk) {
+          console.log('⚡ Serving from cache (streaming, at least one provider succeeded)');
           
           // Stream cached responses with typing effect
           for (const [name, response] of Object.entries(r)) {
