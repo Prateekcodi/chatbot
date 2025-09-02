@@ -65,7 +65,27 @@ function Nav() {
             <Link onClick={() => setOpen(false)} to="/multiai" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Multi-AI Tool</Link>
             <Link onClick={() => setOpen(false)} to="/chatbot" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Chatbot</Link>
             {session ? (
-              <button onClick={() => { setOpen(false); signOut().finally(() => window.location.replace('#/auth')); }} className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-rose-500/80 hover:bg-rose-500">Logout</button>
+              <button 
+                onClick={async () => { 
+                  setOpen(false); 
+                  console.log('Mobile logout starting...');
+                  
+                  try {
+                    await signOut();
+                    console.log('Mobile logout successful, redirecting...');
+                  } catch (error) {
+                    console.error('Mobile logout error:', error);
+                  } finally {
+                    // Always redirect, even if logout failed
+                    setTimeout(() => {
+                      window.location.replace('#/auth');
+                    }, 100);
+                  }
+                }} 
+                className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-rose-500/80 hover:bg-rose-500 transition-colors duration-200"
+              >
+                Logout
+              </button>
             ) : (
               <Link onClick={() => setOpen(false)} to="/auth" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Login</Link>
             )}
@@ -77,14 +97,37 @@ function Nav() {
 }
 
 function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
-  const handle = () => {
-    // Fire sign-out, then force redirect regardless of result
-    onLogout().finally(() => {
-      // Use hard redirect to fully reset app state and hash route
-      window.location.replace('#/auth');
-    });
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  
+  const handle = async () => {
+    if (isLoggingOut) return; // Prevent double-click
+    
+    setIsLoggingOut(true);
+    console.log('Starting logout process...');
+    
+    try {
+      await onLogout();
+      console.log('Logout successful, redirecting...');
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Always redirect, even if logout failed
+      setTimeout(() => {
+        window.location.replace('#/auth');
+      }, 100);
+    }
   };
-  return <button id="logout-btn" onClick={handle} className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20">Logout</button>;
+  
+  return (
+    <button 
+      id="logout-btn" 
+      onClick={handle} 
+      disabled={isLoggingOut}
+      className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+    >
+      {isLoggingOut ? 'Logging out...' : 'Logout'}
+    </button>
+  );
 }
 
 function App() {
