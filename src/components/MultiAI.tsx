@@ -1014,31 +1014,71 @@ const MultiAI: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* AI Response Cards */}
-                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+                      {/* Modern AI Response Cards */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
                         {results && Object.entries(results.responses).map(([aiName, response], index) => {
                           const config = getAIConfig(aiName);
                           
                           return (
                             <motion.div
                               key={aiName}
-                              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                              initial={{ opacity: 0, scale: 0.8, y: 30 }}
                               animate={{ opacity: 1, scale: 1, y: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                              className={`relative group overflow-hidden ${config.bgColor} border ${config.borderColor} rounded-3xl shadow-2xl backdrop-blur-sm h-96 flex flex-col transform transition-all duration-500 hover:shadow-2xl`}
+                              transition={{ 
+                                delay: index * 0.1,
+                                type: "spring",
+                                stiffness: 100,
+                                damping: 15
+                              }}
+                              whileHover={{ 
+                                scale: 1.02,
+                                y: -5,
+                                transition: { duration: 0.2 }
+                              }}
+                              className={`relative group overflow-hidden ${config.bgColor} border ${config.borderColor} rounded-2xl sm:rounded-3xl shadow-xl backdrop-blur-sm min-h-[400px] sm:min-h-[450px] flex flex-col transform transition-all duration-500 hover:shadow-2xl`}
                             >
-                              {/* Animated Border */}
-                              <div className={`absolute inset-0 rounded-3xl bg-gradient-to-r ${config.color} opacity-0 group-hover:opacity-20 transition-opacity duration-500`}></div>
+                              {/* Animated Gradient Border */}
+                              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
+                                <div className={`absolute inset-0 bg-gradient-to-r ${config.color} opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-2xl sm:rounded-3xl`}></div>
+                                <div className="absolute inset-[1px] bg-gradient-to-br from-white/90 to-white/80 rounded-2xl sm:rounded-3xl"></div>
+                              </div>
+                              
+                              {/* Floating Particles */}
+                              <div className="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl">
+                                {[...Array(3)].map((_, i) => (
+                                  <motion.div
+                                    key={i}
+                                    className="absolute w-1 h-1 bg-white/30 rounded-full"
+                                    style={{
+                                      left: `${20 + i * 30}%`,
+                                      top: `${20 + (i % 2) * 60}%`,
+                                    }}
+                                    animate={{
+                                      y: [-5, 5, -5],
+                                      opacity: [0.3, 0.8, 0.3],
+                                    }}
+                                    transition={{
+                                      duration: 2 + i * 0.5,
+                                      repeat: Infinity,
+                                      delay: i * 0.3,
+                                    }}
+                                  />
+                                ))}
+                              </div>
                               
                               {/* Header */}
-                              <div className="relative p-6 pb-4">
-                                <div className="flex items-center space-x-4">
-                                  <div className={`w-12 h-12 bg-gradient-to-r ${config.color} rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                              <div className="relative p-4 sm:p-6 pb-3 sm:pb-4">
+                                <div className="flex items-center space-x-3 sm:space-x-4">
+                                  <motion.div 
+                                    whileHover={{ rotate: 360 }}
+                                    transition={{ duration: 0.6 }}
+                                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${config.color} rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-lg sm:text-2xl shadow-lg`}
+                                  >
                                     {config.icon}
-                                  </div>
+                                  </motion.div>
                                   <div className="min-w-0 flex-1">
-                                    <h3 className="font-bold text-slate-800 text-lg truncate">{config.name}</h3>
-                                    <p className="text-sm text-slate-600 truncate">{config.description}</p>
+                                    <h3 className="font-bold text-slate-800 text-sm sm:text-lg truncate">{config.name}</h3>
+                                    <p className="text-xs sm:text-sm text-slate-600 truncate">{config.description}</p>
                                   </div>
                                 </div>
                               </div>
