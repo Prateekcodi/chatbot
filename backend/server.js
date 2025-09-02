@@ -142,15 +142,19 @@ app.post('/api/ask', async (req, res) => {
         // If no exact match, try word-order-independent matching
         if (!cached || !cached.data) {
           // Create a word-set based matcher
-          const normalizeForWordSet = (s) => s
-            .toLowerCase()
-            .replace(/[^\w\s]/g, ' ') // remove punctuation
-            .replace(/\s+/g, ' ')
-            .trim()
-            .split(' ')
-            .filter(word => word.length > 0)
-            .sort()
-            .join(' ');
+          const normalizeForWordSet = (s) => {
+            let normalized = s
+              .toLowerCase()
+              .replace(/(.)\1{1,}/g, '$1') // collapse repeated letters first
+              .replace(/[^\w\s]/g, ' ') // remove punctuation
+              .replace(/\s+/g, ' ')
+              .trim();
+            
+            // Remove duplicate words after normalization
+            const words = normalized.split(' ').filter(word => word.length > 0);
+            const uniqueWords = [...new Set(words)];
+            return uniqueWords.sort().join(' ');
+          };
 
           const targetWordSet = normalizeForWordSet(prompt.trim());
           
@@ -351,15 +355,19 @@ app.post('/api/ask-stream', async (req, res) => {
       cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
 
       if (!cached || !cached.data) {
-        const normalizeForWordSet = (s) => s
-          .toLowerCase()
-          .replace(/[^\w\s]/g, ' ')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .split(' ')
-          .filter(word => word.length > 0)
-          .sort()
-          .join(' ');
+        const normalizeForWordSet = (s) => {
+          let normalized = s
+            .toLowerCase()
+            .replace(/(.)\1{1,}/g, '$1') // collapse repeated letters first
+            .replace(/[^\w\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          // Remove duplicate words after normalization
+          const words = normalized.split(' ').filter(word => word.length > 0);
+          const uniqueWords = [...new Set(words)];
+          return uniqueWords.sort().join(' ');
+        };
 
         const targetWordSet = normalizeForWordSet(prompt.trim());
         const { fetchConversations } = require('./services/supabaseClient');

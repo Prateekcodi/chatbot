@@ -95,15 +95,24 @@ async function findConversationByPrompt({ prompt, type }) {
   }
   try {
     // Normalize helper: trim, lowercase, collapse internal whitespace, repeated letters, and common variations
-    const normalizePrompt = (s) => (s || '')
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .replace(/(.)\1{1,}/g, '$1') // collapse repeated letters (e.g., hiii -> hi)
-      .replace(/\b(the|a|an)\s+/g, '') // remove articles (the, a, an)
-      .replace(/\s+/g, ' ') // collapse whitespace again after article removal
-      .trim();
+    const normalizePrompt = (s) => {
+      let normalized = (s || '')
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/(.)\1{1,}/g, '$1') // collapse repeated letters (e.g., hiii -> hi)
+        .replace(/\b(the|a|an)\s+/g, '') // remove articles (the, a, an)
+        .replace(/\s+/g, ' ') // collapse whitespace again after article removal
+        .trim();
+      
+      // Remove duplicate words after normalization
+      const words = normalized.split(' ').filter(word => word.length > 0);
+      const uniqueWords = [...new Set(words)];
+      normalized = uniqueWords.join(' ');
+      
+      return normalized;
+    };
 
     // Simple similarity function to detect typos and similar words
     const calculateSimilarity = (str1, str2) => {
