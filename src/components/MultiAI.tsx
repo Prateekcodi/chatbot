@@ -51,6 +51,29 @@ const MultiAI: React.FC = () => {
   const [streamingMode, setStreamingMode] = useState(true);
   const [streamingResponses, setStreamingResponses] = useState<{[key: string]: {text: string, isComplete: boolean, model: string}}>({});
   const [cacheHit, setCacheHit] = useState(false);
+  const [truncatedElements, setTruncatedElements] = useState<Set<string>>(new Set());
+
+  // Helper function to determine if we should show the "Click to read full response" button
+  const shouldShowFullResponseButton = (response: AIResponse, aiName: string) => {
+    if (!response.success || !response.response) return false;
+    
+    // Check if we've already determined this element is truncated
+    if (truncatedElements.has(aiName)) return true;
+    
+    // Check if response is long enough to potentially be truncated
+    const responseText = response.response;
+    const lineCount = responseText.split('\n').length;
+    const charCount = responseText.length;
+    const wordCount = responseText.split(/\s+/).length;
+    
+    // More sophisticated check: show button if response is likely to exceed 6 lines
+    // This accounts for markdown formatting, code blocks, and different content types
+    return lineCount > 4 || charCount > 300 || wordCount > 50;
+  };
+
+
+
+
 
   const loadHistory = useCallback(async (page = 1) => {
     try {
@@ -139,6 +162,7 @@ const MultiAI: React.FC = () => {
     setStreamingResponses({});
     setCacheHit(false);
     setResults(null); // Clear previous results for streaming display
+    setTruncatedElements(new Set()); // Clear truncated elements for new results
 
     if (streamingMode) {
       // Use streaming API
@@ -730,7 +754,7 @@ const MultiAI: React.FC = () => {
                                 )}
                               </div>
                             </div>
-                            <div className="text-slate-700 text-sm leading-relaxed">
+                            <div className="text-slate-700 text-sm leading-relaxed [&_pre]:bg-slate-100 [&_pre]:text-slate-800 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 [&_code]:bg-slate-100 [&_code]:text-slate-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
                               {response.text ? renderMarkdown(response.text) : 'Starting response...'}
                               {!response.isComplete && (
                                 <span className="inline-block w-2 h-4 bg-blue-500 ml-1 animate-pulse"></span>
@@ -932,20 +956,42 @@ const MultiAI: React.FC = () => {
                                 {response.success ? (
                                   <>
                                     <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm flex-1 overflow-hidden">
-                                      <div className="text-slate-800 text-sm leading-relaxed line-clamp-6 break-words whitespace-pre-wrap max-w-full overflow-x-hidden [&_*]:max-w-full [&_*]:break-words [&_a]:text-blue-600 hover:[&_a]:text-blue-700 [&_strong]:text-slate-900 [&_em]:text-slate-700 [&_li]:text-slate-800 [&_p]:text-slate-800 [&_img]:max-w-full [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:whitespace-pre-wrap [&_code]:break-words">
-                                        {renderMarkdown((response as any).response)}
-                                      </div>
-                                      {response.response && response.response.length > 200 && (
-                                        <div className="mt-3 text-xs text-slate-500 text-center">
-                                          Response truncated for display
-                                        </div>
-                                      )}
-                                      <button
-                                        onClick={() => openResponseModal(aiName, response)}
-                                        className={`mt-4 w-full py-3 px-4 bg-gradient-to-r ${config.color} text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 shadow-md`}
+                                      <div 
+                                        ref={(el) => {
+                                          if (el && aiName) {
+                                            // Use setTimeout to ensure DOM is ready
+                                            setTimeout(() => {
+                                              if (el.scrollHeight > el.clientHeight) {
+                                                setTruncatedElements(prev => new Set(prev).add(aiName));
+                                              }
+                                            }, 100);
+                                          }
+                                        }}
+                                        className="text-slate-800 text-sm leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden [&_*]:max-w-full [&_*]:break-words [&_a]:text-blue-600 hover:[&_a]:text-blue-700 [&_strong]:text-slate-900 [&_em]:text-slate-700 [&_li]:text-slate-800 [&_p]:text-slate-800 [&_img]:max-w-full [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:whitespace-pre-wrap [&_pre]:bg-slate-100 [&_pre]:text-slate-800 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 [&_code]:bg-slate-100 [&_code]:text-slate-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono" 
+                                        style={{
+                                          maxHeight: '144px', // 6 lines * 24px line height
+                                          overflow: 'hidden',
+                                          position: 'relative'
+                                        }}
                                       >
-                                        Click to read full response
-                                      </button>
+                                        {renderMarkdown((response as any).response)}
+                                        {shouldShowFullResponseButton(response, aiName) && (
+                                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+                                        )}
+                                      </div>
+                                      {shouldShowFullResponseButton(response, aiName) && (
+                                        <>
+                                          <div className="mt-3 text-xs text-slate-500 text-center">
+                                            Response truncated for display
+                                          </div>
+                                          <button
+                                            onClick={() => openResponseModal(aiName, response)}
+                                            className={`mt-4 w-full py-3 px-4 bg-gradient-to-r ${config.color} text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 shadow-md`}
+                                          >
+                                            Click to read full response
+                                          </button>
+                                        </>
+                                      )}
                                     </div>
                                     <div className="flex justify-between items-center text-xs text-slate-600">
                                       <span className="truncate">Model: {response.model}</span>
@@ -1217,7 +1263,7 @@ const MultiAI: React.FC = () => {
                   <div className="space-y-6">
                     <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/50 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
                       <h3 className="font-semibold text-white text-xl mb-4">Response:</h3>
-                      <div className="text-slate-200 leading-relaxed text-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_img]:h-auto [&_table]:block [&_table]:w-full">
+                      <div className="text-slate-200 leading-relaxed text-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
                         {renderMarkdown((selectedResponse.response as any).response)}
                       </div>
                     </div>
