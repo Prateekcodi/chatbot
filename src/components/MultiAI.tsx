@@ -1903,7 +1903,14 @@ const MultiAI: React.FC = () => {
                   >Close</button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-3">
+              <div style={{
+                padding: '1.5rem',
+                overflowY: 'auto',
+                maxHeight: 'calc(85vh - 120px)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.75rem'
+              }}>
                 {isHistoryLoading && <div className="text-slate-300 text-sm">Loading...</div>}
                 {!isHistoryLoading && historyItems.length === 0 && (
                   <div className="text-slate-400 text-sm">No conversations yet</div>
@@ -2031,7 +2038,16 @@ const MultiAI: React.FC = () => {
               </div>
 
               {/* Modal Content */}
-              <div className="relative p-6 sm:p-8 flex-1 overflow-y-auto">
+              <div style={{
+                position: 'relative',
+                padding: '1.5rem 2rem',
+                flex: 1,
+                overflowY: 'auto',
+                maxHeight: 'calc(85vh - 120px)'
+              }}>
+                <div style={{ color: 'white', marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
+                  Modal Content Area - Content should be visible here
+                </div>
                 {selectedResponse && selectedResponse.response.success ? (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
