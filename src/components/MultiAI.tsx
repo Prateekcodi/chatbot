@@ -441,8 +441,6 @@ const MultiAI: React.FC = () => {
     setModalOpen(true);
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
   };
 
   const closeModal = () => {
@@ -450,8 +448,6 @@ const MultiAI: React.FC = () => {
     setSelectedResponse(null);
     // Restore body scroll when modal is closed
     document.body.style.overflow = 'unset';
-    document.body.style.position = 'unset';
-    document.body.style.width = 'unset';
   };
 
   const navigateToResponse = useCallback((direction: 'next' | 'prev') => {
@@ -1860,7 +1856,7 @@ const MultiAI: React.FC = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[85vh] border border-white/20"
+              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[85vh] border border-white/20 mx-auto"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -1920,18 +1916,7 @@ const MultiAI: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-2xl z-50"
-            style={{ 
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem'
-            }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-2xl z-50 flex items-center justify-center p-4"
             onClick={closeModal}
           >
             <motion.div
@@ -1939,7 +1924,7 @@ const MultiAI: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-4xl w-full max-h-[85vh] border border-white/20 backdrop-blur-2xl flex flex-col"
+              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-4xl w-full max-h-[85vh] border border-white/20 backdrop-blur-2xl flex flex-col mx-auto"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Animated Border */}
