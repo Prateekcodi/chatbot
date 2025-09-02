@@ -439,11 +439,15 @@ const MultiAI: React.FC = () => {
   const openResponseModal = (aiName: string, response: AIResponse) => {
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setSelectedResponse(null);
+    // Restore body scroll when modal is closed
+    document.body.style.overflow = 'unset';
   };
 
   const navigateToResponse = useCallback((direction: 'next' | 'prev') => {
@@ -463,6 +467,13 @@ const MultiAI: React.FC = () => {
     const newResponse = results.responses[newAiName as keyof typeof results.responses];
     setSelectedResponse({ aiName: newAiName, response: newResponse });
   }, [selectedResponse, results]);
+
+  // Cleanup body scroll on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -835,8 +846,8 @@ const MultiAI: React.FC = () => {
                                 {config.icon}
                               </div>
                               <div>
-                                <h4 className="font-semibold text-slate-800">{config.name}</h4>
-                                <div className="text-xs text-slate-600">{response.model}</div>
+                                <h4 className="font-semibold text-white">{config.name}</h4>
+                                <div className="text-xs text-slate-300">{response.model}</div>
                               </div>
                               <div className="ml-auto">
                                 {response.isComplete ? (
@@ -846,7 +857,7 @@ const MultiAI: React.FC = () => {
                                 )}
                               </div>
                             </div>
-                            <div className="text-slate-700 text-sm leading-relaxed [&_pre]:bg-slate-100 [&_pre]:text-slate-800 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 [&_code]:bg-slate-100 [&_code]:text-slate-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
+                            <div className="text-slate-200 text-sm leading-relaxed [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
                               {response.text ? renderMarkdown(response.text) : 'Starting response...'}
                               {!response.isComplete && (
                                 <span className="inline-block w-2 h-4 bg-blue-500 ml-1 animate-pulse"></span>
@@ -949,9 +960,9 @@ const MultiAI: React.FC = () => {
                                   <div className={`w-6 h-6 bg-gradient-to-r ${config.color} rounded-md flex items-center justify-center text-white text-sm mx-auto mb-1`}>
                                     {config.icon}
                                   </div>
-                                  <h4 className="font-semibold text-slate-800 text-xs mb-1">{config.name}</h4>
+                                  <h4 className="font-semibold text-white text-xs mb-1">{config.name}</h4>
                                   <div className="space-y-1">
-                                    <div className="text-xs text-slate-600">
+                                    <div className="text-xs text-slate-300">
                                       {serviceData.percentage}% left
                                     </div>
                                     <div className="w-full bg-slate-200 rounded-full h-1.5">
@@ -987,12 +998,12 @@ const MultiAI: React.FC = () => {
                                 <div className={`w-8 h-8 bg-gradient-to-r ${config.color} rounded-lg flex items-center justify-center text-white text-lg mx-auto mb-2`}>
                                   {config.icon}
                                 </div>
-                                <h4 className="font-semibold text-slate-800 text-sm mb-1">{config.name}</h4>
+                                <h4 className="font-semibold text-white text-sm mb-1">{config.name}</h4>
                                 <div className="space-y-1">
-                                  <div className="text-xs text-slate-600">
+                                  <div className="text-xs text-slate-300">
                                     <span className="font-medium">Used:</span> {serviceData.tokensUsed.toLocaleString()} tokens
                                   </div>
-                                  <div className="text-xs text-slate-600">
+                                  <div className="text-xs text-slate-300">
                                     <span className="font-medium">Remaining:</span> {serviceData.remaining.toLocaleString()}+
                                   </div>
                                   <div className="w-full bg-slate-200 rounded-full h-2">
@@ -1639,9 +1650,9 @@ const MultiAI: React.FC = () => {
                                     >
                                       {config.icon}
                                     </motion.span>
-                                    <span className="font-semibold text-slate-800 text-xs sm:text-sm truncate">{config.name}</span>
+                                    <span className="font-semibold text-white text-xs sm:text-sm truncate">{config.name}</span>
                                   </div>
-                                  <div className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                                  <div className="text-slate-300 text-xs sm:text-sm leading-relaxed">
                                     {response.success 
                                       ? response.response?.substring(0, 60) + '...'
                                       : response.error?.substring(0, 60) + '...'
