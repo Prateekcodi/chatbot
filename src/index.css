@@ -59,6 +59,12 @@ body {
   will-change: scroll-position;
   /* Optimize scrolling performance */
   contain: layout style paint;
+  /* Ensure full scroll range on mobile */
+  overscroll-behavior: contain;
+  /* Better momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent scroll chaining */
+  overscroll-behavior-y: contain;
 }
 
 /* Ensure proper scrolling containers */
@@ -96,6 +102,29 @@ body {
 .animate-bounce {
   will-change: transform, opacity;
   transform: translateZ(0);
+}
+
+/* Mobile scrolling optimizations */
+@media (max-width: 768px) {
+  .smooth-scroll {
+    /* Better mobile scrolling */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    /* Ensure full scroll range */
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  
+  /* Fix mobile viewport issues */
+  html, body {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  
+  #root {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
 }
 
 /* Hide any potential stray characters */
