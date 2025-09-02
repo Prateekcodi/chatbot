@@ -20,6 +20,12 @@ function LoadingSplash() {
 
 function Protected({ children }: { children: React.ReactNode }) {
   const { session, initialized } = useAuth();
+  
+  // Debug logging for mobile issues
+  useEffect(() => {
+    console.log('Protected component - initialized:', initialized, 'session:', !!session);
+  }, [initialized, session]);
+  
   if (!initialized) return <LoadingSplash />;
   if (!session) return <Navigate to="/auth" replace />;
   return <>{children}</>;

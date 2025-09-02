@@ -20,20 +20,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let canceled = false;
-    supabase.auth.getSession().then(({ data }) => {
+    let timeoutId: NodeJS.Timeout;
+    
+    // Add timeout to prevent infinite loading on mobile
+    timeoutId = setTimeout(() => {
+      if (!canceled) {
+        console.log('Auth initialization timeout - setting initialized to true');
+        setInitialized(true);
+      }
+    }, 5000); // 5 second timeout
+    
+    supabase.auth.getSession().then(({ data, error }) => {
       if (canceled) return;
+      clearTimeout(timeoutId);
+      
+      if (error) {
+        console.error('Session fetch error:', error);
+      }
+      
       setSession(data.session ?? null);
       setUser(data.session?.user ?? null);
       setInitialized(true);
+    }).catch((error) => {
+      if (canceled) return;
+      clearTimeout(timeoutId);
+      console.error('Session fetch failed:', error);
+      setInitialized(true); // Still set initialized to prevent infinite loading
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, sess) => {
       if (canceled) return;
+      clearTimeout(timeoutId);
+      console.log('Auth state change:', event, sess?.user?.email);
       setSession(sess);
       setUser(sess?.user ?? null);
       setInitialized(true);
     });
-    return () => { canceled = true; sub.subscription.unsubscribe(); };
+    
+    return () => { 
+      canceled = true; 
+      clearTimeout(timeoutId);
+      sub.subscription.unsubscribe(); 
+    };
   }, []);
 
   const signInWithEmail = useCallback(async (email: string, password: string) => {
