@@ -1084,10 +1084,10 @@ const MultiAI: React.FC = () => {
                               </div>
 
                               {/* Response Content */}
-                              <div className="relative flex-1 px-6 pb-6 space-y-4 overflow-hidden">
+                              <div className="relative flex-1 px-4 sm:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4 overflow-hidden">
                                 {response.success ? (
                                   <>
-                                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm flex-1 overflow-hidden">
+                                    <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm flex-1 overflow-hidden border border-white/20">
                                       <div 
                                         ref={(el) => {
                                           if (el && aiName) {
@@ -1099,52 +1099,56 @@ const MultiAI: React.FC = () => {
                                             }, 100);
                                           }
                                         }}
-                                        className="text-slate-800 text-sm leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden [&_*]:max-w-full [&_*]:break-words [&_a]:text-blue-600 hover:[&_a]:text-blue-700 [&_strong]:text-slate-900 [&_em]:text-slate-700 [&_li]:text-slate-800 [&_p]:text-slate-800 [&_img]:max-w-full [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:whitespace-pre-wrap [&_pre]:bg-slate-100 [&_pre]:text-slate-800 [&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 [&_code]:bg-slate-100 [&_code]:text-slate-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono" 
+                                        className="text-slate-800 text-xs sm:text-sm leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden [&_*]:max-w-full [&_*]:break-words [&_a]:text-blue-600 hover:[&_a]:text-blue-700 [&_strong]:text-slate-900 [&_em]:text-slate-700 [&_li]:text-slate-800 [&_p]:text-slate-800 [&_img]:max-w-full [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:whitespace-pre-wrap [&_pre]:bg-slate-100 [&_pre]:text-slate-800 [&_pre]:p-2 sm:[&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-2 sm:[&_pre]:mb-3 [&_code]:bg-slate-100 [&_code]:text-slate-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs sm:[&_code]:text-sm [&_code]:font-mono" 
                                         style={{
-                                          maxHeight: '144px', // 6 lines * 24px line height
+                                          maxHeight: '120px', // Reduced for mobile
                                           overflow: 'hidden',
                                           position: 'relative'
                                         }}
                                       >
                                         {renderMarkdown((response as any).response)}
                                         {shouldShowFullResponseButton(response, aiName) && (
-                                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+                                          <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-8 bg-gradient-to-t from-white/90 to-transparent pointer-events-none"></div>
                                         )}
                                       </div>
                                       {shouldShowFullResponseButton(response, aiName) && (
                                         <>
-                                          <div className="mt-3 text-xs text-slate-500 text-center">
+                                          <div className="mt-2 sm:mt-3 text-xs text-slate-500 text-center">
                                             Response truncated for display
                                           </div>
-                                          <button
+                                          <motion.button
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
                                             onClick={() => openResponseModal(aiName, response)}
-                                            className={`mt-4 w-full py-3 px-4 bg-gradient-to-r ${config.color} text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 shadow-md`}
+                                            className={`mt-3 sm:mt-4 w-full py-2 sm:py-3 px-3 sm:px-4 bg-gradient-to-r ${config.color} text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-300 shadow-md`}
                                           >
-                                            Click to read full response
-                                          </button>
+                                            📖 Read Full Response
+                                          </motion.button>
                                         </>
                                       )}
                                     </div>
-                                    <div className="flex justify-between items-center text-xs text-slate-600">
+                                    <div className="flex justify-between items-center text-xs text-slate-600 px-1">
                                       <span className="truncate">Model: {response.model}</span>
                                       {response.tokens && <span>{response.tokens} tokens</span>}
                                     </div>
                                   </>
                                 ) : (
-                                  <div className="bg-red-50/80 border border-red-200/50 rounded-2xl p-4 flex-1">
-                                    <div className="flex items-center space-x-3 text-red-600 mb-3">
-                                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                  <div className="bg-red-50/90 border border-red-200/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex-1">
+                                    <div className="flex items-center space-x-2 sm:space-x-3 text-red-600 mb-2 sm:mb-3">
+                                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                                       </svg>
-                                      <span className="font-semibold text-sm">Error</span>
+                                      <span className="font-semibold text-xs sm:text-sm">Error</span>
                                     </div>
-                                    <p className="text-red-600 text-sm leading-relaxed">{response.error}</p>
-                                    <button
+                                    <p className="text-red-600 text-xs sm:text-sm leading-relaxed">{response.error}</p>
+                                    <motion.button
+                                      whileHover={{ scale: 1.02 }}
+                                      whileTap={{ scale: 0.98 }}
                                       onClick={() => openResponseModal(aiName, response)}
-                                      className="mt-4 w-full py-3 px-4 bg-gradient-to-r from-red-500 to-pink-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 shadow-md"
+                                      className="mt-3 sm:mt-4 w-full py-2 sm:py-3 px-3 sm:px-4 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-300 shadow-md"
                                     >
-                                      Click to see error details
-                                    </button>
+                                      🔍 View Error Details
+                                    </motion.button>
                                   </div>
                                 )}
                               </div>
