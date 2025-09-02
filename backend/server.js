@@ -154,15 +154,23 @@ app.post('/api/ask', async (req, res) => {
         
         // Get recent conversations and check for word-set matches
         const { fetchConversations } = require('./services/supabaseClient');
-        const { data: recent } = await fetchConversations({ page: 1, limit: 100, type: 'multibot' });
         
-        if (recent && recent.length > 0) {
-          for (const conv of recent) {
-            const convWordSet = normalizeForWordSet(conv.prompt);
-            if (convWordSet === targetWordSet) {
-              cached = { data: conv };
-              break;
+        // Search multiple pages to find matches
+        let found = false;
+        for (let page = 1; page <= 5 && !found; page++) {
+          const { data: recent } = await fetchConversations({ page, limit: 100, type: 'multibot' });
+          
+          if (recent && recent.length > 0) {
+            for (const conv of recent) {
+              const convWordSet = normalizeForWordSet(conv.prompt);
+              if (convWordSet === targetWordSet) {
+                cached = { data: conv };
+                found = true;
+                break;
+              }
             }
+          } else {
+            break; // No more data
           }
         }
       }
