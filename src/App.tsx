@@ -37,10 +37,7 @@ function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   
-  // Hide nav on auth page
-  if (location.pathname === '/auth') return null;
-  
-  // Handle scroll for navbar styling
+  // Handle scroll for navbar styling - must be called before conditional return
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -49,6 +46,9 @@ function Nav() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+  
+  // Hide nav on auth page
+  if (location.pathname === '/auth') return null;
   
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
