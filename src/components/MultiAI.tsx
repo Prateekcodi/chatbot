@@ -614,24 +614,30 @@ const MultiAI: React.FC = () => {
                   transition={{ delay: 0.7 }}
                   className="mb-6 flex justify-center"
                 >
-                  <div className="flex items-center space-x-4 bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                    <span className="text-slate-300 font-medium">Streaming Mode:</span>
-                    <button
-                      onClick={() => setStreamingMode(!streamingMode)}
-                      className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
-                        streamingMode ? 'bg-emerald-500' : 'bg-slate-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 ${
-                          streamingMode ? 'translate-x-9' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                    <span className={`text-sm font-medium ${streamingMode ? 'text-emerald-400' : 'text-slate-400'}`}>
-                      {streamingMode ? 'Live Typing' : 'Batch Mode'}
-                    </span>
-                    <div className="text-xs text-slate-500">
+                  <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                    {/* Mobile-first responsive layout */}
+                    <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                      <span className="text-slate-300 font-medium text-sm sm:text-base">Streaming Mode:</span>
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => setStreamingMode(!streamingMode)}
+                          className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
+                            streamingMode ? 'bg-emerald-500' : 'bg-slate-600'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 ${
+                              streamingMode ? 'translate-x-9' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                        <span className={`text-sm font-medium ${streamingMode ? 'text-emerald-400' : 'text-slate-400'}`}>
+                          {streamingMode ? 'Live Typing' : 'Batch Mode'}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Description on separate line for better mobile readability */}
+                    <div className="text-xs text-slate-500 text-center mt-2 sm:mt-0 sm:text-left">
                       {streamingMode ? '⚡ Real-time responses' : '📦 Complete responses'}
                     </div>
                   </div>
