@@ -5,7 +5,7 @@ const AuthPage: React.FC = () => {
   
   return (
     <div style={{ 
-      position: 'absolute', 
+      position: 'fixed', 
       top: 0, 
       left: 0, 
       width: '100vw', 
@@ -16,7 +16,8 @@ const AuthPage: React.FC = () => {
       justifyContent: 'center',
       zIndex: 9999,
       margin: 0,
-      padding: 0
+      padding: 0,
+      overflow: 'hidden'
     }}>
       <div style={{ 
         backgroundColor: 'blue', 
@@ -37,7 +38,7 @@ const AuthPage: React.FC = () => {
         Background should be RED, this box should be BLUE.
         <br />
         <br />
-        Now using position: absolute instead of fixed.
+        Now using position: fixed with overflow: hidden.
       </div>
     </div>
   );
