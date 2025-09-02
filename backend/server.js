@@ -671,14 +671,21 @@ app.post('/api/qa/ask', async (req, res) => {
       return res.status(400).json({ error: 'Invalid question' });
     }
     const q = question.trim();
+    const normalizeQuestion = (s) => s
+      .toLowerCase()
+      .normalize('NFKC')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/(.)\1{1,}/g, '$1'); // collapse repeated letters (e.g., hiii -> hi)
+    const qNorm = normalizeQuestion(q);
     const geminiService = require('./services/geminiService');
     const { matchQuestions, insertQAPair } = require('./services/supabaseClient');
 
-    // 1) Embed
-    const embedding = await geminiService.embed(q);
+    // 1) Embed (normalized for semantic similarity)
+    const embedding = await geminiService.embed(qNorm);
     // 2) Match
-    const { data: matches } = await matchQuestions({ queryEmbedding: embedding, matchThreshold: 0.85, matchCount: 1 });
-    if (Array.isArray(matches) && matches.length > 0 && matches[0].similarity > 0.85) {
+    const { data: matches } = await matchQuestions({ queryEmbedding: embedding, matchThreshold: 0.8, matchCount: 1 });
+    if (Array.isArray(matches) && matches.length > 0 && matches[0].similarity > 0.8) {
       return res.json({ answer: matches[0].answer, cached: true });
     }
     // 3) Generate
