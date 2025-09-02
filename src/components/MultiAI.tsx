@@ -368,28 +368,28 @@ const MultiAI: React.FC = () => {
       gemini: {
         name: 'Gemini Pro',
         color: 'from-emerald-400 via-teal-500 to-cyan-600',
-        bgColor: 'bg-gradient-to-br from-emerald-50 to-teal-100',
-        borderColor: 'border-emerald-200/50',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-emerald-400/30',
         shadowColor: 'shadow-emerald-500/20',
-        icon: '🤖',
+        icon: '🧠',
         description: 'Google\'s most advanced AI model',
         accent: 'emerald'
       },
       cohere: {
         name: 'Cohere',
         color: 'from-violet-400 via-purple-500 to-indigo-600',
-        bgColor: 'bg-gradient-to-br from-violet-50 to-purple-100',
-        borderColor: 'border-violet-200/50',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-violet-400/30',
         shadowColor: 'shadow-violet-500/20',
-        icon: '🧠',
+        icon: '⚡',
         description: 'Advanced language understanding',
         accent: 'violet'
       },
       openrouter: {
         name: 'OpenRouter',
         color: 'from-rose-400 via-pink-500 to-fuchsia-600',
-        bgColor: 'bg-gradient-to-br from-rose-50 to-pink-100',
-        borderColor: 'border-rose-200/50',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-rose-400/30',
         shadowColor: 'shadow-rose-500/20',
         icon: '🚀',
         description: 'Multi-model AI gateway',
@@ -398,20 +398,20 @@ const MultiAI: React.FC = () => {
       glm: {
         name: 'GLM 4.5 Air',
         color: 'from-blue-400 via-indigo-500 to-purple-600',
-        bgColor: 'bg-gradient-to-br from-blue-50 to-indigo-100',
-        borderColor: 'border-blue-200/50',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-blue-400/30',
         shadowColor: 'shadow-blue-500/20',
-        icon: '🌟',
+        icon: '✨',
         description: 'Advanced Chinese AI model',
         accent: 'blue'
       },
       deepseek: {
         name: 'DeepSeek 3.1',
         color: 'from-green-400 via-emerald-500 to-teal-600',
-        bgColor: 'bg-gradient-to-br from-green-50 to-emerald-100',
-        borderColor: 'border-green-200/50',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-green-400/30',
         shadowColor: 'shadow-green-500/20',
-        icon: '🔍',
+        icon: '🎯',
         description: 'Advanced reasoning AI model',
         accent: 'green'
       }
@@ -1039,8 +1039,8 @@ const MultiAI: React.FC = () => {
                             >
                               {/* Animated Gradient Border */}
                               <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
-                                <div className={`absolute inset-0 bg-gradient-to-r ${config.color} opacity-0 group-hover:opacity-20 transition-opacity duration-500 rounded-2xl sm:rounded-3xl`}></div>
-                                <div className="absolute inset-[1px] bg-gradient-to-br from-white/90 to-white/80 rounded-2xl sm:rounded-3xl"></div>
+                                <div className={`absolute inset-0 bg-gradient-to-r ${config.color} opacity-0 group-hover:opacity-30 transition-opacity duration-500 rounded-2xl sm:rounded-3xl`}></div>
+                                <div className="absolute inset-[1px] bg-gradient-to-br from-slate-800/95 to-slate-900/95 rounded-2xl sm:rounded-3xl backdrop-blur-xl"></div>
                               </div>
                               
                               {/* Floating Particles */}
@@ -1070,15 +1070,31 @@ const MultiAI: React.FC = () => {
                               <div className="relative p-4 sm:p-6 pb-3 sm:pb-4">
                                 <div className="flex items-center space-x-3 sm:space-x-4">
                                   <motion.div 
-                                    whileHover={{ rotate: 360 }}
-                                    transition={{ duration: 0.6 }}
-                                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${config.color} rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-lg sm:text-2xl shadow-lg`}
+                                    whileHover={{ 
+                                      rotate: 360,
+                                      scale: 1.1,
+                                      transition: { duration: 0.6 }
+                                    }}
+                                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${config.color} rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-lg sm:text-2xl shadow-lg relative overflow-hidden`}
                                   >
-                                    {config.icon}
+                                    {/* Animated background shimmer */}
+                                    <motion.div
+                                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                      animate={{
+                                        x: ['-100%', '100%'],
+                                      }}
+                                      transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        repeatDelay: 3,
+                                        ease: "easeInOut"
+                                      }}
+                                    />
+                                    <span className="relative z-10">{config.icon}</span>
                                   </motion.div>
                                   <div className="min-w-0 flex-1">
-                                    <h3 className="font-bold text-slate-800 text-sm sm:text-lg truncate">{config.name}</h3>
-                                    <p className="text-xs sm:text-sm text-slate-600 truncate">{config.description}</p>
+                                    <h3 className="font-bold text-white text-sm sm:text-lg truncate">{config.name}</h3>
+                                    <p className="text-xs sm:text-sm text-slate-300 truncate">{config.description}</p>
                                   </div>
                                 </div>
                               </div>
@@ -1087,7 +1103,12 @@ const MultiAI: React.FC = () => {
                               <div className="relative flex-1 px-4 sm:px-6 pb-4 sm:pb-6 space-y-3 sm:space-y-4 overflow-hidden">
                                 {response.success ? (
                                   <>
-                                    <div className="bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm flex-1 overflow-hidden border border-white/20">
+                                    <div className="bg-slate-700/50 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-sm flex-1 overflow-hidden border border-slate-600/30 relative">
+                                      {/* Animated background glow */}
+                                      <motion.div
+                                        className={`absolute inset-0 bg-gradient-to-r ${config.color} opacity-0 group-hover:opacity-10 rounded-xl sm:rounded-2xl transition-opacity duration-500`}
+                                      />
+                                      
                                       <div 
                                         ref={(el) => {
                                           if (el && aiName) {
@@ -1099,7 +1120,7 @@ const MultiAI: React.FC = () => {
                                             }, 100);
                                           }
                                         }}
-                                        className="text-slate-800 text-xs sm:text-sm leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden [&_*]:max-w-full [&_*]:break-words [&_a]:text-blue-600 hover:[&_a]:text-blue-700 [&_strong]:text-slate-900 [&_em]:text-slate-700 [&_li]:text-slate-800 [&_p]:text-slate-800 [&_img]:max-w-full [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:whitespace-pre-wrap [&_pre]:bg-slate-100 [&_pre]:text-slate-800 [&_pre]:p-2 sm:[&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-2 sm:[&_pre]:mb-3 [&_code]:bg-slate-100 [&_code]:text-slate-800 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs sm:[&_code]:text-sm [&_code]:font-mono" 
+                                        className="text-slate-200 text-xs sm:text-sm leading-relaxed break-words whitespace-pre-wrap max-w-full overflow-hidden relative z-10 [&_*]:max-w-full [&_*]:break-words [&_a]:text-blue-400 hover:[&_a]:text-blue-300 [&_strong]:text-white [&_em]:text-slate-300 [&_li]:text-slate-200 [&_p]:text-slate-200 [&_img]:max-w-full [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:whitespace-pre-wrap [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-2 sm:[&_pre]:p-3 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-2 sm:[&_pre]:mb-3 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded [&_code]:text-xs sm:[&_code]:text-sm [&_code]:font-mono" 
                                         style={{
                                           maxHeight: '120px', // Reduced for mobile
                                           overflow: 'hidden',
@@ -1108,46 +1129,97 @@ const MultiAI: React.FC = () => {
                                       >
                                         {renderMarkdown((response as any).response)}
                                         {shouldShowFullResponseButton(response, aiName) && (
-                                          <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-8 bg-gradient-to-t from-white/90 to-transparent pointer-events-none"></div>
+                                          <div className="absolute bottom-0 left-0 right-0 h-6 sm:h-8 bg-gradient-to-t from-slate-700/50 to-transparent pointer-events-none"></div>
                                         )}
                                       </div>
                                       {shouldShowFullResponseButton(response, aiName) && (
                                         <>
-                                          <div className="mt-2 sm:mt-3 text-xs text-slate-500 text-center">
+                                          <div className="mt-2 sm:mt-3 text-xs text-slate-400 text-center relative z-10">
                                             Response truncated for display
                                           </div>
                                           <motion.button
-                                            whileHover={{ scale: 1.02 }}
+                                            whileHover={{ 
+                                              scale: 1.02,
+                                              boxShadow: `0 10px 25px ${config.color.replace('from-', '').replace(' via-', '').replace(' to-', '')}/30`
+                                            }}
                                             whileTap={{ scale: 0.98 }}
                                             onClick={() => openResponseModal(aiName, response)}
-                                            className={`mt-3 sm:mt-4 w-full py-2 sm:py-3 px-3 sm:px-4 bg-gradient-to-r ${config.color} text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-300 shadow-md`}
+                                            className={`mt-3 sm:mt-4 w-full py-2 sm:py-3 px-3 sm:px-4 bg-gradient-to-r ${config.color} text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-300 shadow-md relative overflow-hidden`}
                                           >
-                                            📖 Read Full Response
+                                            {/* Button shimmer effect */}
+                                            <motion.div
+                                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                              animate={{
+                                                x: ['-100%', '100%'],
+                                              }}
+                                              transition={{
+                                                duration: 2,
+                                                repeat: Infinity,
+                                                repeatDelay: 4,
+                                                ease: "easeInOut"
+                                              }}
+                                            />
+                                            <span className="relative z-10">📖 Read Full Response</span>
                                           </motion.button>
                                         </>
                                       )}
                                     </div>
-                                    <div className="flex justify-between items-center text-xs text-slate-600 px-1">
+                                    <div className="flex justify-between items-center text-xs text-slate-400 px-1">
                                       <span className="truncate">Model: {response.model}</span>
                                       {response.tokens && <span>{response.tokens} tokens</span>}
                                     </div>
                                   </>
                                 ) : (
-                                  <div className="bg-red-50/90 border border-red-200/50 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex-1">
-                                    <div className="flex items-center space-x-2 sm:space-x-3 text-red-600 mb-2 sm:mb-3">
-                                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
+                                  <div className="bg-red-900/30 border border-red-500/30 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex-1 relative">
+                                    {/* Animated error glow */}
+                                    <motion.div
+                                      className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-pink-500/10 rounded-xl sm:rounded-2xl"
+                                      animate={{
+                                        opacity: [0.3, 0.6, 0.3],
+                                      }}
+                                      transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        ease: "easeInOut"
+                                      }}
+                                    />
+                                    
+                                    <div className="flex items-center space-x-2 sm:space-x-3 text-red-400 mb-2 sm:mb-3 relative z-10">
+                                      <motion.svg 
+                                        className="w-4 h-4 sm:w-5 sm:h-5" 
+                                        fill="currentColor" 
+                                        viewBox="0 0 20 20"
+                                        animate={{ rotate: [0, 10, -10, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                      >
                                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                      </svg>
+                                      </motion.svg>
                                       <span className="font-semibold text-xs sm:text-sm">Error</span>
                                     </div>
-                                    <p className="text-red-600 text-xs sm:text-sm leading-relaxed">{response.error}</p>
+                                    <p className="text-red-300 text-xs sm:text-sm leading-relaxed relative z-10">{response.error}</p>
                                     <motion.button
-                                      whileHover={{ scale: 1.02 }}
+                                      whileHover={{ 
+                                        scale: 1.02,
+                                        boxShadow: "0 10px 25px rgba(239, 68, 68, 0.3)"
+                                      }}
                                       whileTap={{ scale: 0.98 }}
                                       onClick={() => openResponseModal(aiName, response)}
-                                      className="mt-3 sm:mt-4 w-full py-2 sm:py-3 px-3 sm:px-4 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-300 shadow-md"
+                                      className="mt-3 sm:mt-4 w-full py-2 sm:py-3 px-3 sm:px-4 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs sm:text-sm font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-300 shadow-md relative overflow-hidden"
                                     >
-                                      🔍 View Error Details
+                                      {/* Button shimmer effect */}
+                                      <motion.div
+                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                                        animate={{
+                                          x: ['-100%', '100%'],
+                                        }}
+                                        transition={{
+                                          duration: 2,
+                                          repeat: Infinity,
+                                          repeatDelay: 4,
+                                          ease: "easeInOut"
+                                        }}
+                                      />
+                                      <span className="relative z-10">🔍 View Error Details</span>
                                     </motion.button>
                                   </div>
                                 )}
