@@ -1849,14 +1849,38 @@ const MultiAI: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              margin: 0,
+              padding: '1rem',
+              overflow: 'hidden'
+            }}
             onClick={() => setShowHistory(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[85vh] border border-white/20 mx-auto"
+              style={{
+                position: 'relative',
+                background: 'linear-gradient(135deg, rgb(15, 23, 42), rgb(30, 41, 59))',
+                borderRadius: '1.5rem',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                maxWidth: '800px',
+                width: '90%',
+                maxHeight: '85vh',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                margin: '0 auto'
+              }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -1916,7 +1940,21 @@ const MultiAI: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-2xl z-50 flex items-center justify-center p-4"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 9999,
+              margin: 0,
+              padding: '1rem',
+              overflow: 'hidden'
+            }}
             onClick={closeModal}
           >
             <motion.div
@@ -1924,7 +1962,19 @@ const MultiAI: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-4xl w-full max-h-[85vh] border border-white/20 backdrop-blur-2xl flex flex-col mx-auto"
+              style={{
+                position: 'relative',
+                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
+                borderRadius: '1rem',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+                maxWidth: '800px',
+                width: '90%',
+                maxHeight: '85vh',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                display: 'flex',
+                flexDirection: 'column',
+                margin: '0 auto'
+              }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Animated Border */}
