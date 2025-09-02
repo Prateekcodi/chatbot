@@ -7,9 +7,20 @@ import { AuthProvider, useAuth } from './lib/auth';
 import { supabase } from './lib/supabaseClient';
 import './index.css';
 
+function LoadingSplash() {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0F] text-white z-50">
+      <div className="flex flex-col items-center space-y-4">
+        <div className="w-12 h-12 border-4 border-slate-500 border-t-emerald-400 rounded-full animate-spin"></div>
+        <div className="text-slate-300 text-sm">Loading…</div>
+      </div>
+    </div>
+  );
+}
+
 function Protected({ children }: { children: React.ReactNode }) {
   const { session, initialized } = useAuth();
-  if (!initialized) return null;
+  if (!initialized) return <LoadingSplash />;
   if (!session) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 }
