@@ -320,6 +320,222 @@ app.post('/api/ask', async (req, res) => {
   }
 });
 
+// Streaming API endpoint for real-time typing effect
+app.post('/api/ask-stream', async (req, res) => {
+  const { prompt } = req.body;
+
+  if (!prompt || typeof prompt !== 'string' || prompt.trim().length === 0) {
+    return res.status(400).json({ error: 'Invalid prompt. Please provide a non-empty string.' });
+  }
+
+  console.log(`🤖 Processing streaming prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
+
+  // Set up Server-Sent Events
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+
+  const startTime = Date.now();
+  const responses = {};
+
+  try {
+    // Cache lookup first
+    let cacheLookupFailed = false;
+    try {
+      const { findConversationByPrompt } = require('./services/supabaseClient');
+      let cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
+
+      if (!cached || !cached.data) {
+        const normalizeForWordSet = (s) => s
+          .toLowerCase()
+          .replace(/[^\w\s]/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .split(' ')
+          .filter(word => word.length > 0)
+          .sort()
+          .join(' ');
+
+        const targetWordSet = normalizeForWordSet(prompt.trim());
+        const { fetchConversations } = require('./services/supabaseClient');
+
+        let found = false;
+        for (let page = 1; page <= 3 && !found; page++) {
+          try {
+            const { data: recent, error } = await fetchConversations({ page, limit: 50, type: 'multibot' });
+            if (error) continue;
+            
+            if (recent && recent.length > 0) {
+              for (const conv of recent) {
+                const convWordSet = normalizeForWordSet(conv.prompt);
+                if (convWordSet === targetWordSet) {
+                  cached = { data: conv };
+                  found = true;
+                  break;
+                }
+              }
+            } else {
+              break;
+            }
+          } catch (pageError) {
+            continue;
+          }
+        }
+      }
+
+      if (cached && cached.data && cached.data.responses) {
+        const r = cached.data.responses || {};
+        const names = ['gemini','cohere','openrouter','glm','deepseek'];
+        const allOk = names.every(n => r[n] && r[n].success === true);
+        if (allOk) {
+          console.log('⚡ Serving from cache (streaming)');
+          
+          // Stream cached responses with typing effect
+          for (const [name, response] of Object.entries(r)) {
+            if (response.success && response.response) {
+              res.write(`data: ${JSON.stringify({
+                type: 'ai_start',
+                ai: name,
+                model: response.model
+              })}\n\n`);
+              
+              // Simulate typing effect for cached response
+              const text = response.response;
+              const words = text.split(' ');
+              let currentText = '';
+              
+              for (let i = 0; i < words.length; i++) {
+                currentText += (i > 0 ? ' ' : '') + words[i];
+                res.write(`data: ${JSON.stringify({
+                  type: 'ai_chunk',
+                  ai: name,
+                  text: currentText,
+                  isComplete: i === words.length - 1
+                })}\n\n`);
+                
+                // Small delay to simulate typing
+                await new Promise(resolve => setTimeout(resolve, 50));
+              }
+              
+              res.write(`data: ${JSON.stringify({
+                type: 'ai_complete',
+                ai: name,
+                response: response
+              })}\n\n`);
+            }
+          }
+          
+          res.write(`data: ${JSON.stringify({
+            type: 'complete',
+            processingTime: '0ms (cached)',
+            timestamp: new Date().toISOString()
+          })}\n\n`);
+          
+          res.end();
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Cache lookup failed:', err.message);
+      cacheLookupFailed = true;
+    }
+
+    if (cacheLookupFailed) {
+      console.log('⚠️ Cache lookup failed, proceeding with AI calls...');
+    }
+
+    // Load services dynamically
+    const geminiService = require('./services/geminiService');
+    const cohereService = require('./services/cohereService');
+    const openrouterService = require('./services/openrouterService');
+    const glmService = require('./services/glmService');
+    const deepseekService = require('./services/deepseekService');
+    const { saveConversation } = require('./services/supabaseClient');
+
+    // Call all services in parallel with streaming
+    const services = [
+      { name: 'gemini', service: geminiService },
+      { name: 'cohere', service: cohereService },
+      { name: 'openrouter', service: openrouterService },
+      { name: 'glm', service: glmService },
+      { name: 'deepseek', service: deepseekService }
+    ];
+
+    const promises = services.map(async ({ name, service }) => {
+      try {
+        console.log(`🤖 Calling ${name} API (streaming)...`);
+        res.write(`data: ${JSON.stringify({
+          type: 'ai_start',
+          ai: name,
+          model: service.model || name
+        })}\n\n`);
+        
+        const result = await service.generateResponse(prompt);
+        
+        // Stream the response with typing effect
+        if (result && result.response) {
+          const text = result.response;
+          const words = text.split(' ');
+          let currentText = '';
+          
+          for (let i = 0; i < words.length; i++) {
+            currentText += (i > 0 ? ' ' : '') + words[i];
+            res.write(`data: ${JSON.stringify({
+              type: 'ai_chunk',
+              ai: name,
+              text: currentText,
+              isComplete: i === words.length - 1
+            })}\n\n`);
+            
+            // Small delay to simulate typing
+            await new Promise(resolve => setTimeout(resolve, 30));
+          }
+        }
+        
+        res.write(`data: ${JSON.stringify({
+          type: 'ai_complete',
+          ai: name,
+          response: result
+        })}\n\n`);
+        
+        return { name, result };
+      } catch (error) {
+        console.error(`${name} Error:`, error.message);
+        res.write(`data: ${JSON.stringify({
+          type: 'ai_error',
+          ai: name,
+          error: error.message
+        })}\n\n`);
+        return { name, error: error.message };
+      }
+    });
+
+    await Promise.all(promises);
+
+    const processingTime = Date.now() - startTime;
+    
+    res.write(`data: ${JSON.stringify({
+      type: 'complete',
+      processingTime: `${processingTime}ms`,
+      timestamp: new Date().toISOString()
+    })}\n\n`);
+    
+    res.end();
+
+  } catch (error) {
+    console.error('Error processing streaming AI requests:', error);
+    res.write(`data: ${JSON.stringify({
+      type: 'error',
+      error: error.message
+    })}\n\n`);
+    res.end();
+  }
+});
+
 // Dedicated Chatbot endpoint with simpler response format
 app.post('/api/chatbot', async (req, res) => {
   const { prompt } = req.body;

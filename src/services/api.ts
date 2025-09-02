@@ -83,6 +83,62 @@ export const sendMessageToGemini = async (message: string): Promise<ApiResponse>
   }
 };
 
+// Streaming API function for real-time typing effect
+export const sendStreamingMessage = async (
+  message: string,
+  onChunk: (data: any) => void,
+  onComplete: (data: any) => void,
+  onError: (error: string) => void
+): Promise<void> => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/ask-stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ prompt: message }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('No response body');
+    }
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            onChunk(data);
+            
+            if (data.type === 'complete') {
+              onComplete(data);
+            }
+          } catch (e) {
+            console.error('Error parsing SSE data:', e);
+          }
+        }
+      }
+    }
+  } catch (error) {
+    onError(error instanceof Error ? error.message : 'Unknown error');
+  }
+};
+
 // Dedicated Chatbot function using the simpler endpoint
 export const sendChatbotMessage = async (message: string): Promise<ApiResponse> => {
   try {

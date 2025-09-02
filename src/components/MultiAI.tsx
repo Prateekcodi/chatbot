@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getTokenUsage, getConversations } from '../services/api';
+import { getTokenUsage, getConversations, sendStreamingMessage } from '../services/api';
 import { AIResponse, APIResponse } from '../types';
 
 interface TokenUsage {
@@ -46,6 +46,8 @@ const MultiAI: React.FC = () => {
   // const [historyTotal, setHistoryTotal] = useState(0);
   const [historyPage, setHistoryPage] = useState(1);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [streamingMode, setStreamingMode] = useState(true);
+  const [streamingResponses, setStreamingResponses] = useState<{[key: string]: {text: string, isComplete: boolean, model: string}}>({});
 
   const loadHistory = useCallback(async (page = 1) => {
     try {
@@ -131,31 +133,81 @@ const MultiAI: React.FC = () => {
 
     setIsLoading(true);
     setError(null);
+    setStreamingResponses({});
 
-    try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com';
-
-      const response = await fetch(`${backendUrl}/api/ask`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt: prompt.trim() }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to get responses');
+    if (streamingMode) {
+      // Use streaming API
+      try {
+        await sendStreamingMessage(
+          prompt.trim(),
+          (data) => {
+            // Handle streaming chunks
+            if (data.type === 'ai_start') {
+              setStreamingResponses(prev => ({
+                ...prev,
+                [data.ai]: { text: '', isComplete: false, model: data.model }
+              }));
+            } else if (data.type === 'ai_chunk') {
+              setStreamingResponses(prev => ({
+                ...prev,
+                [data.ai]: { 
+                  text: data.text, 
+                  isComplete: data.isComplete,
+                  model: prev[data.ai]?.model || data.ai
+                }
+              }));
+            } else if (data.type === 'ai_complete') {
+              setStreamingResponses(prev => ({
+                ...prev,
+                [data.ai]: { 
+                  ...prev[data.ai], 
+                  isComplete: true 
+                }
+              }));
+            }
+          },
+          (data) => {
+            // Handle completion
+            console.log('Streaming complete:', data);
+            setPrompt('');
+          },
+          (error) => {
+            setError(error);
+            setIsLoading(false);
+          }
+        );
+        setIsLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        setIsLoading(false);
       }
+    } else {
+      // Use regular API
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com';
 
-      setConversationHistory(prev => [...prev, data]);
-      setResults(data);
-      setPrompt('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
-      setIsLoading(false);
+        const response = await fetch(`${backendUrl}/api/ask`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt: prompt.trim() }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to get responses');
+        }
+
+        setConversationHistory(prev => [...prev, data]);
+        setResults(data);
+        setPrompt('');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -528,6 +580,78 @@ const MultiAI: React.FC = () => {
                     </div>
                   </div>
                 </motion.form>
+
+                {/* Streaming Mode Toggle */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.7 }}
+                  className="mb-6 flex justify-center"
+                >
+                  <div className="flex items-center space-x-4 bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
+                    <span className="text-slate-300 font-medium">Streaming Mode:</span>
+                    <button
+                      onClick={() => setStreamingMode(!streamingMode)}
+                      className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
+                        streamingMode ? 'bg-emerald-500' : 'bg-slate-600'
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 ${
+                          streamingMode ? 'translate-x-9' : 'translate-x-1'
+                        }`}
+                      />
+                    </button>
+                    <span className={`text-sm font-medium ${streamingMode ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      {streamingMode ? 'Live Typing' : 'Batch Mode'}
+                    </span>
+                    <div className="text-xs text-slate-500">
+                      {streamingMode ? '⚡ Real-time responses' : '📦 Complete responses'}
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Streaming Responses Display */}
+                {streamingMode && Object.keys(streamingResponses).length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6"
+                  >
+                    <h3 className="text-lg font-semibold text-slate-300 mb-4 text-center">Live AI Responses</h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+                      {Object.entries(streamingResponses).map(([aiName, response]) => {
+                        const config = getAIConfig(aiName);
+                        return (
+                          <div key={aiName} className={`${config.bgColor} border ${config.borderColor} rounded-xl p-4 backdrop-blur-sm`}>
+                            <div className="flex items-center space-x-3 mb-3">
+                              <div className={`w-8 h-8 bg-gradient-to-r ${config.color} rounded-lg flex items-center justify-center text-white text-lg`}>
+                                {config.icon}
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-slate-800">{config.name}</h4>
+                                <div className="text-xs text-slate-600">{response.model}</div>
+                              </div>
+                              <div className="ml-auto">
+                                {response.isComplete ? (
+                                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
+                                ) : (
+                                  <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-slate-700 text-sm leading-relaxed">
+                              {response.text || 'Starting response...'}
+                              {!response.isComplete && (
+                                <span className="inline-block w-2 h-4 bg-blue-500 ml-1 animate-pulse"></span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
 
                 {/* Error Message */}
                 <AnimatePresence>
