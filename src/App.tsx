@@ -48,10 +48,7 @@ function Nav() {
   }, []);
   
   // Hide nav on auth page
-  console.log('Nav component - current pathname:', location.pathname);
-  console.log('Nav component - current hash:', window.location.hash);
   if (location.pathname === '/auth' || window.location.hash === '#/auth') {
-    console.log('Hiding navbar for auth page');
     return null;
   }
   
