@@ -455,8 +455,16 @@ app.post('/api/ask-stream', async (req, res) => {
     }
 
     // Only proceed with AI calls if cache lookup failed or no cache found
+    console.log('🔍 Final cache check:', { 
+      cacheLookupFailed, 
+      hasCached: !!cached, 
+      hasData: !!cached?.data, 
+      hasResponses: !!cached?.data?.responses 
+    });
+    
     if (!cacheLookupFailed && cached && cached.data && cached.data.responses) {
       // Cache was found and served above, so we're done
+      console.log('✅ Cache found, skipping AI calls');
       return;
     }
 
