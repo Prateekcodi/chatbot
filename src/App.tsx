@@ -8,7 +8,8 @@ import { supabase } from './lib/supabaseClient';
 import './index.css';
 
 function Protected({ children }: { children: React.ReactNode }) {
-  const { session } = useAuth();
+  const { session, initialized } = useAuth();
+  if (!initialized) return null;
   if (!session) return <Navigate to="/auth" replace />;
   return <>{children}</>;
 }
@@ -107,9 +108,7 @@ function ProfileUpsertOnAuth() {
           navigate('/multiai', { replace: true });
         }
       }
-      if (event === 'SIGNED_OUT') {
-        navigate('/auth', { replace: true });
-      }
+      // Do not auto-redirect on SIGNED_OUT to avoid reload issues on mobile/pc
     });
     return () => { mounted = false; sub.subscription.unsubscribe(); };
   }, [location.pathname, navigate]);

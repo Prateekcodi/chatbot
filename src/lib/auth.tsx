@@ -5,6 +5,7 @@ import { supabase } from './supabaseClient';
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
+  initialized: boolean;
   signInWithEmail: (email: string, password: string) => Promise<{ error?: string }>
   signUpWithEmail: (email: string, password: string, meta?: { full_name?: string }) => Promise<{ error?: string }>
   signOut: () => Promise<void>;
@@ -15,6 +16,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     let canceled = false;
@@ -22,12 +24,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (canceled) return;
       setSession(data.session ?? null);
       setUser(data.session?.user ?? null);
+      setInitialized(true);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       if (canceled) return;
       setSession(sess);
       setUser(sess?.user ?? null);
+      setInitialized(true);
     });
     return () => { canceled = true; sub.subscription.unsubscribe(); };
   }, []);
@@ -78,7 +82,7 @@ function storeSafeRemove(key: string) {
   try { window.sessionStorage.removeItem(key); } catch (_) {}
 }
 
-  const value: AuthContextValue = { session, user, signInWithEmail, signUpWithEmail, signOut };
+  const value: AuthContextValue = { session, user, initialized, signInWithEmail, signUpWithEmail, signOut };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
