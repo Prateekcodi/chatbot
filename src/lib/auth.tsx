@@ -52,14 +52,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (canceled) return;
       clearTimeout(timeoutId);
       console.log('Auth state change:', event, sess?.user?.email);
-      setSession(sess);
-      setUser(sess?.user ?? null);
+      
+      // Handle token refresh failures
+      if (event === 'TOKEN_REFRESHED' && !sess) {
+        console.warn('Token refresh failed - clearing session');
+        setSession(null);
+        setUser(null);
+      } else {
+        setSession(sess);
+        setUser(sess?.user ?? null);
+      }
       setInitialized(true);
     });
+    
+    // Add periodic session validation to detect stale sessions
+    const sessionCheckInterval = setInterval(async () => {
+      if (canceled) return;
+      
+      try {
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (currentSession && currentSession.expires_at) {
+          const expiresAt = new Date(currentSession.expires_at * 1000);
+          const now = new Date();
+          const timeUntilExpiry = expiresAt.getTime() - now.getTime();
+          
+          // If session expires in less than 5 minutes, try to refresh
+          if (timeUntilExpiry < 5 * 60 * 1000 && timeUntilExpiry > 0) {
+            console.log('Session expiring soon, attempting refresh...');
+            const { error } = await supabase.auth.refreshSession();
+            if (error) {
+              console.warn('Session refresh failed:', error);
+              // Clear stale session
+              setSession(null);
+              setUser(null);
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('Session validation failed:', error);
+      }
+    }, 60000); // Check every minute
     
     return () => { 
       canceled = true; 
       clearTimeout(timeoutId);
+      clearInterval(sessionCheckInterval);
       sub.subscription.unsubscribe(); 
     };
   }, []);
@@ -79,30 +116,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    console.log('Starting signOut process...');
+    
+    // First, eagerly clear local auth state to update UI immediately
+    setSession(null);
+    setUser(null);
+    
     try {
-      await supabase.auth.signOut();
-    } catch (_) {
-      // ignore
-    } finally {
-      // Eagerly clear local auth state to update UI immediately
-      setSession(null);
-      setUser(null);
-      try {
-        if (typeof window !== 'undefined') {
-          // Clear Supabase cached tokens in localStorage/sessionStorage
-          for (const store of [window.localStorage, window.sessionStorage]) {
-            const keys = Object.keys(store);
-            for (const key of keys) {
-              if (key.startsWith('sb-')) {
-                store.removeItem(key);
-              }
+      // Try to sign out from Supabase with timeout
+      const signOutPromise = supabase.auth.signOut();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('SignOut timeout')), 5000)
+      );
+      
+      await Promise.race([signOutPromise, timeoutPromise]);
+      console.log('Supabase signOut successful');
+    } catch (error) {
+      console.warn('Supabase signOut failed or timed out:', error);
+      // Continue with local cleanup even if Supabase signOut fails
+    }
+    
+    try {
+      if (typeof window !== 'undefined') {
+        console.log('Clearing local storage...');
+        
+        // Clear Supabase cached tokens in localStorage/sessionStorage
+        for (const store of [window.localStorage, window.sessionStorage]) {
+          const keys = Object.keys(store);
+          for (const key of keys) {
+            if (key.startsWith('sb-')) {
+              store.removeItem(key);
             }
           }
-          // Also clear our own app cache if any
-          storeSafeRemove('persist:root');
         }
-      } catch (_) {}
+        
+        // Clear any other auth-related keys
+        const authKeys = ['supabase.auth.token', 'supabase.auth.refresh_token', 'sb-auth-token'];
+        for (const key of authKeys) {
+          storeSafeRemove(key);
+        }
+        
+        // Also clear our own app cache if any
+        storeSafeRemove('persist:root');
+        
+        console.log('Local storage cleared successfully');
+      }
+    } catch (error) {
+      console.warn('Error clearing local storage:', error);
     }
+    
+    console.log('SignOut process completed');
   }, []);
 
 function storeSafeRemove(key: string) {

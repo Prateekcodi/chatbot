@@ -68,16 +68,32 @@ function Nav() {
               <button 
                 onClick={async () => { 
                   setOpen(false); 
-                  console.log('Mobile logout starting...');
+                  console.log('Mobile logout button clicked - starting logout process...');
                   
                   try {
-                    await signOut();
+                    // Add timeout to prevent hanging
+                    const logoutPromise = signOut();
+                    const timeoutPromise = new Promise((_, reject) => 
+                      setTimeout(() => reject(new Error('Mobile logout timeout')), 10000)
+                    );
+                    
+                    await Promise.race([logoutPromise, timeoutPromise]);
                     console.log('Mobile logout successful, redirecting...');
                   } catch (error) {
                     console.error('Mobile logout error:', error);
+                    // Force clear any remaining auth state
+                    try {
+                      if (typeof window !== 'undefined') {
+                        window.localStorage.clear();
+                        window.sessionStorage.clear();
+                      }
+                    } catch (clearError) {
+                      console.warn('Error clearing storage:', clearError);
+                    }
                   } finally {
                     // Always redirect, even if logout failed
                     setTimeout(() => {
+                      console.log('Mobile logout - forcing redirect to auth page');
                       window.location.replace('#/auth');
                     }, 100);
                   }
@@ -103,16 +119,32 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
     if (isLoggingOut) return; // Prevent double-click
     
     setIsLoggingOut(true);
-    console.log('Starting logout process...');
+    console.log('Desktop logout button clicked - starting logout process...');
     
     try {
-      await onLogout();
-      console.log('Logout successful, redirecting...');
+      // Add timeout to prevent hanging
+      const logoutPromise = onLogout();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Logout timeout')), 10000)
+      );
+      
+      await Promise.race([logoutPromise, timeoutPromise]);
+      console.log('Desktop logout successful, redirecting...');
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Desktop logout error:', error);
+      // Force clear any remaining auth state
+      try {
+        if (typeof window !== 'undefined') {
+          window.localStorage.clear();
+          window.sessionStorage.clear();
+        }
+      } catch (clearError) {
+        console.warn('Error clearing storage:', clearError);
+      }
     } finally {
       // Always redirect, even if logout failed
       setTimeout(() => {
+        console.log('Desktop logout - forcing redirect to auth page');
         window.location.replace('#/auth');
       }, 100);
     }
