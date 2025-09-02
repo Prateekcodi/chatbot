@@ -4,6 +4,7 @@ class GeminiService {
   constructor() {
     this.apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
     this.model = 'gemini-2.5-flash-lite';
+    this.embeddingModel = 'models/embedding-001';
   }
 
   // Remove leading markdown bullet asterisks at line starts: "* "
@@ -72,6 +73,18 @@ class GeminiService {
         model: 'gemini-2.5-flash-lite'
       };
     }
+  }
+
+  async embed(text) {
+    if (!this.apiKey || this.apiKey === 'your-api-key-here') {
+      throw new Error('Gemini API key not configured');
+    }
+    const genAI = new GoogleGenerativeAI(this.apiKey);
+    const model = genAI.getGenerativeModel({ model: this.embeddingModel });
+    const resp = await model.embedContent({ content: { parts: [{ text }] } });
+    const vector = resp.embedding?.values || resp.embedding?.value || [];
+    if (!Array.isArray(vector) || vector.length === 0) throw new Error('Failed to embed');
+    return vector;
   }
 }
 

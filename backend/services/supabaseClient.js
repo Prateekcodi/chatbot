@@ -123,4 +123,36 @@ async function findConversationByPrompt({ prompt, type }) {
 }
 
 module.exports = { getSupabase, saveConversation, fetchConversations, findConversationByPrompt };
+ 
+// --- QA pairs helpers ---
+async function matchQuestions({ queryEmbedding, matchThreshold = 0.9, matchCount = 1 }) {
+  const client = getSupabase();
+  if (!client) return { data: [], error: 'Supabase not configured' };
+  try {
+    const { data, error } = await client.rpc('match_questions', {
+      query_embedding: queryEmbedding,
+      match_threshold: matchThreshold,
+      match_count: matchCount
+    });
+    if (error) return { data: [], error: error.message };
+    return { data: data || [] };
+  } catch (err) {
+    return { data: [], error: err.message };
+  }
+}
+
+async function insertQAPair({ question, embedding, answer }) {
+  const client = getSupabase();
+  if (!client) return { error: 'Supabase not configured' };
+  try {
+    const { error } = await client.from('qa_pairs').insert([{ question, embedding, answer }]);
+    if (error) return { error: error.message };
+    return { ok: true };
+  } catch (err) {
+    return { error: err.message };
+  }
+}
+
+module.exports.matchQuestions = matchQuestions;
+module.exports.insertQAPair = insertQAPair;
 
