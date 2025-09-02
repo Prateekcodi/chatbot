@@ -33,7 +33,7 @@ class DeepSeekService {
         return axios.post(this.apiUrl, {
           model: 'deepseek/deepseek-chat-v3.1:free',
           messages: [
-            { role: 'user', content: `${prompt}\n\nPlease provide a concise answer in 400-1000 words. Be thorough but brief.` }
+            { role: 'user', content: `${prompt}\n\nPlease provide a concise answer in exactly 200 words. Be thorough but brief.` }
           ],
           max_tokens: 1000,
           temperature: 0.7

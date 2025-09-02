@@ -40,7 +40,7 @@ class OpenRouterService {
           messages: [
             {
               role: 'user',
-              content: `${prompt}\n\nPlease provide a concise answer in 400-1000 words. Be thorough but brief.`
+              content: `${prompt}\n\nPlease provide a concise answer in exactly 200 words. Be thorough but brief.`
             }
           ],
           max_tokens: 1000,

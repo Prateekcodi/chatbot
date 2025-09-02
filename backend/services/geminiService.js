@@ -26,7 +26,7 @@ class GeminiService {
       const contents = [
         {
           role: 'user',
-          parts: [ { text: `${prompt}\n\nPlease provide a concise answer in 400-1000 words. Be thorough but brief.` } ]
+          parts: [ { text: `${prompt}\n\nPlease provide a concise answer in exactly 200 words. Be thorough but brief.` } ]
         }
       ];
 

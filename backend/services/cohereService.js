@@ -15,7 +15,7 @@ class CohereService {
 
       const response = await axios.post(this.apiUrl, {
         model: 'command',
-        prompt: `${prompt}\n\nPlease provide a concise answer in 400-1000 words. Be thorough but brief.`,
+        prompt: `${prompt}\n\nPlease provide a concise answer in exactly 200 words. Be thorough but brief.`,
         max_tokens: 1000,
         temperature: 0.7,
         k: 0,
