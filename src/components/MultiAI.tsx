@@ -498,64 +498,107 @@ const MultiAI: React.FC = () => {
       
       {/* Main Content */}
       <div className="relative z-10 w-full min-h-screen flex flex-col">
-        {/* Premium Header */}
-        <header className="w-full px-6 py-8">
+        {/* Modern Premium Header */}
+        <header className="w-full px-4 sm:px-6 py-6 sm:py-8">
           <div className="max-w-7xl mx-auto">
             <motion.div 
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: -30 }}
               animate={{ opacity: 1, y: 0 }}
-              className="relative overflow-auto-y"
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="relative overflow-hidden"
             >
-              {/* Premium Background */}
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-900/80 via-slate-800/80 to-slate-900/80 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl"></div>
+              {/* Modern Glass Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl"></div>
               
-              {/* Animated Border */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-emerald-400/20 via-violet-400/20 to-rose-400/20 opacity-50 animate-pulse"></div>
+              {/* Animated Gradient Border */}
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/30 via-violet-400/30 to-rose-400/30 rounded-2xl sm:rounded-3xl animate-pulse"></div>
+                <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900/90 via-slate-800/90 to-slate-900/90 rounded-2xl sm:rounded-3xl"></div>
+              </div>
               
-              <div className="relative p-8">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-4">
+              {/* Floating Particles */}
+              <div className="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl">
+                {[...Array(6)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-white/20 rounded-full"
+                    style={{
+                      left: `${20 + i * 15}%`,
+                      top: `${30 + (i % 2) * 40}%`,
+                    }}
+                    animate={{
+                      y: [-10, 10, -10],
+                      opacity: [0.2, 0.8, 0.2],
+                    }}
+                    transition={{
+                      duration: 3 + i * 0.5,
+                      repeat: Infinity,
+                      delay: i * 0.3,
+                    }}
+                  />
+                ))}
+              </div>
+              
+              <div className="relative p-6 sm:p-8">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
+                  <div className="space-y-4 lg:space-y-6">
                     <motion.h1 
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="text-5xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent tracking-tight"
+                      transition={{ delay: 0.3, duration: 0.8 }}
+                      className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent tracking-tight leading-tight"
                     >
                       Multi-AI Studio
                     </motion.h1>
                     <motion.p 
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                      className="text-slate-300/80 text-xl font-medium max-w-2xl leading-relaxed"
+                      transition={{ delay: 0.4, duration: 0.8 }}
+                      className="text-slate-300/90 text-base sm:text-lg lg:text-xl font-medium max-w-2xl leading-relaxed"
                     >
                       Experience the future of AI with our cutting-edge multi-model comparison platform. 
                       Get insights from the world's most advanced AI models in real-time.
                     </motion.p>
                   </div>
                   
-                  {/* Status Indicators */}
+                  {/* Modern Status Grid */}
                   <motion.div 
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 }}
-                    className="flex flex-col items-end space-y-3 sm:items-end sm:space-y-3 lg:items-end"
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 lg:gap-4"
                   >
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                    {/* Status Cards */}
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="flex items-center space-x-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
+                    >
                       <div className={`w-3 h-3 rounded-full animate-pulse ${serviceSummary.operational === serviceSummary.total ? 'bg-emerald-400' : 'bg-amber-400'}`}></div>
                       <span className={`text-sm font-semibold ${serviceSummary.operational === serviceSummary.total ? 'text-emerald-400' : 'text-amber-400'}`}>
                         {serviceSummary.status}
                       </span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                    </motion.div>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="flex items-center space-x-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
+                    >
                       <div className="w-3 h-3 bg-violet-400 rounded-full animate-pulse"></div>
                       <span className="text-violet-400 text-sm font-semibold">Real-time Processing</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                    </motion.div>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="flex items-center space-x-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
+                    >
                       <div className="w-3 h-3 bg-rose-400 rounded-full animate-pulse"></div>
                       <span className="text-rose-400 text-sm font-semibold">Premium Performance</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm">
+                    </motion.div>
+                    
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="flex items-center space-x-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-white/20 transition-all duration-300"
+                    >
                       <div className="w-3 h-3 bg-blue-400 rounded-full animate-pulse"></div>
                       <span className="text-blue-400 text-sm font-semibold">
                         Tokens: {(() => {
@@ -563,33 +606,44 @@ const MultiAI: React.FC = () => {
                           return isFinite(total) && total > 0 ? total.toLocaleString() + '+' : '—';
                         })()} Available
                       </span>
-                    </div>
+                    </motion.div>
+                    
                     {cacheHit && (
-                      <div className="flex items-center space-x-2 text-xs sm:text-sm">
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                          Cache hit
-                        </span>
-                      </div>
-                    )}
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => { setShowHistory(true); loadHistory(1); }}
-                        className="px-2 sm:px-3 py-1 text-xs font-semibold rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+                      <motion.div 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="flex items-center justify-center p-3 rounded-xl bg-emerald-500/10 backdrop-blur-sm border border-emerald-500/30"
                       >
-                        View History
-                      </button>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300">
+                          ⚡ Cache Hit
+                        </span>
+                      </motion.div>
+                    )}
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row lg:flex-col gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => { setShowHistory(true); loadHistory(1); }}
+                        className="px-4 py-2 text-sm font-semibold rounded-xl bg-white/10 text-white hover:bg-white/20 transition-all duration-300 backdrop-blur-sm border border-white/10"
+                      >
+                        📚 View History
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={fetchServiceStatus}
+                        disabled={isRefreshing}
+                        className={`px-4 py-2 text-sm rounded-xl transition-all duration-300 backdrop-blur-sm border ${
+                          isRefreshing 
+                            ? 'bg-slate-600/50 text-slate-400 cursor-not-allowed border-slate-600/50' 
+                            : 'bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 border-blue-500/30'
+                        }`}
+                      >
+                        {isRefreshing ? '🔄 Checking...' : '🔄 Refresh Status'}
+                      </motion.button>
                     </div>
-                    <button
-                      onClick={fetchServiceStatus}
-                      disabled={isRefreshing}
-                      className={`px-3 py-1 text-xs rounded-full transition-all duration-300 ${
-                        isRefreshing 
-                          ? 'bg-slate-600 text-slate-400 cursor-not-allowed' 
-                          : 'bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 hover:scale-105'
-                      }`}
-                    >
-                      {isRefreshing ? '🔄 Checking...' : '🔄 Refresh Status'}
-                    </button>
                   </motion.div>
                 </div>
               </div>
@@ -598,18 +652,24 @@ const MultiAI: React.FC = () => {
         </header>
 
         {/* Main Content */}
-        <main className="flex-1 px-6 pb-8">
+        <main className="flex-1 px-4 sm:px-6 pb-6 sm:pb-8">
           <div className="max-w-7xl mx-auto">
             <motion.div 
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="relative overflow-auto-y"
+              transition={{ delay: 0.5, duration: 0.8 }}
+              className="relative overflow-hidden"
             >
-              {/* Premium Content Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 via-slate-700/60 to-slate-800/60 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl"></div>
+              {/* Modern Glass Content Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-800/70 via-slate-700/70 to-slate-800/70 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl"></div>
               
-              <div className="relative p-8">
+              {/* Subtle Animated Border */}
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/10 via-violet-400/10 to-rose-400/10 rounded-2xl sm:rounded-3xl animate-pulse"></div>
+                <div className="absolute inset-[1px] bg-gradient-to-br from-slate-800/70 via-slate-700/70 to-slate-800/70 rounded-2xl sm:rounded-3xl"></div>
+              </div>
+              
+              <div className="relative p-6 sm:p-8">
                 {/* Conversation History Info */}
                 {conversationHistory.length > 0 && (
                   <motion.div 
@@ -650,94 +710,109 @@ const MultiAI: React.FC = () => {
                   </motion.div>
                 )}
 
-                {/* Premium Input Form */}
+                {/* Modern Input Form */}
                 <motion.form
                   onSubmit={handleSubmit}
-                  className="w-full mb-8"
-                  initial={{ opacity: 0, y: 20 }}
+                  className="w-full mb-6 sm:mb-8"
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.6 }}
+                  transition={{ delay: 0.6, duration: 0.8 }}
                 >
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/20 via-violet-500/20 to-rose-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div className="relative flex space-x-4">
+                    {/* Animated Glow Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/30 via-violet-500/30 to-rose-500/30 rounded-2xl sm:rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    
+                    <div className="relative flex flex-col sm:flex-row gap-3 sm:gap-4">
                       <div className="flex-1 relative">
                         <input
                           type="text"
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
                           placeholder="Ask anything... (e.g., 'Write a story', 'Explain quantum physics', 'Give me a recipe')"
-                          className="w-full px-6 py-5 bg-gradient-to-r from-slate-800/80 to-slate-700/80 backdrop-blur-xl border border-white/20 rounded-2xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/50 transition-all duration-500 text-lg pr-16 shadow-2xl"
+                          className="w-full px-4 sm:px-6 py-4 sm:py-5 bg-gradient-to-r from-slate-800/90 to-slate-700/90 backdrop-blur-xl border border-white/20 rounded-2xl sm:rounded-3xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-emerald-400/50 transition-all duration-500 text-base sm:text-lg pr-12 sm:pr-16 shadow-2xl"
                           disabled={isLoading}
                         />
-                        <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-                          <div className="w-10 h-10 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-xl flex items-center justify-center shadow-lg">
-                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2">
+                          <motion.div 
+                            whileHover={{ scale: 1.1 }}
+                            className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-xl flex items-center justify-center shadow-lg"
+                          >
+                            <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
-                          </div>
+                          </motion.div>
                         </div>
                       </div>
-                      <button
+                      
+                      <motion.button
                         type="submit"
                         disabled={isLoading || !prompt.trim()}
-                        className="relative px-8 py-5 bg-gradient-to-r from-emerald-500 via-violet-500 to-rose-500 text-white font-bold rounded-2xl hover:from-emerald-600 hover:via-violet-600 hover:to-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 transform hover:scale-105 active:scale-95 shadow-2xl hover:shadow-emerald-500/25 min-w-[140px] overflow-auto-y group"
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="relative px-6 sm:px-8 py-4 sm:py-5 bg-gradient-to-r from-emerald-500 via-violet-500 to-rose-500 text-white font-bold rounded-2xl sm:rounded-3xl hover:from-emerald-600 hover:via-violet-600 hover:to-rose-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-500 shadow-2xl hover:shadow-emerald-500/25 min-w-[120px] sm:min-w-[140px] group overflow-hidden"
                       >
-                        {/* Animated Background */}
+                        {/* Animated Shimmer Effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                         
-                        <span className="relative z-10">
+                        <span className="relative z-10 flex items-center justify-center space-x-2 sm:space-x-3">
                           {isLoading ? (
-                            <div className="flex items-center space-x-3">
-                              <div className="w-6 h-6 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
-                              <span className="text-lg">Processing...</span>
-                            </div>
+                            <>
+                              <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 sm:border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                              <span className="text-sm sm:text-lg">Processing...</span>
+                            </>
                           ) : (
-                            <div className="flex items-center space-x-3">
-                              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <>
+                              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                               </svg>
-                              <span className="text-lg">Send</span>
-                            </div>
+                              <span className="text-sm sm:text-lg">Send</span>
+                            </>
                           )}
                         </span>
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
                 </motion.form>
 
-                {/* Streaming Mode Toggle */}
+                {/* Modern Streaming Mode Toggle */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
-                  className="mb-6 flex justify-center"
+                  transition={{ delay: 0.7, duration: 0.8 }}
+                  className="mb-6 sm:mb-8 flex justify-center"
                 >
-                  <div className="bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-xl rounded-2xl p-4 border border-white/10">
-                    {/* Mobile-first responsive layout */}
-                    <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                      <span className="text-slate-300 font-medium text-sm sm:text-base">Streaming Mode:</span>
+                  <div className="bg-gradient-to-r from-slate-800/60 to-slate-700/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-xl">
+                    <div className="flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-6">
                       <div className="flex items-center space-x-3">
-                        <button
+                        <span className="text-slate-300 font-semibold text-sm sm:text-base">Streaming Mode:</span>
+                        <motion.button
                           onClick={() => setStreamingMode(!streamingMode)}
-                          className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
-                            streamingMode ? 'bg-emerald-500' : 'bg-slate-600'
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          className={`relative inline-flex h-9 w-16 sm:h-10 sm:w-18 items-center rounded-full transition-all duration-300 shadow-lg ${
+                            streamingMode ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' : 'bg-gradient-to-r from-slate-600 to-slate-700'
                           }`}
                         >
-                          <span
-                            className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform duration-300 ${
-                              streamingMode ? 'translate-x-9' : 'translate-x-1'
-                            }`}
+                          <motion.span
+                            animate={{
+                              x: streamingMode ? 32 : 4,
+                            }}
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                            className="inline-block h-7 w-7 sm:h-8 sm:w-8 transform rounded-full bg-white shadow-lg"
                           />
-                        </button>
-                        <span className={`text-sm font-medium ${streamingMode ? 'text-emerald-400' : 'text-slate-400'}`}>
+                        </motion.button>
+                        <span className={`text-sm sm:text-base font-semibold ${streamingMode ? 'text-emerald-400' : 'text-slate-400'}`}>
                           {streamingMode ? 'Live Typing' : 'Batch Mode'}
                         </span>
                       </div>
-                    </div>
-                    {/* Description on separate line for better mobile readability */}
-                    <div className="text-xs text-slate-500 text-center mt-2 sm:mt-0 sm:text-left">
-                      {streamingMode ? '⚡ Real-time responses' : '📦 Complete responses'}
+                      
+                      {/* Mode Description */}
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-2 h-2 rounded-full ${streamingMode ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'}`}></div>
+                        <span className="text-xs sm:text-sm text-slate-400">
+                          {streamingMode ? '⚡ Real-time responses' : '📦 Complete responses'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
