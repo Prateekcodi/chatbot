@@ -14,7 +14,10 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'https://chatbotcode.netlify.app',
   'http://localhost:3000',
-  'http://127.0.0.1:3000'
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'https://localhost:3000',
+  'https://localhost:5173'
 ];
 const corsOptions = {
   origin: (origin, callback) => {
@@ -23,8 +26,8 @@ const corsOptions = {
     return callback(null, false);
   },
   credentials: false,
-  methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   optionsSuccessStatus: 200,
   preflightContinue: false,
   maxAge: 600
@@ -45,14 +48,27 @@ app.use((req, res, next) => {
   if (origin && allowedOrigins.includes(origin)) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Vary', 'Origin');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS,PUT,DELETE');
     const reqHeaders = req.headers['access-control-request-headers'];
-    res.setHeader('Access-Control-Allow-Headers', reqHeaders || 'Content-Type, Authorization');
+    res.setHeader('Access-Control-Allow-Headers', reqHeaders || 'Content-Type, Authorization, X-Requested-With');
+    res.setHeader('Access-Control-Allow-Credentials', 'false');
     res.setHeader('Access-Control-Max-Age', '600');
   }
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
+  next();
+});
+
+// Additional CORS middleware for all responses
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'false');
   next();
 });
 
