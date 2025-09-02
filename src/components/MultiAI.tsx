@@ -1854,14 +1854,13 @@ const MultiAI: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4"
-            style={{ overflow: 'hidden' }}
             onClick={() => setShowHistory(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[80vh] border border-white/20"
+              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[85vh] border border-white/20"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -1884,7 +1883,7 @@ const MultiAI: React.FC = () => {
                   >Close</button>
                 </div>
               </div>
-              <div className="p-6 max-h-[60vh] space-y-3">
+              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-3">
                 {isHistoryLoading && <div className="text-slate-300 text-sm">Loading...</div>}
                 {!isHistoryLoading && historyItems.length === 0 && (
                   <div className="text-slate-400 text-sm">No conversations yet</div>
@@ -1931,8 +1930,7 @@ const MultiAI: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '1rem',
-              overflow: 'hidden'
+              padding: '1rem'
             }}
             onClick={closeModal}
           >
@@ -1941,7 +1939,7 @@ const MultiAI: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-4xl w-full h-auto max-h-[80vh] border border-white/20 backdrop-blur-2xl flex flex-col"
+              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-4xl w-full max-h-[85vh] border border-white/20 backdrop-blur-2xl flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Animated Border */}
@@ -1998,7 +1996,7 @@ const MultiAI: React.FC = () => {
               </div>
 
               {/* Modal Content */}
-              <div className="relative p-6 sm:p-8 flex-1 overflow-hidden">
+              <div className="relative p-6 sm:p-8 flex-1 overflow-y-auto">
                 {selectedResponse && selectedResponse.response.success ? (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
