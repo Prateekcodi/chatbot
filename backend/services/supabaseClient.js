@@ -198,6 +198,37 @@ async function findConversationByPrompt({ prompt, type }) {
         }
       }
       
+      // If still no match, try semantic similarity using embeddings
+      if (!found) {
+        try {
+          const geminiService = require('./geminiService');
+          const embedding = await geminiService.embed(target);
+          
+          // Use the existing matchQuestions function for semantic matching
+          const { data: semanticMatches } = await matchQuestions({ 
+            queryEmbedding: embedding, 
+            matchThreshold: 0.8, 
+            matchCount: 1 
+          });
+          
+          if (semanticMatches && semanticMatches.length > 0 && semanticMatches[0].similarity > 0.8) {
+            // Find the corresponding conversation from our recent data
+            const semanticMatch = (recent || []).find(row => 
+              row.prompt === semanticMatches[0].question || 
+              normalizePrompt(row.prompt) === normalizePrompt(semanticMatches[0].question)
+            );
+            
+            if (semanticMatch) {
+              console.log(`🧠 Found semantically similar cached question: "${semanticMatch.prompt}" (semantic similarity: ${(semanticMatches[0].similarity * 100).toFixed(1)}%)`);
+              found = semanticMatch;
+            }
+          }
+        } catch (embedError) {
+          console.error('Semantic matching failed:', embedError.message);
+          // Continue without semantic matching if it fails
+        }
+      }
+      
       return { data: found };
     }
     return { data: data[0] };

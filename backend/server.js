@@ -386,6 +386,47 @@ app.post('/api/ask-stream', async (req, res) => {
             continue;
           }
         }
+        
+        // If word-order-independent matching failed, try semantic matching
+        if (!found) {
+          try {
+            const geminiService = require('./services/geminiService');
+            const { matchQuestions } = require('./services/supabaseClient');
+            
+            const embedding = await geminiService.embed(prompt.trim());
+            const { data: semanticMatches } = await matchQuestions({ 
+              queryEmbedding: embedding, 
+              matchThreshold: 0.8, 
+              matchCount: 1 
+            });
+            
+            if (semanticMatches && semanticMatches.length > 0 && semanticMatches[0].similarity > 0.8) {
+              // Find the corresponding conversation from recent data
+              for (let page = 1; page <= 3; page++) {
+                try {
+                  const { data: recent, error } = await fetchConversations({ page, limit: 50, type: 'multibot' });
+                  if (error) continue;
+                  
+                  const semanticMatch = (recent || []).find(conv => 
+                    conv.prompt === semanticMatches[0].question || 
+                    normalizeForWordSet(conv.prompt) === normalizeForWordSet(semanticMatches[0].question)
+                  );
+                  
+                  if (semanticMatch) {
+                    console.log(`🧠 Streaming: Found semantically similar cached question: "${semanticMatch.prompt}" (similarity: ${(semanticMatches[0].similarity * 100).toFixed(1)}%)`);
+                    cached = { data: semanticMatch };
+                    found = true;
+                    break;
+                  }
+                } catch (pageError) {
+                  continue;
+                }
+              }
+            }
+          } catch (embedError) {
+            console.error('Streaming semantic matching failed:', embedError.message);
+          }
+        }
       }
 
       if (cached && cached.data && cached.data.responses) {
