@@ -1920,17 +1920,16 @@ const MultiAI: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-2xl z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/70 backdrop-blur-2xl z-50"
             style={{ 
               position: 'fixed',
               top: 0,
               left: 0,
               right: 0,
               bottom: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '1rem'
+              display: 'grid',
+              placeItems: 'center',
+              padding: '2rem'
             }}
             onClick={closeModal}
           >
@@ -1939,7 +1938,7 @@ const MultiAI: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-6xl w-full h-[90vh] overflow-y-auto overscroll-contain border border-white/20 backdrop-blur-2xl mx-auto flex flex-col"
+              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-6xl w-full max-h-[85vh] overflow-y-auto overscroll-contain border border-white/20 backdrop-blur-2xl mx-auto flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Animated Border */}
@@ -1949,7 +1948,7 @@ const MultiAI: React.FC = () => {
               </div>
               
               {/* Modal Header */}
-              <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 sm:p-8 border-b border-white/10 backdrop-blur-sm">
+              <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 sm:p-8 border-b border-white/10 backdrop-blur-sm flex-shrink-0">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="flex items-center space-x-4 sm:space-x-6">
                     <motion.div 
@@ -1996,7 +1995,7 @@ const MultiAI: React.FC = () => {
               </div>
 
               {/* Modal Content */}
-              <div className="relative p-6 sm:p-8 flex-1 overflow-y-auto overscroll-contain">
+              <div className="relative p-6 sm:p-8 flex-1 overflow-y-auto overscroll-contain min-h-0">
                 {selectedResponse && selectedResponse.response.success ? (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
