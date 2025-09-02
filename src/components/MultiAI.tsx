@@ -177,13 +177,20 @@ const MultiAI: React.FC = () => {
                 prompt: prompt.trim(),
                 processingTime: data.processingTime || '0ms',
                 timestamp: data.timestamp || new Date().toISOString(),
-                responses: {}
+                responses: {
+                  gemini: { success: false, error: 'Not available', model: 'Gemini' },
+                  huggingface: { success: false, error: 'Not available', model: 'Hugging Face' },
+                  cohere: { success: false, error: 'Not available', model: 'Cohere' },
+                  openrouter: { success: false, error: 'Not available', model: 'OpenRouter' },
+                  glm: { success: false, error: 'Not available', model: 'GLM' },
+                  deepseek: { success: false, error: 'Not available', model: 'DeepSeek' }
+                }
               };
 
               // Convert streaming responses to normal format
               Object.entries(currentStreamingResponses).forEach(([aiName, response]) => {
-                if (response.text) {
-                  finalResults.responses[aiName] = {
+                if (response.text && finalResults.responses[aiName as keyof typeof finalResults.responses]) {
+                  finalResults.responses[aiName as keyof typeof finalResults.responses] = {
                     success: true,
                     response: response.text,
                     model: response.model,
