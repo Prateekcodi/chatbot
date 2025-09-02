@@ -22,9 +22,37 @@ const AuthPage: React.FC = () => {
           <h1 className="text-2xl font-black text-white mb-6 text-center">Sign in or create an account</h1>
           <div className="text-white text-center mb-4">AuthPage is rendering!</div>
           <div className="bg-white/5 rounded-2xl p-4 [--input-bg:theme(colors.slate.800/0.7)] [--input-text:theme(colors.white)] [--input-border:theme(colors.white/0.2)] [--placeholder:theme(colors.slate.400)]">
+            <div className="text-white text-center mb-4">Supabase Auth Component:</div>
             <Auth
               supabaseClient={supabase}
-              appearance={{ theme: ThemeSupa }}
+              appearance={{ 
+                theme: ThemeSupa,
+                variables: {
+                  default: {
+                    colors: {
+                      brand: '#8b5cf6',
+                      brandAccent: '#a78bfa',
+                      brandButtonText: 'white',
+                      defaultButtonBackground: '#374151',
+                      defaultButtonBackgroundHover: '#4b5563',
+                      defaultButtonBorder: '#6b7280',
+                      defaultButtonText: 'white',
+                      dividerBackground: '#374151',
+                      inputBackground: '#374151',
+                      inputBorder: '#6b7280',
+                      inputBorderHover: '#9ca3af',
+                      inputBorderFocus: '#8b5cf6',
+                      inputText: 'white',
+                      inputLabelText: '#d1d5db',
+                      inputPlaceholder: '#9ca3af',
+                      messageText: '#d1d5db',
+                      messageTextDanger: '#fca5a5',
+                      anchorTextColor: '#a78bfa',
+                      anchorTextHoverColor: '#c4b5fd',
+                    }
+                  }
+                }
+              }}
               providers={[]}
               redirectTo="https://chatbotcode.netlify.app/#/auth"
               localization={{
@@ -32,7 +60,6 @@ const AuthPage: React.FC = () => {
                   sign_in: { email_label: 'Email', password_label: 'Password' },
                 }
               }}
-              // Force visible text colors via style override
               theme="dark"
             />
           </div>
