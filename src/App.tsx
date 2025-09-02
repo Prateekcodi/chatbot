@@ -301,9 +301,6 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
 function AppContent() {
   const location = useLocation();
   
-  console.log('AppContent - current pathname:', location.pathname);
-  console.log('AppContent - current hash:', window.location.hash);
-  
   // If on auth page, render AuthPage outside of main container
   if (location.pathname === '/auth') {
     return <AuthPage />;
@@ -314,9 +311,6 @@ function AppContent() {
       <Nav />
       <div className="w-full min-h-full pt-16 overflow-y-auto overflow-x-hidden smooth-scroll">
         <ProfileUpsertOnAuth />
-        <div style={{ color: 'white', padding: '1rem', backgroundColor: 'red' }}>
-          Debug: Current path = {location.pathname}, Hash = {window.location.hash}
-        </div>
         <Routes>
           <Route path="/chatbot" element={<Protected><ChatBot /></Protected>} />
           <Route path="/multiai" element={<Protected><MultiAI /></Protected>} />
