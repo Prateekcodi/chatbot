@@ -44,47 +44,49 @@ const AuthPage: React.FC = () => {
           AuthPage is rendering!
         </div>
         <div style={{ marginBottom: '1rem', color: 'white' }}>
-          Supabase Auth Component:
+          Simple Login Form (Supabase Auth temporarily disabled):
         </div>
-        <Auth
-          supabaseClient={supabase}
-          appearance={{ 
-            theme: ThemeSupa,
-            variables: {
-              default: {
-                colors: {
-                  brand: '#8b5cf6',
-                  brandAccent: '#a78bfa',
-                  brandButtonText: 'white',
-                  defaultButtonBackground: '#374151',
-                  defaultButtonBackgroundHover: '#4b5563',
-                  defaultButtonBorder: '#6b7280',
-                  defaultButtonText: 'white',
-                  dividerBackground: '#374151',
-                  inputBackground: '#374151',
-                  inputBorder: '#6b7280',
-                  inputBorderHover: '#9ca3af',
-                  inputBorderFocus: '#8b5cf6',
-                  inputText: 'white',
-                  inputLabelText: '#d1d5db',
-                  inputPlaceholder: '#9ca3af',
-                  messageText: '#d1d5db',
-                  messageTextDanger: '#fca5a5',
-                  anchorTextColor: '#a78bfa',
-                  anchorTextHoverColor: '#c4b5fd',
-                }
-              }
-            }
-          }}
-          providers={[]}
-          redirectTo="https://chatbotcode.netlify.app/#/auth"
-          localization={{
-            variables: {
-              sign_in: { email_label: 'Email', password_label: 'Password' },
-            }
-          }}
-          theme="dark"
-        />
+        <div style={{ marginBottom: '1rem' }}>
+          <input 
+            type="email" 
+            placeholder="Email" 
+            style={{ 
+              width: '100%', 
+              padding: '0.5rem', 
+              marginBottom: '0.5rem', 
+              backgroundColor: '#374151', 
+              color: 'white', 
+              border: '1px solid #6b7280',
+              borderRadius: '0.25rem'
+            }} 
+          />
+          <input 
+            type="password" 
+            placeholder="Password" 
+            style={{ 
+              width: '100%', 
+              padding: '0.5rem', 
+              marginBottom: '1rem', 
+              backgroundColor: '#374151', 
+              color: 'white', 
+              border: '1px solid #6b7280',
+              borderRadius: '0.25rem'
+            }} 
+          />
+          <button 
+            style={{ 
+              width: '100%', 
+              padding: '0.5rem', 
+              backgroundColor: '#8b5cf6', 
+              color: 'white', 
+              border: 'none',
+              borderRadius: '0.25rem',
+              cursor: 'pointer'
+            }}
+          >
+            Sign In
+          </button>
+        </div>
       </div>
     </div>
   );
