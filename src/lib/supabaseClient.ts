@@ -7,5 +7,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('❌ Supabase env vars missing. Check Netlify env + rebuild.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+});
 

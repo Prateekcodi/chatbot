@@ -47,7 +47,7 @@ function Nav() {
             <Link onClick={() => setOpen(false)} to="/multiai" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Multi-AI Tool</Link>
             <Link onClick={() => setOpen(false)} to="/chatbot" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Chatbot</Link>
             {session ? (
-              <button onClick={() => { setOpen(false); window.setTimeout(() => (document.getElementById('logout-btn') as HTMLButtonElement)?.click(), 0); }} className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-rose-500/80 hover:bg-rose-500">Logout</button>
+              <button onClick={() => { setOpen(false); signOut().finally(() => window.location.replace('#/auth')); }} className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-rose-500/80 hover:bg-rose-500">Logout</button>
             ) : (
               <Link onClick={() => setOpen(false)} to="/auth" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Login</Link>
             )}
