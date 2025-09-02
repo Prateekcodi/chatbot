@@ -62,7 +62,7 @@ async function fetchConversations({ page = 1, limit = 20, type } = {}) {
 
     const { data, error, count } = await query;
     if (error) {
-      console.error('Supabase fetch error:', error.message);
+      console.error('Supabase fetch error:', JSON.stringify(error, null, 2));
       return { data: [], total: 0, error: error.message };
     }
     return { data: data || [], total: count || 0 };

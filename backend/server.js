@@ -158,19 +158,29 @@ app.post('/api/ask', async (req, res) => {
         // Search multiple pages to find matches
         let found = false;
         for (let page = 1; page <= 5 && !found; page++) {
-          const { data: recent } = await fetchConversations({ page, limit: 100, type: 'multibot' });
-          
-          if (recent && recent.length > 0) {
-            for (const conv of recent) {
-              const convWordSet = normalizeForWordSet(conv.prompt);
-              if (convWordSet === targetWordSet) {
-                cached = { data: conv };
-                found = true;
-                break;
-              }
+          try {
+            const { data: recent, error } = await fetchConversations({ page, limit: 100, type: 'multibot' });
+            
+            if (error) {
+              console.error(`Supabase fetch error on page ${page}:`, error);
+              break; // Stop searching if there's an error
             }
-          } else {
-            break; // No more data
+            
+            if (recent && recent.length > 0) {
+              for (const conv of recent) {
+                const convWordSet = normalizeForWordSet(conv.prompt);
+                if (convWordSet === targetWordSet) {
+                  cached = { data: conv };
+                  found = true;
+                  break;
+                }
+              }
+            } else {
+              break; // No more data
+            }
+          } catch (err) {
+            console.error(`Error fetching conversations page ${page}:`, err.message);
+            break; // Stop searching if there's an exception
           }
         }
       }
