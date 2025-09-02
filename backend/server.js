@@ -595,6 +595,8 @@ Response:`;
       { name: 'deepseek', service: deepseekService }
     ];
 
+    const collectedResponses = {};
+
     const promises = services.map(async ({ name, service }) => {
       try {
         console.log(`🤖 Calling ${name} API (streaming)...`);
@@ -632,6 +634,12 @@ Response:`;
           response: result
         })}\n\n`);
         
+        // Collect successful result for history saving
+        try {
+          if (result && result.success === true) {
+            collectedResponses[name] = result;
+          }
+        } catch (_) {}
         return { name, result };
       } catch (error) {
         console.error(`${name} Error:`, error.message);
@@ -647,6 +655,23 @@ Response:`;
     await Promise.all(promises);
 
     const processingTime = Date.now() - startTime;
+    
+    // Save conversation if any provider succeeded
+    try {
+      const anyOk = Object.values(collectedResponses).some((r) => r && r.success === true);
+      if (anyOk) {
+        const { saveConversation } = require('./services/supabaseClient');
+        await saveConversation({
+          type: 'multibot',
+          prompt: prompt.trim(),
+          responses: collectedResponses,
+          processing_time_ms: processingTime,
+          created_at: new Date().toISOString()
+        });
+      }
+    } catch (saveErr) {
+      console.error('Supabase save (stream) failed:', saveErr?.message || saveErr);
+    }
     
     res.write(`data: ${JSON.stringify({
       type: 'complete',
