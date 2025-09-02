@@ -35,78 +35,211 @@ function Nav() {
   const { session, signOut } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  
   // Hide nav on auth page
   if (location.pathname === '/auth') return null;
+  
+  // Handle scroll for navbar styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
   return (
-    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[95vw] sm:w-auto">
-      {/* Desktop nav */}
-      <div className="hidden sm:block bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg">
-        <div className="flex items-center space-x-2 whitespace-nowrap">
-          <Link to="/multiai" className="px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Multi-AI Tool</Link>
-          <Link to="/chatbot" className="px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Chatbot</Link>
-          {session ? (
-            <LogoutButton onLogout={signOut} />
-          ) : (
-            <Link to="/auth" className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20">Login</Link>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile nav */}
-      <div className="sm:hidden">
-        <div className="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 border border-white/20 shadow-lg">
-          <div className="font-semibold text-white">Menu</div>
-          <button aria-label="Open menu" onClick={() => setOpen(o => !o)} className="p-2 rounded-lg bg-white/10 text-white">
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-          </button>
-        </div>
-        {open && (
-          <div className="mt-2 bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20 shadow-lg space-y-2">
-            <Link onClick={() => setOpen(false)} to="/multiai" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Multi-AI Tool</Link>
-            <Link onClick={() => setOpen(false)} to="/chatbot" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Chatbot</Link>
+    <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      scrolled ? 'bg-slate-900/80 backdrop-blur-2xl border-b border-white/10' : 'bg-transparent'
+    }`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Desktop Navigation */}
+        <div className="hidden sm:flex items-center justify-between h-16">
+          {/* Logo/Brand */}
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">AI</span>
+            </div>
+            <span className="text-white font-semibold text-lg">Multi-AI Studio</span>
+          </div>
+          
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-1">
+            <Link 
+              to="/multiai" 
+              className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                location.pathname === '/multiai' 
+                  ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <span className="flex items-center space-x-2">
+                <span>🤖</span>
+                <span>Multi-AI</span>
+              </span>
+            </Link>
+            <Link 
+              to="/chatbot" 
+              className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
+                location.pathname === '/chatbot' 
+                  ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
+                  : 'text-slate-300 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <span className="flex items-center space-x-2">
+                <span>💬</span>
+                <span>Chatbot</span>
+              </span>
+            </Link>
+          </div>
+          
+          {/* User Actions */}
+          <div className="flex items-center space-x-3">
             {session ? (
-              <button 
-                onClick={async () => { 
-                  setOpen(false); 
-                  console.log('Mobile logout button clicked - starting logout process...');
-                  
-                  try {
-                    // Add timeout to prevent hanging
-                    const logoutPromise = signOut();
-                    const timeoutPromise = new Promise((_, reject) => 
-                      setTimeout(() => reject(new Error('Mobile logout timeout')), 10000)
-                    );
-                    
-                    await Promise.race([logoutPromise, timeoutPromise]);
-                    console.log('Mobile logout successful, redirecting...');
-                  } catch (error) {
-                    console.error('Mobile logout error:', error);
-                    // Force clear any remaining auth state
-                    try {
-                      if (typeof window !== 'undefined') {
-                        window.localStorage.clear();
-                        window.sessionStorage.clear();
-                      }
-                    } catch (clearError) {
-                      console.warn('Error clearing storage:', clearError);
-                    }
-                  } finally {
-                    // Always redirect, even if logout failed
-                    setTimeout(() => {
-                      console.log('Mobile logout - forcing redirect to auth page');
-                      window.location.replace('#/auth');
-                    }, 100);
-                  }
-                }} 
-                className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-rose-500/80 hover:bg-rose-500 transition-colors duration-200"
-              >
-                Logout
-              </button>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 text-slate-300">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm">Online</span>
+                </div>
+                <LogoutButton onLogout={signOut} />
+              </div>
             ) : (
-              <Link onClick={() => setOpen(false)} to="/auth" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Login</Link>
+              <Link 
+                to="/auth" 
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white hover:from-emerald-500/30 hover:to-violet-500/30 border border-emerald-400/30 transition-all duration-300"
+              >
+                Login
+              </Link>
             )}
           </div>
-        )}
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="sm:hidden">
+          <div className="flex items-center justify-between h-16">
+            {/* Mobile Logo */}
+            <div className="flex items-center space-x-2">
+              <div className="w-7 h-7 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-xs">AI</span>
+              </div>
+              <span className="text-white font-semibold text-base">AI Studio</span>
+            </div>
+            
+            {/* Mobile Menu Button */}
+            <button 
+              aria-label="Toggle menu" 
+              onClick={() => setOpen(!open)} 
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-300"
+            >
+              <svg 
+                className={`w-6 h-6 transition-transform duration-300 ${open ? 'rotate-90' : ''}`} 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                {open ? (
+                  <path d="M18 6L6 18M6 6l12 12" />
+                ) : (
+                  <>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                  </>
+                )}
+              </svg>
+            </button>
+          </div>
+          
+          {/* Mobile Menu Dropdown */}
+          <div className={`overflow-hidden transition-all duration-300 ${
+            open ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          }`}>
+            <div className="py-4 space-y-2">
+              <Link 
+                onClick={() => setOpen(false)} 
+                to="/multiai" 
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  location.pathname === '/multiai' 
+                    ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <span className="text-lg">🤖</span>
+                <span>Multi-AI Tool</span>
+              </Link>
+              <Link 
+                onClick={() => setOpen(false)} 
+                to="/chatbot" 
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  location.pathname === '/chatbot' 
+                    ? 'bg-gradient-to-r from-emerald-500/20 to-violet-500/20 text-white border border-emerald-400/30' 
+                    : 'text-slate-300 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <span className="text-lg">💬</span>
+                <span>Chatbot</span>
+              </Link>
+              
+              {session ? (
+                <div className="pt-2 border-t border-white/10">
+                  <div className="flex items-center space-x-2 px-4 py-2 text-slate-300 text-sm">
+                    <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                    <span>Online</span>
+                  </div>
+                  <button 
+                    onClick={async () => { 
+                      setOpen(false); 
+                      console.log('Mobile logout button clicked - starting logout process...');
+                      
+                      try {
+                        const logoutPromise = signOut();
+                        const timeoutPromise = new Promise((_, reject) => 
+                          setTimeout(() => reject(new Error('Mobile logout timeout')), 10000)
+                        );
+                        
+                        await Promise.race([logoutPromise, timeoutPromise]);
+                        console.log('Mobile logout successful, redirecting...');
+                      } catch (error) {
+                        console.error('Mobile logout error:', error);
+                        try {
+                          if (typeof window !== 'undefined') {
+                            window.localStorage.clear();
+                            window.sessionStorage.clear();
+                          }
+                        } catch (clearError) {
+                          console.warn('Error clearing storage:', clearError);
+                        }
+                      } finally {
+                        setTimeout(() => {
+                          console.log('Mobile logout - forcing redirect to auth page');
+                          window.location.replace('#/auth');
+                        }, 100);
+                      }
+                    }} 
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-rose-500/20 to-pink-500/20 hover:from-rose-500/30 hover:to-pink-500/30 border border-rose-400/30 transition-all duration-300"
+                  >
+                    <span className="text-lg">🚪</span>
+                    <span>Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <Link 
+                  onClick={() => setOpen(false)} 
+                  to="/auth" 
+                  className="flex items-center space-x-3 px-4 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-emerald-500/20 to-violet-500/20 hover:from-emerald-500/30 hover:to-violet-500/30 border border-emerald-400/30 transition-all duration-300"
+                >
+                  <span className="text-lg">🔑</span>
+                  <span>Login</span>
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -155,9 +288,10 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
       id="logout-btn" 
       onClick={handle} 
       disabled={isLoggingOut}
-      className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+      className="px-4 py-2 rounded-xl bg-gradient-to-r from-rose-500/20 to-pink-500/20 text-white hover:from-rose-500/30 hover:to-pink-500/30 border border-rose-400/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-2"
     >
-      {isLoggingOut ? 'Logging out...' : 'Logout'}
+      <span className="text-sm">🚪</span>
+      <span className="font-medium">{isLoggingOut ? 'Logging out...' : 'Logout'}</span>
     </button>
   );
 }
@@ -166,9 +300,9 @@ function App() {
   return (
     <AuthProvider>
       <HashRouter>
-        <div className="App w-screen h-screen overflow-auto-y">
+        <div className="App w-screen h-screen overflow-hidden">
           <Nav />
-          <div className="w-full h-full">
+          <div className="w-full h-full pt-16 overflow-y-auto overflow-x-hidden smooth-scroll">
             <ProfileUpsertOnAuth />
             <Routes>
               <Route path="/auth" element={<AuthPage />} />
