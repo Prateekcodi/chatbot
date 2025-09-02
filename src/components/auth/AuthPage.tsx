@@ -5,16 +5,18 @@ const AuthPage: React.FC = () => {
   
   return (
     <div style={{ 
-      position: 'fixed', 
+      position: 'absolute', 
       top: 0, 
       left: 0, 
-      right: 0, 
-      bottom: 0, 
+      width: '100vw', 
+      height: '100vh', 
       backgroundColor: 'red', 
       display: 'flex', 
       alignItems: 'center', 
       justifyContent: 'center',
-      zIndex: 9999
+      zIndex: 9999,
+      margin: 0,
+      padding: 0
     }}>
       <div style={{ 
         backgroundColor: 'blue', 
@@ -33,6 +35,9 @@ const AuthPage: React.FC = () => {
         <br />
         <br />
         Background should be RED, this box should be BLUE.
+        <br />
+        <br />
+        Now using position: absolute instead of fixed.
       </div>
     </div>
   );
