@@ -2153,15 +2153,40 @@ const MultiAI: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
-                    className="space-y-6"
+                    style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
                   >
-                    <div className="bg-gradient-to-br from-slate-800/60 to-slate-700/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 backdrop-blur-sm">
-                      <h3 className="font-semibold text-white text-lg sm:text-xl mb-4">Response:</h3>
-                      <div className="text-slate-200 leading-relaxed text-base sm:text-lg break-words whitespace-pre-wrap max-w-full [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_strong]:text-white [&_em]:text-slate-300 [&_li]:text-slate-200 [&_p]:text-slate-200 [&_ul]:text-slate-200 [&_ol]:text-slate-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-3 sm:[&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:mb-3 sm:[&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
+                    <div style={{
+                      background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.6))',
+                      borderRadius: '0.75rem',
+                      padding: '1.5rem',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      backdropFilter: 'blur(4px)'
+                    }}>
+                      <h3 style={{
+                        fontWeight: '600',
+                        color: 'white',
+                        fontSize: '1.25rem',
+                        marginBottom: '1rem',
+                        margin: 0
+                      }}>Response:</h3>
+                      <div style={{
+                        color: '#e2e8f0',
+                        lineHeight: '1.6',
+                        fontSize: '1rem',
+                        wordBreak: 'break-words',
+                        whiteSpace: 'pre-wrap',
+                        maxWidth: '100%'
+                      }}>
                         {renderMarkdown((selectedResponse.response as any).response)}
                       </div>
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 text-sm text-slate-400">
+                    <div style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '0.5rem',
+                      fontSize: '0.875rem',
+                      color: '#94a3b8'
+                    }}>
                       <span>Model: {selectedResponse.response.model}</span>
                       {selectedResponse.response.tokens && <span>{selectedResponse.response.tokens} tokens</span>}
                     </div>
