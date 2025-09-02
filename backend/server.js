@@ -130,16 +130,49 @@ app.post('/api/ask', async (req, res) => {
   console.log(`🤖 Processing prompt: "${prompt.substring(0, 50)}${prompt.length > 50 ? '...' : ''}"`);
 
   try {
-    // Cache lookup: only serve cached when all AIs previously succeeded
+    // Cache lookup: enhanced matching for word order independence
     try {
       const { findConversationByPrompt } = require('./services/supabaseClient');
-      const cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
+      
+      // First try exact match
+      let cached = await findConversationByPrompt({ prompt: prompt.trim(), type: 'multibot' });
+      
+      // If no exact match, try word-order-independent matching
+      if (!cached || !cached.data) {
+        // Create a word-set based matcher
+        const normalizeForWordSet = (s) => s
+          .toLowerCase()
+          .replace(/[^\w\s]/g, ' ') // remove punctuation
+          .replace(/\s+/g, ' ')
+          .trim()
+          .split(' ')
+          .filter(word => word.length > 0)
+          .sort()
+          .join(' ');
+        
+        const targetWordSet = normalizeForWordSet(prompt.trim());
+        
+        // Get recent conversations and check for word-set matches
+        const { fetchConversations } = require('./services/supabaseClient');
+        const { data: recent } = await fetchConversations({ page: 1, limit: 100, type: 'multibot' });
+        
+        if (recent && recent.length > 0) {
+          for (const conv of recent) {
+            const convWordSet = normalizeForWordSet(conv.prompt);
+            if (convWordSet === targetWordSet) {
+              cached = { data: conv };
+              break;
+            }
+          }
+        }
+      }
+      
       if (cached && cached.data && cached.data.responses) {
         const r = cached.data.responses || {};
         const names = ['gemini','cohere','openrouter','glm','deepseek'];
         const allOk = names.every(n => r[n] && r[n].success === true);
         if (allOk) {
-          console.log('⚡ Serving from cache (all providers succeeded)');
+          console.log('⚡ Serving from cache (word-order-independent match, all providers succeeded)');
           return res.json({
             prompt: cached.data.prompt,
             processingTime: '0ms (cached)',
