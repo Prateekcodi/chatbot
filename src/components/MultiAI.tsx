@@ -437,7 +437,6 @@ const MultiAI: React.FC = () => {
   };
 
   const openResponseModal = (aiName: string, response: AIResponse) => {
-    console.log('Opening modal for:', aiName, response);
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
     // Prevent body scroll when modal is open
@@ -1916,7 +1915,6 @@ const MultiAI: React.FC = () => {
       {/* Modern Premium Modal */}
       <AnimatePresence>
         {modalOpen && selectedResponse && (
-          console.log('Rendering modal with:', selectedResponse) || true) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
