@@ -125,7 +125,7 @@ async function findConversationByPrompt({ prompt, type }) {
 module.exports = { getSupabase, saveConversation, fetchConversations, findConversationByPrompt };
  
 // --- QA pairs helpers ---
-async function matchQuestions({ queryEmbedding, matchThreshold = 0.9, matchCount = 1 }) {
+async function matchQuestions({ queryEmbedding, matchThreshold = 0.85, matchCount = 1 }) {
   const client = getSupabase();
   if (!client) return { data: [], error: 'Supabase not configured' };
   try {

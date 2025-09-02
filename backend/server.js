@@ -677,8 +677,8 @@ app.post('/api/qa/ask', async (req, res) => {
     // 1) Embed
     const embedding = await geminiService.embed(q);
     // 2) Match
-    const { data: matches } = await matchQuestions({ queryEmbedding: embedding, matchThreshold: 0.9, matchCount: 1 });
-    if (Array.isArray(matches) && matches.length > 0 && matches[0].similarity > 0.9) {
+    const { data: matches } = await matchQuestions({ queryEmbedding: embedding, matchThreshold: 0.85, matchCount: 1 });
+    if (Array.isArray(matches) && matches.length > 0 && matches[0].similarity > 0.85) {
       return res.json({ answer: matches[0].answer, cached: true });
     }
     // 3) Generate
