@@ -874,10 +874,30 @@ Response:`;
     });
 
     const clean = (t) => t.replace(/(^|\n)\s*\*\s+/g, '$1');
+    let fullResponse = '';
+    
     for await (const chunk of result.stream) {
       const raw = typeof chunk.text === 'function' ? chunk.text() : chunk.text;
       if (raw) {
-        res.write(clean(raw));
+        const cleanedText = clean(raw);
+        fullResponse += cleanedText;
+        res.write(cleanedText);
+      }
+    }
+
+    // Save the response to cache for future use
+    if (fullResponse.trim()) {
+      try {
+        const { saveConversation } = require('./services/supabaseClient');
+        await saveConversation({
+          prompt: prompt.trim(),
+          response: fullResponse.trim(),
+          model: 'gemini-2.5-flash',
+          type: 'chatbot'
+        });
+        console.log('💾 ChatBot: Saved response to cache');
+      } catch (saveError) {
+        console.error('ChatBot: Failed to save to cache:', saveError.message);
       }
     }
 
