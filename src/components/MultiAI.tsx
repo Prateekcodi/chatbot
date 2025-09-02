@@ -754,10 +754,50 @@ const MultiAI: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Token Usage Display */}
+                      {/* Token Usage Display - Compact on Mobile */}
                       <div className="mb-6">
                         <h3 className="text-lg font-semibold text-slate-300 mb-4 text-center">Token Usage Status</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        
+                        {/* Mobile: Compact horizontal scroll */}
+                        <div className="block md:hidden">
+                          <div className="flex space-x-3 overflow-x-auto pb-2">
+                            {['gemini', 'cohere', 'openrouter', 'glm', 'deepseek'].map((serviceName) => {
+                              const config = getAIConfig(serviceName);
+                              const serviceData = tokenUsage[serviceName];
+                              const isOperational = serviceStatus[serviceName]?.operational;
+                              
+                              if (!serviceData) return null;
+                              
+                              return (
+                                <div key={serviceName} className={`${config.bgColor} border ${config.borderColor} rounded-lg p-3 text-center relative flex-shrink-0 w-32`}>
+                                  <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${isOperational ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                                  
+                                  <div className={`w-6 h-6 bg-gradient-to-r ${config.color} rounded-md flex items-center justify-center text-white text-sm mx-auto mb-1`}>
+                                    {config.icon}
+                                  </div>
+                                  <h4 className="font-semibold text-slate-800 text-xs mb-1">{config.name}</h4>
+                                  <div className="space-y-1">
+                                    <div className="text-xs text-slate-600">
+                                      {serviceData.percentage}% left
+                                    </div>
+                                    <div className="w-full bg-slate-200 rounded-full h-1.5">
+                                      <div 
+                                        className={`bg-gradient-to-r ${config.color} h-1.5 rounded-full transition-all duration-500`} 
+                                        style={{ width: `${serviceData.percentage}%` }}
+                                      ></div>
+                                    </div>
+                                    <div className={`text-xs font-medium ${isOperational ? 'text-emerald-600' : 'text-red-600'}`}>
+                                      {isOperational ? '🟢' : '🔴'}
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Desktop: Full grid layout */}
+                        <div className="hidden md:grid grid-cols-2 lg:grid-cols-5 gap-4">
                           {['gemini', 'cohere', 'openrouter', 'glm', 'deepseek'].map((serviceName) => {
                             const config = getAIConfig(serviceName);
                             const serviceData = tokenUsage[serviceName];
