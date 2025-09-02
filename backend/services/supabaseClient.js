@@ -105,6 +105,46 @@ async function findConversationByPrompt({ prompt, type }) {
       .replace(/\s+/g, ' ') // collapse whitespace again after article removal
       .trim();
 
+    // Simple similarity function to detect typos and similar words
+    const calculateSimilarity = (str1, str2) => {
+      if (!str1 || !str2) return 0;
+      if (str1 === str2) return 1;
+      
+      const longer = str1.length > str2.length ? str1 : str2;
+      const shorter = str1.length > str2.length ? str2 : str1;
+      
+      if (longer.length === 0) return 1;
+      
+      // Calculate Levenshtein distance
+      const distance = levenshteinDistance(longer, shorter);
+      return (longer.length - distance) / longer.length;
+    };
+
+    // Levenshtein distance calculation
+    const levenshteinDistance = (str1, str2) => {
+      const matrix = [];
+      for (let i = 0; i <= str2.length; i++) {
+        matrix[i] = [i];
+      }
+      for (let j = 0; j <= str1.length; j++) {
+        matrix[0][j] = j;
+      }
+      for (let i = 1; i <= str2.length; i++) {
+        for (let j = 1; j <= str1.length; j++) {
+          if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+            matrix[i][j] = matrix[i - 1][j - 1];
+          } else {
+            matrix[i][j] = Math.min(
+              matrix[i - 1][j - 1] + 1,
+              matrix[i][j - 1] + 1,
+              matrix[i - 1][j] + 1
+            );
+          }
+        }
+      }
+      return matrix[str2.length][str1.length];
+    };
+
     const target = normalizePrompt(prompt);
 
     // Try a quick case-insensitive exact match via ilike
@@ -132,7 +172,32 @@ async function findConversationByPrompt({ prompt, type }) {
         console.error('Supabase find error (recent):', err2.message);
         return { data: null, error: err2.message };
       }
-      const found = (recent || []).find(row => normalizePrompt(row.prompt) === target) || null;
+      
+      // First try exact normalized match
+      let found = (recent || []).find(row => normalizePrompt(row.prompt) === target);
+      
+      // If no exact match, try similarity matching for typos
+      if (!found) {
+        let bestMatch = null;
+        let bestSimilarity = 0;
+        const SIMILARITY_THRESHOLD = 0.8; // 80% similarity threshold
+        
+        for (const row of recent || []) {
+          const normalizedRow = normalizePrompt(row.prompt);
+          const similarity = calculateSimilarity(target, normalizedRow);
+          
+          if (similarity > bestSimilarity && similarity >= SIMILARITY_THRESHOLD) {
+            bestSimilarity = similarity;
+            bestMatch = row;
+          }
+        }
+        
+        if (bestMatch) {
+          console.log(`🎯 Found similar cached question: "${bestMatch.prompt}" (similarity: ${(bestSimilarity * 100).toFixed(1)}%)`);
+          found = bestMatch;
+        }
+      }
+      
       return { data: found };
     }
     return { data: data[0] };
