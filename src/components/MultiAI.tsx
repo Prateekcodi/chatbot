@@ -258,7 +258,12 @@ const MultiAI: React.FC = () => {
     } else {
       // Use regular API
       try {
+        console.log('Using non-streaming API...');
         const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com';
+
+        // Add timeout to prevent infinite loading
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
 
         const response = await fetch(`${backendUrl}/api/ask`, {
           method: 'POST',
@@ -266,13 +271,20 @@ const MultiAI: React.FC = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ prompt: prompt.trim() }),
+          signal: controller.signal
         });
 
-        const data = await response.json();
+        clearTimeout(timeoutId);
+
+        console.log('Non-streaming response status:', response.status);
 
         if (!response.ok) {
-          throw new Error(data.message || 'Failed to get responses');
+          const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+          throw new Error(errorData.message || `HTTP ${response.status}: Failed to get responses`);
         }
+
+        const data = await response.json();
+        console.log('Non-streaming response data:', data);
 
         // Detect cache hit from processingTime
         try {
@@ -285,9 +297,14 @@ const MultiAI: React.FC = () => {
         setConversationHistory(prev => [...prev, data]);
         setResults(data);
         setPrompt('');
+        setIsLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
+        console.error('Non-streaming API error:', err);
+        if (err instanceof Error && err.name === 'AbortError') {
+          setError('Request timed out. The AI services are taking too long to respond. Please try again or use streaming mode for faster responses.');
+        } else {
+          setError(err instanceof Error ? err.message : 'An error occurred');
+        }
         setIsLoading(false);
       }
     }
@@ -1040,8 +1057,12 @@ const MultiAI: React.FC = () => {
                           <div className="absolute inset-0 w-20 h-20 border-4 border-transparent border-t-rose-500 rounded-full animate-spin" style={{ animationDelay: '1s' }}></div>
                         </div>
                         <div className="text-slate-300">
-                          <p className="text-xl font-semibold">Processing with AI Services...</p>
-                          <p className="text-sm opacity-80">This may take a few seconds</p>
+                          <p className="text-xl font-semibold">
+                            {streamingMode ? 'Processing with AI Services...' : 'Processing with AI Services (Non-Streaming)...'}
+                          </p>
+                          <p className="text-sm opacity-80">
+                            {streamingMode ? 'This may take a few seconds' : 'This may take up to 2 minutes - all AI services are being called simultaneously'}
+                          </p>
                         </div>
                       </div>
                     </motion.div>
