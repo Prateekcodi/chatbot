@@ -180,7 +180,6 @@ const MultiAI: React.FC = () => {
                 timestamp: data.timestamp || new Date().toISOString(),
                 responses: {
                   gemini: { success: false, error: 'Not available', model: 'Gemini' },
-                  huggingface: { success: false, error: 'Not available', model: 'Hugging Face' },
                   cohere: { success: false, error: 'Not available', model: 'Cohere' },
                   openrouter: { success: false, error: 'Not available', model: 'OpenRouter' },
                   glm: { success: false, error: 'Not available', model: 'GLM' },
@@ -283,16 +282,6 @@ const MultiAI: React.FC = () => {
         icon: '🤖',
         description: 'Google\'s most advanced AI model',
         accent: 'emerald'
-      },
-      huggingface: {
-        name: 'Hugging Face',
-        color: 'from-amber-400 via-orange-500 to-red-600',
-        bgColor: 'bg-gradient-to-br from-amber-50 to-orange-100',
-        borderColor: 'border-amber-200/50',
-        shadowColor: 'shadow-amber-500/20',
-        icon: '🤗',
-        description: 'Open-source AI powerhouse',
-        accent: 'amber'
       },
       cohere: {
         name: 'Cohere',

@@ -28,7 +28,6 @@ export interface APIResponse {
   timestamp: string;
   responses: {
     gemini: AIResponse;
-    huggingface: AIResponse;
     cohere: AIResponse;
     openrouter: AIResponse;
     glm: AIResponse;

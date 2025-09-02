@@ -709,7 +709,7 @@ app.post('/api/chatbot-stream', async (req, res) => {
 // GET /api/status - Check API configuration status
 app.get('/api/status', (req, res) => {
   const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
-  const huggingfaceKey = process.env.HUGGINGFACE_API_KEY;
+
   const cohereKey = process.env.COHERE_API_KEY;
   const openrouterKey = process.env.OPENROUTER_API_KEY;
 
@@ -717,10 +717,6 @@ app.get('/api/status', (req, res) => {
     gemini: {
       configured: geminiKey && geminiKey !== 'your-api-key-here' && geminiKey.length > 20,
       model: 'gemini-2.5-flash-lite'
-    },
-    huggingface: {
-      configured: huggingfaceKey && huggingfaceKey !== 'your-api-key-here' && huggingfaceKey.length > 20,
-      model: 'DialoGPT Medium'
     },
     cohere: {
       configured: cohereKey && cohereKey !== 'your-api-key-here' && cohereKey.length > 20,
