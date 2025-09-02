@@ -260,7 +260,7 @@ const ChatBot: React.FC = () => {
                         }}
                         transition={{ duration: 0.3 }}
                       >
-                        <p className="text-sm leading-relaxed font-medium">{message.text}</p>
+                        <p className="text-sm leading-relaxed font-medium">{message.sender === 'bot' ? sanitizeText(message.text) : message.text}</p>
                         <div className={`flex items-center justify-between mt-3 ${
                           message.sender === 'user' ? 'text-emerald-100' : 'text-slate-400'
                         }`}>
