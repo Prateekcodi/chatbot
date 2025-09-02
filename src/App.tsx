@@ -52,9 +52,11 @@ function Nav() {
   
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-gradient-to-r from-slate-900/95 via-slate-800/95 to-slate-900/95 backdrop-blur-2xl border-b border-slate-600/30' : 'bg-gradient-to-r from-slate-900/80 via-slate-800/80 to-slate-900/80 backdrop-blur-xl'
+      scrolled ? 'bg-gradient-to-r from-[#201943]/95 via-[#2a1f5c]/95 to-[#201943]/95 backdrop-blur-2xl border-b border-purple-500/30' : 'bg-gradient-to-r from-[#201943]/80 via-[#2a1f5c]/80 to-[#201943]/80 backdrop-blur-xl'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* Animated gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-indigo-600/10 to-purple-600/10 animate-pulse opacity-50"></div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         {/* Desktop Navigation */}
         <div className="hidden sm:flex items-center justify-between h-16">
           {/* Logo/Brand */}
@@ -71,8 +73,8 @@ function Nav() {
               to="/multiai" 
               className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
                 location.pathname === '/multiai' 
-                  ? 'bg-gradient-to-r from-slate-700/60 to-slate-600/60 text-white border border-slate-500/50 shadow-lg' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                  ? 'bg-gradient-to-r from-purple-600/60 to-indigo-600/60 text-white border border-purple-400/50 shadow-lg' 
+                  : 'text-slate-300 hover:text-white hover:bg-[#201943]/50 border border-transparent'
               }`}
             >
               <span className="flex items-center space-x-2">
@@ -84,8 +86,8 @@ function Nav() {
               to="/chatbot" 
               className={`px-4 py-2 rounded-xl font-medium transition-all duration-300 ${
                 location.pathname === '/chatbot' 
-                  ? 'bg-gradient-to-r from-slate-700/60 to-slate-600/60 text-white border border-slate-500/50 shadow-lg' 
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                  ? 'bg-gradient-to-r from-purple-600/60 to-indigo-600/60 text-white border border-purple-400/50 shadow-lg' 
+                  : 'text-slate-300 hover:text-white hover:bg-[#201943]/50 border border-transparent'
               }`}
             >
               <span className="flex items-center space-x-2">
@@ -131,7 +133,7 @@ function Nav() {
             <button 
               aria-label="Toggle menu" 
               onClick={() => setOpen(!open)} 
-              className="p-2 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 text-white transition-all duration-300 border border-slate-600/30"
+              className="p-2 rounded-xl bg-[#201943]/50 hover:bg-[#2a1f5c]/50 text-white transition-all duration-300 border border-purple-500/30"
             >
               <svg 
                 className={`w-6 h-6 transition-transform duration-300 ${open ? 'rotate-90' : ''}`} 
@@ -156,7 +158,7 @@ function Nav() {
           </div>
           
           {/* Mobile Menu Dropdown - Fixed positioning to prevent overlap */}
-          <div className={`absolute top-full left-0 right-0 bg-gradient-to-b from-slate-900/98 via-slate-800/98 to-slate-900/98 backdrop-blur-2xl border-b border-slate-600/30 shadow-2xl transition-all duration-300 ${
+          <div className={`absolute top-full left-0 right-0 bg-gradient-to-b from-[#201943]/98 via-[#2a1f5c]/98 to-[#201943]/98 backdrop-blur-2xl border-b border-purple-500/30 shadow-2xl transition-all duration-300 ${
             open ? 'max-h-96 opacity-100 visible' : 'max-h-0 opacity-0 invisible'
           }`}>
             <div className="px-4 py-4 space-y-2">
@@ -165,8 +167,8 @@ function Nav() {
                 to="/multiai" 
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
                   location.pathname === '/multiai' 
-                    ? 'bg-gradient-to-r from-slate-700/60 to-slate-600/60 text-white border border-slate-500/50 shadow-lg' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                    ? 'bg-gradient-to-r from-purple-600/60 to-indigo-600/60 text-white border border-purple-400/50 shadow-lg' 
+                    : 'text-slate-300 hover:text-white hover:bg-[#201943]/50 border border-transparent'
                 }`}
               >
                 <span className="text-lg">🤖</span>
@@ -177,8 +179,8 @@ function Nav() {
                 to="/chatbot" 
                 className={`flex items-center space-x-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
                   location.pathname === '/chatbot' 
-                    ? 'bg-gradient-to-r from-slate-700/60 to-slate-600/60 text-white border border-slate-500/50 shadow-lg' 
-                    : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                    ? 'bg-gradient-to-r from-purple-600/60 to-indigo-600/60 text-white border border-purple-400/50 shadow-lg' 
+                    : 'text-slate-300 hover:text-white hover:bg-[#201943]/50 border border-transparent'
                 }`}
               >
                 <span className="text-lg">💬</span>

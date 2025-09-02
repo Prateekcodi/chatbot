@@ -2005,7 +2005,7 @@ const MultiAI: React.FC = () => {
                   >
                     <div className="bg-gradient-to-br from-slate-800/60 to-slate-700/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 backdrop-blur-sm">
                       <h3 className="font-semibold text-white text-lg sm:text-xl mb-4">Response:</h3>
-                      <div className="text-slate-200 leading-relaxed text-base sm:text-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-3 sm:[&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 sm:[&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
+                      <div className="text-slate-200 leading-relaxed text-base sm:text-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_strong]:text-white [&_em]:text-slate-300 [&_li]:text-slate-200 [&_p]:text-slate-200 [&_ul]:text-slate-200 [&_ol]:text-slate-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-3 sm:[&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 sm:[&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
                         {renderMarkdown((selectedResponse.response as any).response)}
                       </div>
                     </div>
