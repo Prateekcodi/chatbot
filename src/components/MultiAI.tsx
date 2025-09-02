@@ -1249,74 +1249,194 @@ const MultiAI: React.FC = () => {
           </div>
         </main>
 
-        {/* Conversation History */}
+        {/* Enhanced Conversation History */}
         {conversationHistory.length > 0 && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="conversation-history w-full space-y-6 max-h-[75vh] overflow-y-auto overflow-x-hidden px-4 pb-8"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="conversation-history w-full space-y-6 max-h-[75vh] overflow-y-auto overflow-x-hidden px-4 sm:px-6 pb-6 sm:pb-8"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-800/40 to-slate-700/40 backdrop-blur-xl rounded-3xl border border-white/10"></div>
-              <div className="relative p-6">
-                <h3 className="text-2xl font-bold text-white mb-6 text-center">
-                  📚 Conversation History
-                </h3>
+              {/* Modern Glass Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-800/60 to-slate-700/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl"></div>
+              
+              {/* Animated Border */}
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-violet-400/20 to-rose-400/20 rounded-2xl sm:rounded-3xl animate-pulse"></div>
+                <div className="absolute inset-[1px] bg-gradient-to-br from-slate-800/60 to-slate-700/60 rounded-2xl sm:rounded-3xl"></div>
+              </div>
+              
+              {/* Floating Particles */}
+              <div className="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl">
+                {[...Array(4)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-white/20 rounded-full"
+                    style={{
+                      left: `${15 + i * 25}%`,
+                      top: `${20 + (i % 2) * 60}%`,
+                    }}
+                    animate={{
+                      y: [-8, 8, -8],
+                      opacity: [0.2, 0.6, 0.2],
+                    }}
+                    transition={{
+                      duration: 3 + i * 0.5,
+                      repeat: Infinity,
+                      delay: i * 0.4,
+                    }}
+                  />
+                ))}
+              </div>
+              
+              <div className="relative p-6 sm:p-8">
+                <motion.h3 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-2xl sm:text-3xl font-bold text-white mb-6 sm:mb-8 text-center"
+                >
+                  <span className="inline-flex items-center space-x-3">
+                    <motion.span
+                      animate={{ rotate: [0, 10, -10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                    >
+                      📚
+                    </motion.span>
+                    <span className="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
+                      Conversation History
+                    </span>
+                    <motion.span
+                      animate={{ rotate: [0, -10, 10, 0] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
+                    >
+                      📚
+                    </motion.span>
+                  </span>
+                </motion.h3>
                 
-                <div className="space-y-4">
+                <div className="space-y-4 sm:space-y-6">
                   {conversationHistory.map((conversation, index) => (
                     <motion.div
                       key={index}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-gradient-to-r from-slate-700/50 to-slate-600/50 backdrop-blur-sm rounded-2xl p-4 border border-white/20 hover:border-white/30 transition-all duration-300"
+                      initial={{ opacity: 0, x: -30, scale: 0.95 }}
+                      animate={{ opacity: 1, x: 0, scale: 1 }}
+                      transition={{ 
+                        delay: index * 0.15,
+                        type: "spring",
+                        stiffness: 100,
+                        damping: 15
+                      }}
+                      whileHover={{ 
+                        scale: 1.02,
+                        y: -5,
+                        transition: { duration: 0.2 }
+                      }}
+                      className="relative group overflow-hidden bg-gradient-to-r from-slate-700/60 to-slate-600/60 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/20 hover:border-white/40 transition-all duration-500 shadow-xl hover:shadow-2xl"
                     >
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-white">
-                          <span className="font-semibold">Q: {conversation.prompt}</span>
-                          <span className="text-slate-300 text-sm ml-3">
-                            • {conversation.processingTime} • {new Date(conversation.timestamp).toLocaleTimeString()}
-                          </span>
-                        </div>
-                        <div className="flex space-x-3">
-                          <button
-                            onClick={() => {
-                              setResults(conversation);
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
-                            className="px-4 py-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-400/30 text-violet-300 text-sm rounded-lg hover:from-violet-500/30 hover:to-purple-500/30 transition-all duration-300 backdrop-blur-sm"
-                          >
-                            🔍 View Details
-                          </button>
-                          <button
-                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                            className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 text-sm rounded-lg hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 backdrop-blur-sm"
-                          >
-                            ⬆️ Top
-                          </button>
-                        </div>
-                      </div>
+                      {/* Animated Background Glow */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-violet-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl sm:rounded-3xl"></div>
                       
-                      {/* Quick AI Response Preview */}
-                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                        {Object.entries(conversation.responses).map(([aiName, response]) => {
-                          const config = getAIConfig(aiName);
-                          return (
-                            <div key={aiName} className={`${config.bgColor} border ${config.borderColor} rounded-xl p-3 text-xs backdrop-blur-sm`}>
-                              <div className="flex items-center space-x-2 mb-2">
-                                <span className="text-lg">{config.icon}</span>
-                                <span className="font-semibold text-slate-800">{config.name}</span>
-                              </div>
-                              <div className="text-slate-600 truncate">
-                                {response.success 
-                                  ? response.response?.substring(0, 50) + '...'
-                                  : response.error?.substring(0, 50) + '...'
-                                }
-                              </div>
-                            </div>
-                          );
-                        })}
+                      <div className="relative">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
+                          <div className="text-white flex-1">
+                            <motion.span 
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: index * 0.15 + 0.3 }}
+                              className="font-semibold text-base sm:text-lg"
+                            >
+                              Q: {conversation.prompt}
+                            </motion.span>
+                            <motion.div 
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: index * 0.15 + 0.4 }}
+                              className="text-slate-300 text-sm mt-1 flex flex-wrap items-center gap-2"
+                            >
+                              <span className="inline-flex items-center space-x-1">
+                                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                                <span>{conversation.processingTime}</span>
+                              </span>
+                              <span className="inline-flex items-center space-x-1">
+                                <span className="w-2 h-2 bg-violet-400 rounded-full animate-pulse"></span>
+                                <span>{new Date(conversation.timestamp).toLocaleTimeString()}</span>
+                              </span>
+                            </motion.div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                            <motion.button
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.15 + 0.5 }}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => {
+                                setResults(conversation);
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                              }}
+                              className="px-4 py-2 bg-gradient-to-r from-violet-500/20 to-purple-500/20 border border-violet-400/30 text-violet-300 text-sm rounded-xl hover:from-violet-500/30 hover:to-purple-500/30 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-violet-500/25"
+                            >
+                              🔍 View Details
+                            </motion.button>
+                            <motion.button
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.15 + 0.6 }}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                              className="px-4 py-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 border border-emerald-400/30 text-emerald-300 text-sm rounded-xl hover:from-emerald-500/30 hover:to-teal-500/30 transition-all duration-300 backdrop-blur-sm shadow-lg hover:shadow-emerald-500/25"
+                            >
+                              ⬆️ Top
+                            </motion.button>
+                          </div>
+                        </div>
+                        
+                        {/* Enhanced AI Response Preview */}
+                        <motion.div 
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.15 + 0.7 }}
+                          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4"
+                        >
+                          {Object.entries(conversation.responses).map(([aiName, response], responseIndex) => {
+                            const config = getAIConfig(aiName);
+                            return (
+                              <motion.div 
+                                key={aiName}
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: index * 0.15 + 0.8 + responseIndex * 0.1 }}
+                                whileHover={{ scale: 1.05, y: -2 }}
+                                className={`relative group/ai overflow-hidden ${config.bgColor} border ${config.borderColor} rounded-xl sm:rounded-2xl p-3 sm:p-4 text-xs sm:text-sm backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300`}
+                              >
+                                {/* AI Card Glow Effect */}
+                                <div className={`absolute inset-0 bg-gradient-to-r ${config.color} opacity-0 group-hover/ai:opacity-10 transition-opacity duration-300 rounded-xl sm:rounded-2xl`}></div>
+                                
+                                <div className="relative">
+                                  <div className="flex items-center space-x-2 mb-2 sm:mb-3">
+                                    <motion.span 
+                                      whileHover={{ rotate: 360 }}
+                                      transition={{ duration: 0.6 }}
+                                      className="text-lg sm:text-xl"
+                                    >
+                                      {config.icon}
+                                    </motion.span>
+                                    <span className="font-semibold text-slate-800 text-xs sm:text-sm truncate">{config.name}</span>
+                                  </div>
+                                  <div className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                                    {response.success 
+                                      ? response.response?.substring(0, 60) + '...'
+                                      : response.error?.substring(0, 60) + '...'
+                                    }
+                                  </div>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </motion.div>
                       </div>
                     </motion.div>
                   ))}
@@ -1327,26 +1447,163 @@ const MultiAI: React.FC = () => {
         )}
       </div>
 
-      {/* Footer with Credit */}
-      <footer className="mt-16 pb-8">
-        <div className="max-w-7xl mx-auto px-6">
+      {/* Enhanced Footer with Credit */}
+      <footer className="mt-16 sm:mt-20 pb-8 sm:pb-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.8, duration: 0.8 }}
             className="text-center"
           >
-            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-slate-800/50 to-slate-700/50 backdrop-blur-xl rounded-full px-6 py-3 border border-white/10">
-              <span className="text-emerald-400">✨</span>
-              <span className="text-slate-300 text-sm font-medium">Made with ❤️ by Prateek</span>
-              <span className="text-violet-400">✨</span>
+            {/* Main Footer Card */}
+            <div className="relative inline-block">
+              {/* Animated Background */}
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-800/60 to-slate-700/60 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-white/10 shadow-2xl"></div>
+              
+              {/* Animated Border */}
+              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-violet-400/20 to-rose-400/20 rounded-2xl sm:rounded-3xl animate-pulse"></div>
+                <div className="absolute inset-[1px] bg-gradient-to-r from-slate-800/60 to-slate-700/60 rounded-2xl sm:rounded-3xl"></div>
+              </div>
+              
+              {/* Floating Particles */}
+              <div className="absolute inset-0 overflow-hidden rounded-2xl sm:rounded-3xl">
+                {[...Array(6)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-1 h-1 bg-white/20 rounded-full"
+                    style={{
+                      left: `${20 + i * 15}%`,
+                      top: `${30 + (i % 2) * 40}%`,
+                    }}
+                    animate={{
+                      y: [-10, 10, -10],
+                      opacity: [0.2, 0.8, 0.2],
+                    }}
+                    transition={{
+                      duration: 3 + i * 0.5,
+                      repeat: Infinity,
+                      delay: i * 0.3,
+                    }}
+                  />
+                ))}
+              </div>
+              
+              <div className="relative px-6 sm:px-8 py-4 sm:py-6">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1, type: "spring", stiffness: 200 }}
+                  className="inline-flex items-center space-x-3 sm:space-x-4"
+                >
+                  <motion.span
+                    animate={{ 
+                      rotate: [0, 360],
+                      scale: [1, 1.2, 1]
+                    }}
+                    transition={{ 
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear"
+                    }}
+                    className="text-emerald-400 text-lg sm:text-xl"
+                  >
+                    ✨
+                  </motion.span>
+                  
+                  <motion.span 
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1.2 }}
+                    className="text-slate-300 text-sm sm:text-base font-medium"
+                  >
+                    Made with 
+                    <motion.span
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                      className="inline-block mx-1 text-red-400"
+                    >
+                      ❤️
+                    </motion.span>
+                    by 
+                    <motion.span
+                      whileHover={{ scale: 1.1 }}
+                      className="inline-block ml-1 bg-gradient-to-r from-emerald-400 to-violet-400 bg-clip-text text-transparent font-semibold"
+                    >
+                      Prateek
+                    </motion.span>
+                  </motion.span>
+                  
+                  <motion.span
+                    animate={{ 
+                      rotate: [0, -360],
+                      scale: [1, 1.2, 1]
+                    }}
+                    transition={{ 
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear",
+                      delay: 2
+                    }}
+                    className="text-violet-400 text-lg sm:text-xl"
+                  >
+                    ✨
+                  </motion.span>
+                </motion.div>
+                
+                <motion.p 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.4 }}
+                  className="text-slate-400/70 text-xs sm:text-sm mt-3 sm:mt-4"
+                >
+                  <span className="bg-gradient-to-r from-slate-300 to-slate-400 bg-clip-text text-transparent font-medium">
+                    Multi-AI Studio
+                  </span>
+                  <span className="mx-2">•</span>
+                  <span>Cutting-edge AI comparison platform</span>
+                </motion.p>
+              </div>
             </div>
-            <p className="text-slate-400/60 text-xs mt-3">
-              Multi-AI Studio • Cutting-edge AI comparison platform
-            </p>
           </motion.div>
         </div>
       </footer>
+
+      {/* Floating Scroll to Top Button */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 2, type: "spring", stiffness: 200 }}
+        whileHover={{ scale: 1.1, y: -5 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className="fixed bottom-6 sm:bottom-8 right-6 sm:right-8 z-40 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-emerald-500 via-violet-500 to-rose-500 rounded-full shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 backdrop-blur-sm border border-white/20 group overflow-hidden"
+      >
+        {/* Animated Background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+        
+        {/* Icon */}
+        <div className="relative z-10 flex items-center justify-center h-full">
+          <motion.svg 
+            className="w-5 h-5 sm:w-6 sm:h-6 text-white" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+            animate={{ y: [-2, 2, -2] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </motion.svg>
+        </div>
+        
+        {/* Pulse Ring */}
+        <motion.div
+          className="absolute inset-0 rounded-full border-2 border-white/30"
+          animate={{ scale: [1, 1.5, 1], opacity: [0.7, 0, 0.7] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+      </motion.button>
 
       {/* History Modal */}
       <AnimatePresence>
