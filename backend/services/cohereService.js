@@ -3,7 +3,8 @@ const axios = require('axios');
 class CohereService {
   constructor() {
     this.apiKey = process.env.COHERE_API_KEY;
-    this.apiUrl = process.env.COHERE_API_URL;
+    this.apiUrl = process.env.COHERE_API_URL || 'https://api.cohere.ai/v1/generate';
+    this.timeoutMs = Number(process.env.COHERE_TIMEOUT_MS || 300000);
   }
 
   async generateResponse(prompt) {
@@ -26,7 +27,7 @@ class CohereService {
           'Content-Type': 'application/json',
           'User-Agent': 'Multi-AI-Comparison-Tool'
         },
-        timeout: 15000 // 15 seconds timeout
+        timeout: this.timeoutMs
       });
 
       const responseText = response.data.generations?.[0]?.text?.trim();
