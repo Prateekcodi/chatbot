@@ -1885,23 +1885,74 @@ const MultiAI: React.FC = () => {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-6 border-b border-white/10">
-                <h3 className="text-xl font-bold text-white">Conversation History</h3>
-                <div className="flex items-center space-x-3">
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '1.5rem',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+              }}>
+                <h3 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: 'bold',
+                  color: 'white',
+                  margin: 0
+                }}>Conversation History</h3>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem'
+                }}>
                   <button
                     onClick={() => loadHistory(Math.max(1, historyPage - 1))}
-                    className="px-3 py-1 text-xs rounded-full bg-white/10 text-white hover:bg-white/20"
+                    style={{
+                      padding: '0.25rem 0.75rem',
+                      fontSize: '0.75rem',
+                      borderRadius: '9999px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                     disabled={isHistoryLoading || historyPage <= 1}
                   >Prev</button>
-                  <span className="text-slate-300 text-xs">Page {historyPage}</span>
+                  <span style={{
+                    color: '#cbd5e1',
+                    fontSize: '0.75rem'
+                  }}>Page {historyPage}</span>
                   <button
                     onClick={() => loadHistory(historyPage + 1)}
-                    className="px-3 py-1 text-xs rounded-full bg-white/10 text-white hover:bg-white/20"
+                    style={{
+                      padding: '0.25rem 0.75rem',
+                      fontSize: '0.75rem',
+                      borderRadius: '9999px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                     disabled={isHistoryLoading || historyItems.length < 20}
                   >Next</button>
                   <button
                     onClick={() => setShowHistory(false)}
-                    className="px-3 py-1 text-xs rounded-full bg-white/10 text-white hover:bg-white/20"
+                    style={{
+                      padding: '0.25rem 0.75rem',
+                      fontSize: '0.75rem',
+                      borderRadius: '9999px',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
                   >Close</button>
                 </div>
               </div>
@@ -1913,25 +1964,70 @@ const MultiAI: React.FC = () => {
                 flexDirection: 'column',
                 gap: '0.75rem'
               }}>
-                {isHistoryLoading && <div className="text-slate-300 text-sm">Loading...</div>}
+                {isHistoryLoading && <div style={{ color: '#cbd5e1', fontSize: '0.875rem' }}>Loading...</div>}
                 {!isHistoryLoading && historyItems.length === 0 && (
-                  <div className="text-slate-400 text-sm">No conversations yet</div>
+                  <div style={{ color: '#94a3b8', fontSize: '0.875rem' }}>No conversations yet</div>
                 )}
                 {!isHistoryLoading && historyItems.map((item) => (
-                  <div key={item.id} className="bg-white/5 rounded-xl p-4 border border-white/10">
-                    <div className="flex items-center justify-between">
-                      <div className="text-white text-sm font-semibold truncate">{item.prompt}</div>
-                      <div className="text-slate-400 text-xs">{new Date(item.created_at || item.timestamp).toLocaleString()}</div>
+                  <div key={item.id} style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '0.75rem',
+                    padding: '1rem',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    marginBottom: '0.75rem'
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.5rem'
+                    }}>
+                      <div style={{
+                        color: 'white',
+                        fontSize: '0.875rem',
+                        fontWeight: '600',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        flex: 1,
+                        marginRight: '1rem'
+                      }}>{item.prompt}</div>
+                      <div style={{
+                        color: '#94a3b8',
+                        fontSize: '0.75rem',
+                        whiteSpace: 'nowrap'
+                      }}>{new Date(item.created_at || item.timestamp).toLocaleString()}</div>
                     </div>
                     {item.responses && (
-                      <div className="mt-2 grid grid-cols-2 lg:grid-cols-4 gap-2">
+                      <div style={{
+                        marginTop: '0.5rem',
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                        gap: '0.5rem'
+                      }}>
                         {Object.entries(item.responses || {}).map(([k, v]: any) => (
-                          <div key={k} className="text-xs text-slate-300 truncate bg-white/5 rounded p-2">{k}: {(v as any)?.success ? (v as any)?.response?.slice(0, 60) + '…' : (v as any)?.error?.slice(0,60) + '…'}</div>
+                          <div key={k} style={{
+                            fontSize: '0.75rem',
+                            color: '#cbd5e1',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                            borderRadius: '0.25rem',
+                            padding: '0.5rem'
+                          }}>{k}: {(v as any)?.success ? (v as any)?.response?.slice(0, 60) + '…' : (v as any)?.error?.slice(0,60) + '…'}</div>
                         ))}
                       </div>
                     )}
                     {item.response && (
-                      <div className="mt-2 text-slate-300 text-sm truncate">{item.response}</div>
+                      <div style={{
+                        marginTop: '0.5rem',
+                        color: '#cbd5e1',
+                        fontSize: '0.875rem',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>{item.response}</div>
                     )}
                   </div>
                 ))}
