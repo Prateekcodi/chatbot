@@ -52,7 +52,7 @@ function Nav() {
   
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-gradient-to-r from-[#201943]/95 via-[#2a1f5c]/95 to-[#201943]/95 backdrop-blur-2xl border-b border-purple-500/30' : 'bg-gradient-to-r from-[#201943]/80 via-[#2a1f5c]/80 to-[#201943]/80 backdrop-blur-xl'
+      scrolled ? 'bg-[#201943]/95 backdrop-blur-2xl border-b border-purple-500/30' : 'bg-[#201943]/80 backdrop-blur-xl'
     }`}>
       {/* Animated gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 via-indigo-600/10 to-purple-600/10 animate-pulse opacity-50"></div>
