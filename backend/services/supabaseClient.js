@@ -240,9 +240,14 @@ Response:`;
             const aiResponse = await geminiService.generateResponse(aiCheckPrompt);
             console.log('🤖 AI Cache Check Response:', aiResponse);
             
+            // Normalize response text from Gemini service
+            const aiText = typeof aiResponse === 'string' 
+              ? aiResponse 
+              : (aiResponse && typeof aiResponse.response === 'string' ? aiResponse.response : '');
+            
             // Parse AI response
-            if (aiResponse && aiResponse.includes('MATCH:')) {
-              const matchNumber = parseInt(aiResponse.match(/MATCH:\s*(\d+)/)?.[1]);
+            if (aiText && aiText.includes('MATCH:')) {
+              const matchNumber = parseInt(aiText.match(/MATCH:\s*(\d+)/)?.[1]);
               if (matchNumber && matchNumber > 0 && matchNumber <= recentQuestions.length) {
                 const matchedQuestion = recentQuestions[matchNumber - 1];
                 const matchedRow = (recent || []).find(row => row.prompt === matchedQuestion);

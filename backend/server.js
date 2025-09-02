@@ -434,9 +434,14 @@ Response:`;
               const aiResponse = await geminiService.generateResponse(aiCheckPrompt);
               console.log('🤖 Streaming AI Cache Check Response:', aiResponse);
               
+              // Normalize response text
+              const aiText = typeof aiResponse === 'string' 
+                ? aiResponse 
+                : (aiResponse && typeof aiResponse.response === 'string' ? aiResponse.response : '');
+              
               // Parse AI response
-              if (aiResponse && aiResponse.includes('MATCH:')) {
-                const matchNumber = parseInt(aiResponse.match(/MATCH:\s*(\d+)/)?.[1]);
+              if (aiText && aiText.includes('MATCH:')) {
+                const matchNumber = parseInt(aiText.match(/MATCH:\s*(\d+)/)?.[1]);
                 if (matchNumber && matchNumber > 0 && matchNumber <= Math.min(10, recentQuestions.length)) {
                   const matchedQuestion = recentQuestions[matchNumber - 1];
                   
@@ -806,9 +811,14 @@ Response:`;
           const aiResponse = await geminiService.generateResponse(aiCheckPrompt);
           console.log('🤖 ChatBot AI Cache Check Response:', aiResponse);
           
+          // Normalize response text
+          const aiText = typeof aiResponse === 'string' 
+            ? aiResponse 
+            : (aiResponse && typeof aiResponse.response === 'string' ? aiResponse.response : '');
+          
           // Parse AI response
-          if (aiResponse && aiResponse.includes('MATCH:')) {
-            const matchNumber = parseInt(aiResponse.match(/MATCH:\s*(\d+)/)?.[1]);
+          if (aiText && aiText.includes('MATCH:')) {
+            const matchNumber = parseInt(aiText.match(/MATCH:\s*(\d+)/)?.[1]);
             if (matchNumber && matchNumber > 0 && matchNumber <= recentQuestions.length) {
               const matchedQuestion = recentQuestions[matchNumber - 1];
               const matchedRow = recent.find(row => row.prompt === matchedQuestion);
