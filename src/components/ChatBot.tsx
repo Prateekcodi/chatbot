@@ -90,6 +90,19 @@ const ChatBot: React.FC = () => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
 
+  const sanitizeText = (text: string) => {
+    if (!text) return text;
+    let t = text;
+    t = t.replace(/```[\s\S]*?```/g, '');
+    t = t.replace(/`([^`]*)`/g, '$1');
+    t = t.replace(/^\s{0,3}#{1,6}\s+/gm, '');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '$1');
+    t = t.replace(/\*([^*]+)\*/g, '$1');
+    t = t.replace(/_{1,3}([^_]+)_{1,3}/g, '$1');
+    t = t.replace(/^\s*[-*+]\s+/gm, '');
+    return t.trim();
+  };
+
   return (
     <div className="fixed inset-0 w-screen h-screen bg-[#0A0A0F] overflow-hidden" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
       {/* Premium Background Effects */}

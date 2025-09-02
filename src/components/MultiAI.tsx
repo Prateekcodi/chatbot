@@ -166,6 +166,23 @@ const MultiAI: React.FC = () => {
     setModalOpen(false);
   };
 
+  const sanitizeText = (text: string) => {
+    if (!text) return text;
+    let t = text;
+    // Remove fenced code blocks
+    t = t.replace(/```[\s\S]*?```/g, '');
+    // Remove inline backticks
+    t = t.replace(/`([^`]*)`/g, '$1');
+    // Remove markdown headings and bold/italic markers
+    t = t.replace(/^\s{0,3}#{1,6}\s+/gm, '');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '$1');
+    t = t.replace(/\*([^*]+)\*/g, '$1');
+    t = t.replace(/_{1,3}([^_]+)_{1,3}/g, '$1');
+    // Remove list markers
+    t = t.replace(/^\s*[-*+]\s+/gm, '');
+    return t.trim();
+  };
+
   const getAIConfig = (aiName: string) => {
     const configs = {
       gemini: {
@@ -662,7 +679,7 @@ const MultiAI: React.FC = () => {
                                   <>
                                     <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm flex-1 overflow-auto-y">
                                       <p className="text-slate-800 text-sm leading-relaxed line-clamp-6">
-                                        {response.response}
+                                        {sanitizeText((response as any).response)}
                                       </p>
                                       {response.response && response.response.length > 200 && (
                                         <div className="mt-3 text-xs text-slate-500 text-center">
@@ -947,7 +964,7 @@ const MultiAI: React.FC = () => {
                     <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/50 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
                       <h3 className="font-semibold text-white text-xl mb-4">Response:</h3>
                       <p className="text-slate-200 leading-relaxed whitespace-pre-wrap text-lg">
-                        {selectedResponse.response.response}
+                        {sanitizeText((selectedResponse.response as any).response)}
                       </p>
                     </div>
                     <div className="flex justify-between items-center text-sm text-slate-400">
