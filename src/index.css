@@ -140,7 +140,13 @@ body {
   /* Fix mobile scroll container */
   .App > div:last-child {
     min-height: calc(100vh - 4rem);
-    min-height: calc(-webkit-fill-available - 4rem);
+  }
+  
+  /* Fallback for webkit browsers */
+  @supports (-webkit-touch-callout: none) {
+    .App > div:last-child {
+      min-height: calc(100vh - 4rem);
+    }
   }
   
   /* Ensure smooth scrolling works on mobile */
