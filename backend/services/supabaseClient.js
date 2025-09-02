@@ -78,13 +78,16 @@ async function findConversationByPrompt({ prompt, type }) {
     return { data: null, error: 'Supabase not configured' };
   }
   try {
-    // Normalize helper: trim, lowercase, collapse internal whitespace, and repeated letters
+    // Normalize helper: trim, lowercase, collapse internal whitespace, repeated letters, and common variations
     const normalizePrompt = (s) => (s || '')
       .toString()
       .trim()
       .toLowerCase()
       .replace(/\s+/g, ' ')
-      .replace(/(.)\1{1,}/g, '$1'); // collapse repeated letters (e.g., hiii -> hi)
+      .replace(/(.)\1{1,}/g, '$1') // collapse repeated letters (e.g., hiii -> hi)
+      .replace(/\b(the|a|an)\s+/g, '') // remove articles (the, a, an)
+      .replace(/\s+/g, ' ') // collapse whitespace again after article removal
+      .trim();
 
     const target = normalizePrompt(prompt);
 
