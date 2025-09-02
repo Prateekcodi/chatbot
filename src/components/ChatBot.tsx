@@ -93,7 +93,7 @@ const ChatBot: React.FC = () => {
   const sanitizeText = (text: string) => {
     if (!text) return text;
     let t = text;
-    t = t.replace(/```[\s\S]*?```/g, '');
+    t = t.replace(/```(?:[\w-]+\n)?([\s\S]*?)```/g, '$1');
     t = t.replace(/`([^`]*)`/g, '$1');
     t = t.replace(/^\s{0,3}#{1,6}\s+/gm, '');
     t = t.replace(/\*\*([^*]+)\*\*/g, '$1');

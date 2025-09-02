@@ -169,8 +169,8 @@ const MultiAI: React.FC = () => {
   const sanitizeText = (text: string) => {
     if (!text) return text;
     let t = text;
-    // Remove fenced code blocks
-    t = t.replace(/```[\s\S]*?```/g, '');
+    // Preserve fenced code blocks content (remove fences, keep inner)
+    t = t.replace(/```(?:[\w-]+\n)?([\s\S]*?)```/g, '$1');
     // Remove inline backticks
     t = t.replace(/`([^`]*)`/g, '$1');
     // Remove markdown headings and bold/italic markers
