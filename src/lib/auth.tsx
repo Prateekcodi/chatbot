@@ -121,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // First, eagerly clear local auth state to update UI immediately
     setSession(null);
     setUser(null);
+    setInitialized(true); // Ensure we don't get stuck in loading state
     
     try {
       // Try to sign out from Supabase with timeout

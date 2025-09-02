@@ -217,7 +217,7 @@ function Nav() {
                       } finally {
                         setTimeout(() => {
                           console.log('Mobile logout - forcing redirect to auth page');
-                          window.location.replace('#/auth');
+                          window.location.href = '#/auth';
                         }, 100);
                       }
                     }} 
@@ -278,7 +278,7 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
       // Always redirect, even if logout failed
       setTimeout(() => {
         console.log('Desktop logout - forcing redirect to auth page');
-        window.location.replace('#/auth');
+        window.location.href = '#/auth';
       }, 100);
     }
   };
@@ -308,6 +308,7 @@ function App() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/chatbot" element={<Protected><ChatBot /></Protected>} />
               <Route path="/multiai" element={<Protected><MultiAI /></Protected>} />
+              <Route path="/" element={<Navigate to="/auth" replace />} />
               <Route path="*" element={<Navigate to="/auth" replace />} />
             </Routes>
           </div>
