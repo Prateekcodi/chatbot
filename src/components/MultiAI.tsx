@@ -1378,7 +1378,14 @@ const MultiAI: React.FC = () => {
                               whileTap={{ scale: 0.92 }}
                               onClick={() => {
                                 setResults(conversation);
-                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                                // Find the main scroll container and scroll to top
+                                const scrollContainer = document.querySelector('.smooth-scroll');
+                                if (scrollContainer) {
+                                  scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                                } else {
+                                  // Fallback to window scroll
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }
                                 // Add vibration feedback on mobile
                                 if (navigator.vibrate) {
                                   navigator.vibrate(50);
@@ -1452,10 +1459,20 @@ const MultiAI: React.FC = () => {
                               whileTap={{ scale: 0.92 }}
                               onClick={() => {
                                 // Enhanced scroll to top with better functionality
-                                window.scrollTo({ 
-                                  top: 0, 
-                                  behavior: 'smooth' 
-                                });
+                                // Find the main scroll container
+                                const scrollContainer = document.querySelector('.smooth-scroll');
+                                if (scrollContainer) {
+                                  scrollContainer.scrollTo({ 
+                                    top: 0, 
+                                    behavior: 'smooth' 
+                                  });
+                                } else {
+                                  // Fallback to window scroll
+                                  window.scrollTo({ 
+                                    top: 0, 
+                                    behavior: 'smooth' 
+                                  });
+                                }
                                 // Add a subtle vibration feedback on mobile
                                 if (navigator.vibrate) {
                                   navigator.vibrate(50);
@@ -1703,7 +1720,16 @@ const MultiAI: React.FC = () => {
         transition={{ delay: 2, type: "spring", stiffness: 200 }}
         whileHover={{ scale: 1.1, y: -5 }}
         whileTap={{ scale: 0.9 }}
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        onClick={() => {
+          // Find the main scroll container and scroll to top
+          const scrollContainer = document.querySelector('.smooth-scroll');
+          if (scrollContainer) {
+            scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            // Fallback to window scroll
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }}
         className="fixed bottom-6 sm:bottom-8 right-6 sm:right-8 z-40 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-emerald-500 via-violet-500 to-rose-500 rounded-full shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 backdrop-blur-sm border border-white/20 group overflow-hidden"
       >
         {/* Animated Background */}
