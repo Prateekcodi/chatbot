@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import ChatBot from './components/ChatBot';
 import MultiAI from './components/MultiAI';
@@ -16,11 +16,13 @@ function Protected({ children }: { children: React.ReactNode }) {
 function Nav() {
   const { session, signOut } = useAuth();
   const location = useLocation();
+  const [open, setOpen] = useState(false);
   // Hide nav on auth page
   if (location.pathname === '/auth') return null;
   return (
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-[95vw] sm:w-auto">
-      <div className="bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg overflow-x-auto no-scrollbar">
+      {/* Desktop nav */}
+      <div className="hidden sm:block bg-white/10 backdrop-blur-md rounded-2xl p-2 border border-white/20 shadow-lg">
         <div className="flex items-center space-x-2 whitespace-nowrap">
           <Link to="/multiai" className="px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Multi-AI Tool</Link>
           <Link to="/chatbot" className="px-3 sm:px-4 py-2 rounded-xl font-medium transition-all duration-200 text-purple-100 hover:text-white hover:bg-white/10">Chatbot</Link>
@@ -30,6 +32,27 @@ function Nav() {
             <Link to="/auth" className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20">Login</Link>
           )}
         </div>
+      </div>
+
+      {/* Mobile nav */}
+      <div className="sm:hidden">
+        <div className="flex items-center justify-between bg-white/10 backdrop-blur-md rounded-2xl px-3 py-2 border border-white/20 shadow-lg">
+          <div className="font-semibold text-white">Menu</div>
+          <button aria-label="Open menu" onClick={() => setOpen(o => !o)} className="p-2 rounded-lg bg-white/10 text-white">
+            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+        </div>
+        {open && (
+          <div className="mt-2 bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/20 shadow-lg space-y-2">
+            <Link onClick={() => setOpen(false)} to="/multiai" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Multi-AI Tool</Link>
+            <Link onClick={() => setOpen(false)} to="/chatbot" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Chatbot</Link>
+            {session ? (
+              <button onClick={() => { setOpen(false); window.setTimeout(() => (document.getElementById('logout-btn') as HTMLButtonElement)?.click(), 0); }} className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-rose-500/80 hover:bg-rose-500">Logout</button>
+            ) : (
+              <Link onClick={() => setOpen(false)} to="/auth" className="block w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-white/5 hover:bg-white/15">Login</Link>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -43,7 +66,7 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
       window.location.replace('#/auth');
     });
   };
-  return <button onClick={handle} className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20">Logout</button>;
+  return <button id="logout-btn" onClick={handle} className="ml-2 px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20">Logout</button>;
 }
 
 function App() {
