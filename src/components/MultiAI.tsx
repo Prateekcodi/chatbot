@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { getTokenUsage, getConversations, sendStreamingMessage } from '../services/api';
 import { AIResponse, APIResponse } from '../types';
 
@@ -254,21 +256,50 @@ const MultiAI: React.FC = () => {
     setModalOpen(false);
   };
 
-  const sanitizeText = (text: string) => {
+  const renderMarkdown = (text: string) => {
     if (!text) return text;
-    let t = text;
-    // Preserve fenced code blocks content (remove fences, keep inner)
-    t = t.replace(/```(?:[\w-]+\n)?([\s\S]*?)```/g, '$1');
-    // Remove inline backticks
-    t = t.replace(/`([^`]*)`/g, '$1');
-    // Remove markdown headings and bold/italic markers
-    t = t.replace(/^\s{0,3}#{1,6}\s+/gm, '');
-    t = t.replace(/\*\*([^*]+)\*\*/g, '$1');
-    t = t.replace(/\*([^*]+)\*/g, '$1');
-    t = t.replace(/_{1,3}([^_]+)_{1,3}/g, '$1');
-    // Remove list markers
-    t = t.replace(/^\s*[-*+]\s+/gm, '');
-    return t.trim();
+    return (
+      <ReactMarkdown 
+        remarkPlugins={[remarkGfm]}
+        components={{
+          p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
+          strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
+          em: ({ children }) => <em className="italic text-slate-700">{children}</em>,
+          h1: ({ children }) => <h1 className="text-2xl font-bold text-slate-900 mb-4 mt-6 first:mt-0">{children}</h1>,
+          h2: ({ children }) => <h2 className="text-xl font-bold text-slate-900 mb-3 mt-5 first:mt-0">{children}</h2>,
+          h3: ({ children }) => <h3 className="text-lg font-bold text-slate-900 mb-2 mt-4 first:mt-0">{children}</h3>,
+          h4: ({ children }) => <h4 className="text-base font-bold text-slate-900 mb-2 mt-3 first:mt-0">{children}</h4>,
+          h5: ({ children }) => <h5 className="text-sm font-bold text-slate-900 mb-1 mt-2 first:mt-0">{children}</h5>,
+          h6: ({ children }) => <h6 className="text-xs font-bold text-slate-900 mb-1 mt-2 first:mt-0">{children}</h6>,
+          ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
+          li: ({ children }) => <li className="text-slate-800">{children}</li>,
+          code: ({ children, className }) => {
+            const isInline = !className;
+            if (isInline) {
+              return <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-sm font-mono">{children}</code>;
+            }
+            return (
+              <pre className="bg-slate-100 text-slate-800 p-3 rounded-lg overflow-x-auto mb-3">
+                <code className="text-sm font-mono">{children}</code>
+              </pre>
+            );
+          },
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-slate-300 pl-4 italic text-slate-700 mb-3">
+              {children}
+            </blockquote>
+          ),
+          a: ({ children, href }) => (
+            <a href={href} className="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
+    );
   };
 
   const getAIConfig = (aiName: string) => {
@@ -673,7 +704,7 @@ const MultiAI: React.FC = () => {
                               </div>
                             </div>
                             <div className="text-slate-700 text-sm leading-relaxed">
-                              {response.text || 'Starting response...'}
+                              {response.text ? renderMarkdown(response.text) : 'Starting response...'}
                               {!response.isComplete && (
                                 <span className="inline-block w-2 h-4 bg-blue-500 ml-1 animate-pulse"></span>
                               )}
@@ -874,9 +905,9 @@ const MultiAI: React.FC = () => {
                                 {response.success ? (
                                   <>
                                     <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-4 shadow-sm flex-1 overflow-auto-y">
-                                      <p className="text-slate-800 text-sm leading-relaxed line-clamp-6">
-                                        {sanitizeText((response as any).response)}
-                                      </p>
+                                      <div className="text-slate-800 text-sm leading-relaxed line-clamp-6">
+                                        {renderMarkdown((response as any).response)}
+                                      </div>
                                       {response.response && response.response.length > 200 && (
                                         <div className="mt-3 text-xs text-slate-500 text-center">
                                           Response truncated for display
@@ -1159,9 +1190,9 @@ const MultiAI: React.FC = () => {
                   <div className="space-y-6">
                     <div className="bg-gradient-to-br from-slate-800/50 to-slate-700/50 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
                       <h3 className="font-semibold text-white text-xl mb-4">Response:</h3>
-                      <p className="text-slate-200 leading-relaxed whitespace-pre-wrap text-lg">
-                        {sanitizeText((selectedResponse.response as any).response)}
-                      </p>
+                      <div className="text-slate-200 leading-relaxed text-lg">
+                        {renderMarkdown((selectedResponse.response as any).response)}
+                      </div>
                     </div>
                     <div className="flex justify-between items-center text-sm text-slate-400">
                       <span>Model: {selectedResponse.response.model}</span>
