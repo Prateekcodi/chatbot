@@ -323,36 +323,36 @@ const MultiAI: React.FC = () => {
       <ReactMarkdown 
         remarkPlugins={[remarkGfm]}
         components={{
-          p: ({ children }) => <p className="mb-3 last:mb-0">{children}</p>,
-          strong: ({ children }) => <strong className="font-bold text-slate-900">{children}</strong>,
-          em: ({ children }) => <em className="italic text-slate-700">{children}</em>,
-          h1: ({ children }) => <h1 className="text-2xl font-bold text-slate-900 mb-4 mt-6 first:mt-0">{children}</h1>,
-          h2: ({ children }) => <h2 className="text-xl font-bold text-slate-900 mb-3 mt-5 first:mt-0">{children}</h2>,
-          h3: ({ children }) => <h3 className="text-lg font-bold text-slate-900 mb-2 mt-4 first:mt-0">{children}</h3>,
-          h4: ({ children }) => <h4 className="text-base font-bold text-slate-900 mb-2 mt-3 first:mt-0">{children}</h4>,
-          h5: ({ children }) => <h5 className="text-sm font-bold text-slate-900 mb-1 mt-2 first:mt-0">{children}</h5>,
-          h6: ({ children }) => <h6 className="text-xs font-bold text-slate-900 mb-1 mt-2 first:mt-0">{children}</h6>,
-          ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>,
-          li: ({ children }) => <li className="text-slate-800">{children}</li>,
+          p: ({ children }) => <p className="mb-3 last:mb-0 text-slate-200">{children}</p>,
+          strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+          em: ({ children }) => <em className="italic text-slate-300">{children}</em>,
+          h1: ({ children }) => <h1 className="text-2xl font-bold text-white mb-4 mt-6 first:mt-0">{children}</h1>,
+          h2: ({ children }) => <h2 className="text-xl font-bold text-white mb-3 mt-5 first:mt-0">{children}</h2>,
+          h3: ({ children }) => <h3 className="text-lg font-bold text-white mb-2 mt-4 first:mt-0">{children}</h3>,
+          h4: ({ children }) => <h4 className="text-base font-bold text-white mb-2 mt-3 first:mt-0">{children}</h4>,
+          h5: ({ children }) => <h5 className="text-sm font-bold text-white mb-1 mt-2 first:mt-0">{children}</h5>,
+          h6: ({ children }) => <h6 className="text-xs font-bold text-white mb-1 mt-2 first:mt-0">{children}</h6>,
+          ul: ({ children }) => <ul className="list-disc list-inside mb-3 space-y-1 text-slate-200">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1 text-slate-200">{children}</ol>,
+          li: ({ children }) => <li className="text-slate-200">{children}</li>,
           code: ({ children, className }) => {
             const isInline = !className;
             if (isInline) {
-              return <code className="bg-slate-100 text-slate-800 px-1 py-0.5 rounded text-sm font-mono">{children}</code>;
+              return <code className="bg-slate-800 text-slate-100 px-1 py-0.5 rounded text-sm font-mono">{children}</code>;
             }
             return (
-              <pre className="bg-slate-100 text-slate-800 p-3 rounded-lg overflow-x-auto mb-3">
+              <pre className="bg-slate-800 text-slate-100 p-3 rounded-lg overflow-x-auto mb-3">
                 <code className="text-sm font-mono">{children}</code>
               </pre>
             );
           },
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-slate-300 pl-4 italic text-slate-700 mb-3">
+            <blockquote className="border-l-4 border-slate-400 pl-4 italic text-slate-300 mb-3">
               {children}
             </blockquote>
           ),
           a: ({ children, href }) => (
-            <a href={href} className="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">
+            <a href={href} className="text-sky-300 hover:text-sky-200 underline" target="_blank" rel="noopener noreferrer">
               {children}
             </a>
           ),
@@ -437,6 +437,7 @@ const MultiAI: React.FC = () => {
   };
 
   const openResponseModal = (aiName: string, response: AIResponse) => {
+    console.log('Opening modal for:', aiName, response);
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
     // Prevent body scroll when modal is open
@@ -1915,6 +1916,7 @@ const MultiAI: React.FC = () => {
       {/* Modern Premium Modal */}
       <AnimatePresence>
         {modalOpen && selectedResponse && (
+          console.log('Rendering modal with:', selectedResponse) || true) && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
