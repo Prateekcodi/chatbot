@@ -134,6 +134,7 @@ const MultiAI: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setStreamingResponses({});
+    setResults(null); // Clear previous results for streaming display
 
     if (streamingMode) {
       // Use streaming API
