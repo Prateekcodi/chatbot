@@ -48,7 +48,12 @@ function Nav() {
   }, []);
   
   // Hide nav on auth page
-  if (location.pathname === '/auth') return null;
+  console.log('Nav component - current pathname:', location.pathname);
+  console.log('Nav component - current hash:', window.location.hash);
+  if (location.pathname === '/auth' || window.location.hash === '#/auth') {
+    console.log('Hiding navbar for auth page');
+    return null;
+  }
   
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -296,23 +301,31 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
   );
 }
 
+function AppContent() {
+  const location = useLocation();
+  
+  return (
+    <div className="App w-screen min-h-screen overflow-hidden">
+      <Nav />
+      <div className={`w-full min-h-full overflow-y-auto overflow-x-hidden smooth-scroll ${location.pathname !== '/auth' ? 'pt-16' : ''}`}>
+        <ProfileUpsertOnAuth />
+        <Routes>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/chatbot" element={<Protected><ChatBot /></Protected>} />
+          <Route path="/multiai" element={<Protected><MultiAI /></Protected>} />
+          <Route path="/" element={<Navigate to="/auth" replace />} />
+          <Route path="*" element={<Navigate to="/auth" replace />} />
+        </Routes>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <AuthProvider>
       <HashRouter>
-        <div className="App w-screen min-h-screen overflow-hidden">
-          <Nav />
-          <div className="w-full min-h-full pt-16 overflow-y-auto overflow-x-hidden smooth-scroll">
-            <ProfileUpsertOnAuth />
-            <Routes>
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/chatbot" element={<Protected><ChatBot /></Protected>} />
-              <Route path="/multiai" element={<Protected><MultiAI /></Protected>} />
-              <Route path="/" element={<Navigate to="/auth" replace />} />
-              <Route path="*" element={<Navigate to="/auth" replace />} />
-            </Routes>
-          </div>
-        </div>
+        <AppContent />
       </HashRouter>
     </AuthProvider>
   );
