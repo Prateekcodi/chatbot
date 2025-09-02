@@ -302,7 +302,7 @@ function AppContent() {
   const location = useLocation();
   
   return (
-    <div className="App w-screen min-h-screen overflow-hidden">
+    <div className="App w-screen min-h-screen overflow-hidden bg-[#0A0A0F]">
       <Nav />
       <div className={`w-full min-h-full overflow-y-auto overflow-x-hidden smooth-scroll ${location.pathname !== '/auth' ? 'pt-16' : ''}`}>
         <ProfileUpsertOnAuth />
