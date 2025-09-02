@@ -2173,7 +2173,7 @@ const MultiAI: React.FC = () => {
                         color: '#e2e8f0',
                         lineHeight: '1.6',
                         fontSize: '1rem',
-                        wordBreak: 'break-words',
+                        wordBreak: 'break-word',
                         whiteSpace: 'pre-wrap',
                         maxWidth: '100%'
                       }}>
