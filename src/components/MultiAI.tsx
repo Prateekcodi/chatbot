@@ -1854,13 +1854,14 @@ const MultiAI: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-xl z-50 flex items-center justify-center p-4"
+            style={{ overflow: 'hidden' }}
             onClick={() => setShowHistory(false)}
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-5xl w-full max-h-[85vh] overflow-hidden border border-white/20"
+              className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[80vh] border border-white/20"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -1883,7 +1884,7 @@ const MultiAI: React.FC = () => {
                   >Close</button>
                 </div>
               </div>
-              <div className="p-6 overflow-y-auto max-h-[70vh] space-y-3">
+              <div className="p-6 max-h-[60vh] space-y-3">
                 {isHistoryLoading && <div className="text-slate-300 text-sm">Loading...</div>}
                 {!isHistoryLoading && historyItems.length === 0 && (
                   <div className="text-slate-400 text-sm">No conversations yet</div>
@@ -1930,7 +1931,8 @@ const MultiAI: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '1rem'
+              padding: '1rem',
+              overflow: 'hidden'
             }}
             onClick={closeModal}
           >
@@ -1939,7 +1941,7 @@ const MultiAI: React.FC = () => {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-6xl w-full max-h-[90vh] overflow-y-auto overscroll-contain border border-white/20 backdrop-blur-2xl flex flex-col"
+              className="relative bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl shadow-2xl max-w-full sm:max-w-4xl w-full h-auto max-h-[80vh] border border-white/20 backdrop-blur-2xl flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Animated Border */}
@@ -1996,7 +1998,7 @@ const MultiAI: React.FC = () => {
               </div>
 
               {/* Modal Content */}
-              <div className="relative p-6 sm:p-8 flex-1 overflow-y-auto overscroll-contain min-h-0">
+              <div className="relative p-6 sm:p-8 flex-1 overflow-hidden">
                 {selectedResponse && selectedResponse.response.success ? (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -2006,7 +2008,7 @@ const MultiAI: React.FC = () => {
                   >
                     <div className="bg-gradient-to-br from-slate-800/60 to-slate-700/60 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/10 backdrop-blur-sm">
                       <h3 className="font-semibold text-white text-lg sm:text-xl mb-4">Response:</h3>
-                      <div className="text-slate-200 leading-relaxed text-base sm:text-lg break-words whitespace-pre-wrap max-w-full overflow-x-auto [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_strong]:text-white [&_em]:text-slate-300 [&_li]:text-slate-200 [&_p]:text-slate-200 [&_ul]:text-slate-200 [&_ol]:text-slate-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-3 sm:[&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:overflow-x-auto [&_pre]:mb-3 sm:[&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
+                      <div className="text-slate-200 leading-relaxed text-base sm:text-lg break-words whitespace-pre-wrap max-w-full [&_*]:max-w-full [&_*]:break-words [&_*]:text-slate-200 [&_a]:text-sky-300 hover:[&_a]:text-sky-200 [&_strong]:text-white [&_em]:text-slate-300 [&_li]:text-slate-200 [&_p]:text-slate-200 [&_ul]:text-slate-200 [&_ol]:text-slate-200 [&_img]:h-auto [&_table]:block [&_table]:w-full [&_pre]:bg-slate-800 [&_pre]:text-slate-100 [&_pre]:p-3 sm:[&_pre]:p-4 [&_pre]:rounded-lg [&_pre]:mb-3 sm:[&_pre]:mb-4 [&_code]:bg-slate-800 [&_code]:text-slate-100 [&_code]:px-2 [&_code]:py-1 [&_code]:rounded [&_code]:text-sm [&_code]:font-mono">
                         {renderMarkdown((selectedResponse.response as any).response)}
                       </div>
                     </div>

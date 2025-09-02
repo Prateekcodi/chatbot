@@ -52,10 +52,8 @@ function Nav() {
   
   return (
     <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      scrolled ? 'bg-[#201943]/95 backdrop-blur-2xl border-b border-purple-500/30' : 'bg-[#201943]/80 backdrop-blur-xl'
+      scrolled ? 'bg-[#201943] backdrop-blur-2xl border-b border-purple-500/30' : 'bg-[#201943] backdrop-blur-xl'
     }`}>
-      {/* Subtle overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#201943]/5 via-[#201943]/10 to-[#201943]/5"></div>
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         {/* Desktop Navigation */}
         <div className="hidden sm:flex items-center justify-between h-16">
