@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Component, ErrorInfo, ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import ChatBot from './components/ChatBot';
 import MultiAI from './components/MultiAI';
@@ -7,50 +7,6 @@ import { AuthProvider, useAuth } from './lib/auth';
 import { supabase } from './lib/supabaseClient';
 import './index.css';
 
-// Error Boundary for mobile compatibility
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error?: Error;
-}
-
-class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
-  constructor(props: { children: ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0F] text-white z-50 p-4">
-          <div className="text-center max-w-md">
-            <div className="text-6xl mb-4">⚠️</div>
-            <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-            <p className="text-slate-300 mb-4">
-              The app encountered an error. Please try refreshing the page.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
-            >
-              Refresh Page
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
 
 function LoadingSplash() {
   return (
@@ -349,26 +305,6 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
 // Mobile debugging component
 function MobileDebugInfo() {
   const [showDebug, setShowDebug] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<any>({});
-
-  useEffect(() => {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile) {
-      setDebugInfo({
-        userAgent: navigator.userAgent,
-        viewport: `${window.innerWidth}x${window.innerHeight}`,
-        screen: `${window.screen.width}x${window.screen.height}`,
-        devicePixelRatio: window.devicePixelRatio,
-        orientation: window.screen.orientation?.type || 'unknown',
-        touchSupport: 'ontouchstart' in window,
-        localStorage: typeof Storage !== 'undefined',
-        sessionStorage: typeof Storage !== 'undefined',
-        hash: window.location.hash,
-        pathname: window.location.pathname,
-        search: window.location.search,
-      });
-    }
-  }, []);
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
@@ -384,9 +320,9 @@ function MobileDebugInfo() {
       </button>
       {showDebug && (
         <div className="absolute bottom-12 right-0 bg-black bg-opacity-90 text-white p-4 rounded-lg text-xs max-w-xs">
-          <pre className="whitespace-pre-wrap">
-            {JSON.stringify(debugInfo, null, 2)}
-          </pre>
+          <div>Mobile Debug Info</div>
+          <div>Viewport: {window.innerWidth}x{window.innerHeight}</div>
+          <div>User Agent: {navigator.userAgent.substring(0, 50)}...</div>
         </div>
       )}
     </div>
@@ -456,13 +392,11 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <AuthProvider>
-        <HashRouter>
-          <AppContent />
-        </HashRouter>
-      </AuthProvider>
-    </ErrorBoundary>
+    <AuthProvider>
+      <HashRouter>
+        <AppContent />
+      </HashRouter>
+    </AuthProvider>
   );
 }
 

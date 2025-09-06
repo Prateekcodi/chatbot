@@ -10,7 +10,6 @@ html, body {
   overflow-x: hidden;
   background-color: #0A0A0F;
   min-height: 100vh;
-  min-height: -webkit-fill-available;
 }
 
 body {
@@ -26,7 +25,6 @@ body {
   width: 100%;
   background-color: #0A0A0F;
   min-height: 100vh;
-  min-height: -webkit-fill-available;
 }
 
 /* Ensure no gaps */
