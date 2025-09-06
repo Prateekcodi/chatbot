@@ -492,24 +492,13 @@ const MultiAI: React.FC = () => {
 
     if (modalOpen) {
       // Prevent body scrolling when modal is open
-      const scrollY = window.scrollY;
-      
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.left = '0';
-      document.body.style.right = '0';
       document.body.style.overflow = 'hidden';
       
       document.addEventListener('keydown', handleKeyDown);
       return () => {
         document.removeEventListener('keydown', handleKeyDown);
         // Restore body scrolling when modal closes
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.left = '';
-        document.body.style.right = '';
         document.body.style.overflow = '';
-        window.scrollTo(0, scrollY);
       };
     }
   }, [modalOpen, navigateToResponse]);
@@ -2069,7 +2058,7 @@ const MultiAI: React.FC = () => {
               left: 0,
               width: '100vw',
               height: '100vh',
-              backgroundColor: 'rgba(0, 0, 0, 0.7)',
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
               display: 'flex',
@@ -2077,8 +2066,8 @@ const MultiAI: React.FC = () => {
               justifyContent: 'center',
               zIndex: 9999,
               margin: 0,
-              padding: '1rem',
-              overflow: 'hidden'
+              padding: '2rem',
+              overflow: 'auto'
             }}
             onClick={closeModal}
           >
@@ -2094,13 +2083,12 @@ const MultiAI: React.FC = () => {
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 maxWidth: '800px',
                 width: '90%',
-                maxHeight: '90vh',
-                minHeight: '400px',
+                maxHeight: '85vh',
+                minHeight: '500px',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
                 margin: '0',
-                transform: 'translateY(0)',
                 overflow: 'hidden'
               }}
               onClick={(e) => e.stopPropagation()}
@@ -2165,11 +2153,24 @@ const MultiAI: React.FC = () => {
                 flex: 1,
                 overflowY: 'auto',
                 overflowX: 'hidden',
-                maxHeight: 'calc(90vh - 200px)',
+                maxHeight: 'calc(85vh - 200px)',
                 WebkitOverflowScrolling: 'touch',
                 scrollBehavior: 'smooth',
-                minHeight: '200px'
+                minHeight: '200px',
+                backgroundColor: 'rgba(255, 255, 255, 0.05)'
               }}>
+                <div style={{
+                  color: 'white',
+                  fontSize: '1.2rem',
+                  fontWeight: 'bold',
+                  marginBottom: '1rem',
+                  padding: '10px',
+                  backgroundColor: 'rgba(0, 255, 0, 0.2)',
+                  border: '2px solid green',
+                  borderRadius: '8px'
+                }}>
+                  TEST: Modal is working! Content should appear below.
+                </div>
                 {selectedResponse && selectedResponse.response.success ? (
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
