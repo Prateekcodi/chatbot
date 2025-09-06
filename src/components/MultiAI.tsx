@@ -363,6 +363,38 @@ const MultiAI: React.FC = () => {
 
   const getAIConfig = (aiName: string) => {
     const configs = {
+      // New AI service names from Netlify Function
+      'Gemini 1.5 Pro': {
+        name: 'Gemini 1.5 Pro',
+        color: 'from-emerald-400 via-teal-500 to-cyan-600',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-emerald-400/30',
+        shadowColor: 'shadow-emerald-500/20',
+        icon: '🧠',
+        description: 'Google\'s most advanced AI model',
+        accent: 'emerald'
+      },
+      'Claude 3.5 Sonnet': {
+        name: 'Claude 3.5 Sonnet',
+        color: 'from-violet-400 via-purple-500 to-fuchsia-600',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-violet-400/30',
+        shadowColor: 'shadow-violet-500/20',
+        icon: '🤖',
+        description: 'Anthropic\'s most capable AI model',
+        accent: 'violet'
+      },
+      'GPT-4o': {
+        name: 'GPT-4o',
+        color: 'from-blue-400 via-indigo-500 to-purple-600',
+        bgColor: 'bg-gradient-to-br from-slate-800/90 to-slate-900/90',
+        borderColor: 'border-blue-400/30',
+        shadowColor: 'shadow-blue-500/20',
+        icon: '💎',
+        description: 'OpenAI\'s most advanced model',
+        accent: 'blue'
+      },
+      // Legacy support for old names
       gemini: {
         name: 'Gemini Pro',
         color: 'from-emerald-400 via-teal-500 to-cyan-600',
