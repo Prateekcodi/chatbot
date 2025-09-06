@@ -439,15 +439,11 @@ const MultiAI: React.FC = () => {
   const openResponseModal = (aiName: string, response: AIResponse) => {
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
-    // Prevent body scroll when modal is open
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setSelectedResponse(null);
-    // Restore body scroll when modal is closed
-    document.body.style.overflow = 'unset';
   };
 
   const navigateToResponse = useCallback((direction: 'next' | 'prev') => {
@@ -491,14 +487,9 @@ const MultiAI: React.FC = () => {
     };
 
     if (modalOpen) {
-      // Prevent body scrolling when modal is open
-      document.body.style.overflow = 'hidden';
-      
       document.addEventListener('keydown', handleKeyDown);
       return () => {
         document.removeEventListener('keydown', handleKeyDown);
-        // Restore body scrolling when modal closes
-        document.body.style.overflow = '';
       };
     }
   }, [modalOpen, navigateToResponse]);
@@ -2066,8 +2057,8 @@ const MultiAI: React.FC = () => {
               justifyContent: 'center',
               zIndex: 9999,
               margin: 0,
-              padding: '2rem',
-              overflow: 'auto'
+              padding: '1rem',
+              overflow: 'hidden'
             }}
             onClick={closeModal}
           >
@@ -2083,8 +2074,8 @@ const MultiAI: React.FC = () => {
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 maxWidth: '800px',
                 width: '90%',
-                maxHeight: '85vh',
-                minHeight: '500px',
+                maxHeight: '80vh',
+                minHeight: '400px',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -2153,11 +2144,12 @@ const MultiAI: React.FC = () => {
                 flex: 1,
                 overflowY: 'auto',
                 overflowX: 'hidden',
-                maxHeight: 'calc(85vh - 200px)',
+                maxHeight: 'calc(80vh - 200px)',
                 WebkitOverflowScrolling: 'touch',
                 scrollBehavior: 'smooth',
                 minHeight: '200px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)'
+                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                zIndex: 1
               }}>
                 <div style={{
                   color: 'white',
