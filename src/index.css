@@ -8,8 +8,9 @@ html, body {
   height: 100%;
   width: 100%;
   overflow-x: hidden;
-  background-color: transparent;
+  background-color: #0A0A0F;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
 }
 
 body {
@@ -23,8 +24,9 @@ body {
 #root {
   height: 100%;
   width: 100%;
-  background-color: transparent;
+  background-color: #0A0A0F;
   min-height: 100vh;
+  min-height: -webkit-fill-available;
 }
 
 /* Ensure no gaps */
@@ -123,18 +125,27 @@ body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
     height: auto;
+    /* Prevent zoom on input focus */
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
   }
   
   #root {
     min-height: 100vh;
     min-height: -webkit-fill-available;
     height: auto;
+    /* Ensure proper mobile rendering */
+    position: relative;
+    overflow-x: hidden;
   }
   
   /* Ensure content can extend beyond viewport */
   .App {
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    /* Fix mobile layout issues */
+    position: relative;
+    overflow-x: hidden;
   }
   
   /* Fix mobile scroll container */
@@ -152,6 +163,25 @@ body {
   /* Ensure smooth scrolling works on mobile */
   * {
     -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Fix mobile input issues */
+  input, textarea, select {
+    font-size: 16px; /* Prevent zoom on iOS */
+    -webkit-appearance: none;
+    border-radius: 0;
+  }
+  
+  /* Fix mobile button issues */
+  button {
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Fix mobile touch issues */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
 }
 

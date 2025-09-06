@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Component, ErrorInfo, ReactNode } from 'react';
 import { HashRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import ChatBot from './components/ChatBot';
 import MultiAI from './components/MultiAI';
@@ -7,12 +7,60 @@ import { AuthProvider, useAuth } from './lib/auth';
 import { supabase } from './lib/supabaseClient';
 import './index.css';
 
+// Error Boundary for mobile compatibility
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error?: Error;
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, ErrorBoundaryState> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0F] text-white z-50 p-4">
+          <div className="text-center max-w-md">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
+            <p className="text-slate-300 mb-4">
+              The app encountered an error. Please try refreshing the page.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
 function LoadingSplash() {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0F] text-white z-50">
-      <div className="flex flex-col items-center space-y-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-[#0A0A0F] text-white z-50" style={{ minHeight: '100vh' }}>
+      <div className="flex flex-col items-center space-y-4 px-4">
         <div className="w-12 h-12 border-4 border-slate-500 border-t-emerald-400 rounded-full animate-spin"></div>
-        <div className="text-slate-300 text-sm">Loading…</div>
+        <div className="text-slate-300 text-sm text-center">Loading…</div>
+        <div className="text-slate-500 text-xs text-center max-w-xs">
+          If this takes too long, try refreshing the page
+        </div>
       </div>
     </div>
   );
@@ -298,12 +346,64 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
   );
 }
 
+// Mobile debugging component
+function MobileDebugInfo() {
+  const [showDebug, setShowDebug] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<any>({});
+
+  useEffect(() => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      setDebugInfo({
+        userAgent: navigator.userAgent,
+        viewport: `${window.innerWidth}x${window.innerHeight}`,
+        screen: `${window.screen.width}x${window.screen.height}`,
+        devicePixelRatio: window.devicePixelRatio,
+        orientation: window.screen.orientation?.type || 'unknown',
+        touchSupport: 'ontouchstart' in window,
+        localStorage: typeof Storage !== 'undefined',
+        sessionStorage: typeof Storage !== 'undefined',
+        hash: window.location.hash,
+        pathname: window.location.pathname,
+        search: window.location.search,
+      });
+    }
+  }, []);
+
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  if (!isMobile) return null;
+
+  return (
+    <div className="fixed bottom-4 right-4 z-50">
+      <button
+        onClick={() => setShowDebug(!showDebug)}
+        className="bg-blue-500 text-white p-2 rounded-full text-xs"
+      >
+        Debug
+      </button>
+      {showDebug && (
+        <div className="absolute bottom-12 right-0 bg-black bg-opacity-90 text-white p-4 rounded-lg text-xs max-w-xs">
+          <pre className="whitespace-pre-wrap">
+            {JSON.stringify(debugInfo, null, 2)}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AppContent() {
   const location = useLocation();
   
   // If on auth page, render AuthPage outside of main container
   if (location.pathname === '/auth') {
-    return <AuthPage />;
+    return (
+      <>
+        <AuthPage />
+        <MobileDebugInfo />
+      </>
+    );
   }
   
   return (
@@ -318,17 +418,51 @@ function AppContent() {
           <Route path="*" element={<Navigate to="/auth" replace />} />
         </Routes>
       </div>
+      <MobileDebugInfo />
     </div>
   );
 }
 
 function App() {
+  // Add mobile-specific error boundary and debugging
+  useEffect(() => {
+    // Mobile debugging
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      console.log('Mobile device detected:', navigator.userAgent);
+      console.log('Viewport dimensions:', window.innerWidth, 'x', window.innerHeight);
+    }
+
+    // Global error handler for mobile
+    const handleError = (error: ErrorEvent) => {
+      console.error('Global error caught:', error);
+      // Don't let errors crash the app on mobile
+      return true;
+    };
+
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      console.error('Unhandled promise rejection:', event);
+      // Prevent the app from crashing
+      event.preventDefault();
+    };
+
+    window.addEventListener('error', handleError);
+    window.addEventListener('unhandledrejection', handleUnhandledRejection);
+
+    return () => {
+      window.removeEventListener('error', handleError);
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+    };
+  }, []);
+
   return (
-    <AuthProvider>
-      <HashRouter>
-        <AppContent />
-      </HashRouter>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <HashRouter>
+          <AppContent />
+        </HashRouter>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
