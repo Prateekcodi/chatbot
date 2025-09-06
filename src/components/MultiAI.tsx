@@ -437,23 +437,11 @@ const MultiAI: React.FC = () => {
   const openResponseModal = (aiName: string, response: AIResponse) => {
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
-    // Prevent body scroll
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = '0';
-    document.body.style.left = '0';
-    document.body.style.right = '0';
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setSelectedResponse(null);
-    // Restore body scroll
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
   };
 
   const navigateToResponse = useCallback((direction: 'next' | 'prev') => {
@@ -2046,240 +2034,50 @@ const MultiAI: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* Modern Premium Modal */}
+      {/* Simplified Working Modal */}
       <AnimatePresence>
         {modalOpen && selectedResponse && (
           <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 9999,
-              margin: 0,
-              padding: '1rem',
-              overflow: 'hidden'
-            }}
+            className="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4"
             onClick={closeModal}
           >
             <div
-              style={{
-                position: 'relative',
-                background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
-                borderRadius: '1rem',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                maxWidth: '800px',
-                width: '90%',
-                maxHeight: '80vh',
-                minHeight: '400px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                margin: '0',
-                overflow: 'hidden'
-              }}
+              className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] p-6 relative overflow-auto shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Animated Border */}
-              <div className="absolute inset-0 rounded-2xl sm:rounded-3xl">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400/20 via-violet-400/20 to-rose-400/20 rounded-2xl sm:rounded-3xl animate-pulse"></div>
-                <div className="absolute inset-[1px] bg-gradient-to-br from-slate-900/95 to-slate-800/95 rounded-2xl sm:rounded-3xl"></div>
-              </div>
-              
               {/* Modal Header */}
-              <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 sm:p-8 border-b border-white/10 backdrop-blur-sm flex-shrink-0">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="flex items-center space-x-4 sm:space-x-6">
-                    <motion.div 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                      className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-emerald-400 to-violet-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shadow-xl"
-                    >
-                      {selectedResponse && getAIConfig(selectedResponse.aiName).icon}
-                    </motion.div>
-                    <div>
-                      <motion.h2 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.3 }}
-                        className="text-xl sm:text-3xl font-bold text-white"
-                      >
-                        {selectedResponse && getAIConfig(selectedResponse.aiName).name}
-                      </motion.h2>
-                      <motion.p 
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.4 }}
-                        className="text-slate-300 text-sm sm:text-lg"
-                      >
-                        {selectedResponse && getAIConfig(selectedResponse.aiName).description}
-                      </motion.p>
-                    </div>
-                  </div>
-                  <motion.button
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={closeModal}
-                    className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-700/50 hover:bg-slate-600/50 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm self-start sm:self-auto"
-                  >
-                    <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </motion.button>
-                </div>
+              <div className="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+                <h2 className="text-2xl font-bold text-gray-800 m-0">
+                  {selectedResponse && getAIConfig(selectedResponse.aiName).name} Response
+                </h2>
+                <button
+                  onClick={closeModal}
+                  className="bg-gray-100 hover:bg-gray-200 border-none rounded-lg p-3 cursor-pointer text-gray-600 hover:text-gray-800 transition-colors duration-200 text-xl"
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
               </div>
 
               {/* Modal Content */}
-              <div style={{
-                position: 'relative',
-                padding: '1.5rem 2rem',
-                flex: 1,
-                overflowY: 'auto',
-                overflowX: 'hidden',
-                maxHeight: 'calc(80vh - 200px)',
-                WebkitOverflowScrolling: 'touch',
-                scrollBehavior: 'smooth',
-                minHeight: '200px',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                zIndex: 1
-              }}>
-                <div style={{
-                  color: 'white',
-                  fontSize: '1.2rem',
-                  fontWeight: 'bold',
-                  marginBottom: '1rem',
-                  padding: '10px',
-                  backgroundColor: 'rgba(0, 255, 0, 0.2)',
-                  border: '2px solid green',
-                  borderRadius: '8px'
-                }}>
-                  TEST: Modal is working! Content should appear below.
-                </div>
+              <div className="text-gray-800 leading-relaxed">
                 {selectedResponse && selectedResponse.response.success ? (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}
-                  >
-                    <div style={{
-                      background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.6))',
-                      borderRadius: '1rem',
-                      padding: '1.5rem',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(4px)',
-                      overflow: 'hidden'
-                    }}>
-                      <h3 style={{
-                        fontWeight: '600',
-                        color: 'white',
-                        fontSize: '1.25rem',
-                        marginBottom: '1rem',
-                        margin: 0
-                      }}>Response:</h3>
-                      <div style={{
-                        color: '#e2e8f0',
-                        lineHeight: '1.6',
-                        fontSize: '1rem',
-                        wordBreak: 'break-word',
-                        whiteSpace: 'pre-wrap',
-                        maxWidth: '100%'
-                      }}>
-                        {renderMarkdown((selectedResponse.response as any).response)}
-                      </div>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-700">Response:</h3>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 prose prose-sm max-w-none">
+                      {renderMarkdown((selectedResponse.response as any).response)}
                     </div>
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.5rem',
-                      fontSize: '0.875rem',
-                      color: '#94a3b8'
-                    }}>
-                      <span>Model: {selectedResponse.response.model}</span>
-                      {selectedResponse.response.tokens && <span>{selectedResponse.response.tokens} tokens</span>}
-                    </div>
-                  </motion.div>
+                  </div>
                 ) : (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.6 }}
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(153, 27, 27, 0.6), rgba(190, 24, 93, 0.6))',
-                      border: '1px solid rgba(248, 113, 113, 0.3)',
-                      borderRadius: '1rem',
-                      padding: '1.5rem',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    <div className="flex items-center space-x-3 text-red-300 mb-4">
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                      </svg>
-                      <span className="font-medium text-base sm:text-lg">Error</span>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4 text-red-600">Error:</h3>
+                    <div className="bg-red-50 p-4 rounded-lg border border-red-200 text-red-800">
+                      {selectedResponse && selectedResponse.response.error}
                     </div>
-                    <p className="text-red-200 text-base sm:text-lg leading-relaxed">{selectedResponse && selectedResponse.response.error}</p>
-                  </motion.div>
+                  </div>
                 )}
               </div>
 
-              {/* Modal Footer with Navigation */}
-              <div className="relative bg-gradient-to-r from-slate-800/80 to-slate-700/80 p-6 sm:p-8 border-t border-white/10 backdrop-blur-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <motion.button
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigateToResponse('prev')}
-                    className="flex items-center justify-center space-x-3 px-4 sm:px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 border border-white/20 text-white text-sm sm:text-lg rounded-xl transition-all duration-300 backdrop-blur-sm"
-                  >
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    <span>Previous AI</span>
-                  </motion.button>
-                  
-                  <motion.div 
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.8 }}
-                    className="text-slate-300 text-center"
-                  >
-                    <div className="text-base sm:text-lg font-semibold">{selectedResponse && getAIConfig(selectedResponse.aiName).name}</div>
-                    <div className="text-xs sm:text-sm opacity-80">
-                      {results && selectedResponse ? `${Object.keys(results.responses).indexOf(selectedResponse.aiName) + 1} of ${Object.keys(results.responses).length}` : '1 of 1'}
-                    </div>
-                  </motion.div>
-                  
-                  <motion.button
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigateToResponse('next')}
-                    className="flex items-center justify-center space-x-3 px-4 sm:px-6 py-3 bg-slate-700/50 hover:bg-slate-600/50 border border-white/20 text-white text-sm sm:text-lg rounded-xl transition-all duration-300 backdrop-blur-sm"
-                  >
-                    <span>Next AI</span>
-                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </motion.button>
-                </div>
-              </div>
             </div>
           </div>
         )}
