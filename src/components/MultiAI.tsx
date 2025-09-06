@@ -437,8 +437,10 @@ const MultiAI: React.FC = () => {
   };
 
   const openResponseModal = (aiName: string, response: AIResponse) => {
+    console.log('Opening modal for:', aiName, response);
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
+    console.log('Modal state set to true');
     // Prevent body scroll when modal is open
     document.body.style.overflow = 'hidden';
   };
@@ -2057,7 +2059,9 @@ const MultiAI: React.FC = () => {
 
       {/* Modern Premium Modal */}
       <AnimatePresence>
-        {modalOpen && selectedResponse && (
+        {modalOpen && selectedResponse && (() => {
+          console.log('Rendering modal with selectedResponse:', selectedResponse);
+          return (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -2169,10 +2173,19 @@ const MultiAI: React.FC = () => {
                 WebkitOverflowScrolling: 'touch',
                 scrollBehavior: 'smooth',
                 minHeight: '200px',
-                zIndex: 1
+                zIndex: 1,
+                backgroundColor: 'rgba(0, 0, 0, 0.1)'
               }}>
-                <div style={{ color: 'white', marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
-                  Modal Content Area - Content should be visible here
+                <div style={{ 
+                  color: 'white', 
+                  marginBottom: '1rem', 
+                  fontSize: '1.2rem', 
+                  fontWeight: 'bold',
+                  backgroundColor: 'rgba(255, 0, 0, 0.2)',
+                  padding: '10px',
+                  border: '2px solid red'
+                }}>
+                  DEBUG: Modal Content Area - Content should be visible here
                 </div>
                 {selectedResponse && selectedResponse.response.success ? (
                   <motion.div 
@@ -2290,7 +2303,8 @@ const MultiAI: React.FC = () => {
               </div>
             </motion.div>
           </motion.div>
-        )}
+          );
+        })()}
       </AnimatePresence>
     </div>
   );
