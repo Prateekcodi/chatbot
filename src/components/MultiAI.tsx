@@ -439,15 +439,11 @@ const MultiAI: React.FC = () => {
   const openResponseModal = (aiName: string, response: AIResponse) => {
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
-    // Prevent background scrolling
-    document.body.style.overflow = 'hidden';
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setSelectedResponse(null);
-    // Restore background scrolling
-    document.body.style.overflow = '';
   };
 
   const navigateToResponse = useCallback((direction: 'next' | 'prev') => {
@@ -498,12 +494,6 @@ const MultiAI: React.FC = () => {
     }
   }, [modalOpen, navigateToResponse]);
 
-  // Cleanup effect to restore body scroll when component unmounts
-  useEffect(() => {
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
 
   return (
     <div className="relative min-h-screen bg-[#0A0A0F] overflow-y-auto overflow-x-hidden">
@@ -2069,8 +2059,7 @@ const MultiAI: React.FC = () => {
               zIndex: 9999,
               margin: 0,
               padding: '1rem',
-              overflow: 'hidden',
-              touchAction: 'none'
+              overflow: 'auto'
             }}
             onClick={closeModal}
           >
@@ -2161,8 +2150,7 @@ const MultiAI: React.FC = () => {
                 scrollBehavior: 'smooth',
                 minHeight: '200px',
                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                zIndex: 1,
-                contain: 'layout style paint'
+                zIndex: 1
               }}>
                 <div style={{
                   color: 'white',
