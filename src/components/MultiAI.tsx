@@ -439,11 +439,23 @@ const MultiAI: React.FC = () => {
   const openResponseModal = (aiName: string, response: AIResponse) => {
     setSelectedResponse({ aiName, response });
     setModalOpen(true);
+    // Prevent body scroll
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = '0';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
   };
 
   const closeModal = () => {
     setModalOpen(false);
     setSelectedResponse(null);
+    // Restore body scroll
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
   };
 
   const navigateToResponse = useCallback((direction: 'next' | 'prev') => {
@@ -2039,11 +2051,7 @@ const MultiAI: React.FC = () => {
       {/* Modern Premium Modal */}
       <AnimatePresence>
         {modalOpen && selectedResponse && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -2059,15 +2067,11 @@ const MultiAI: React.FC = () => {
               zIndex: 9999,
               margin: 0,
               padding: '1rem',
-              overflow: 'auto'
+              overflow: 'hidden'
             }}
             onClick={closeModal}
           >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0, y: 50 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.8, opacity: 0, y: 50 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            <div
               style={{
                 position: 'relative',
                 background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95))',
@@ -2278,8 +2282,8 @@ const MultiAI: React.FC = () => {
                   </motion.button>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
       </AnimatePresence>
     </div>
