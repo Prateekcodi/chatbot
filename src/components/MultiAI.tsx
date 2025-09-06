@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '../lib/supabaseClient';
+import { motion } from 'framer-motion';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -25,11 +24,9 @@ const MultiAI: React.FC = () => {
   const [selectedResponse, setSelectedResponse] = useState<{ aiName: string; response: AIResponse } | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentTypingIndex, setCurrentTypingIndex] = useState(0);
-  const [typingText, setTypingText] = useState('');
   const [showDebugInfo, setShowDebugInfo] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const renderMarkdown = (text: string) => {
@@ -130,7 +127,6 @@ const MultiAI: React.FC = () => {
     setResults(null);
     setIsTyping(false);
     setCurrentTypingIndex(0);
-    setTypingText('');
 
     try {
       const response = await fetch('/api/multi-ai', {
@@ -177,13 +173,11 @@ const MultiAI: React.FC = () => {
       
       const typeChar = () => {
         if (charIndex < responseText.length) {
-          setTypingText(prev => prev + responseText[charIndex]);
           charIndex++;
           typingTimeoutRef.current = setTimeout(typeChar, 20);
         } else {
           setTimeout(() => {
             setCurrentTypingIndex(prev => prev + 1);
-            setTypingText('');
           }, 1000);
         }
       };
