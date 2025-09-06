@@ -309,9 +309,12 @@ function LogoutButton({ onLogout }: { onLogout: () => Promise<void> }) {
   );
 }
 
-// Mobile debugging component
+// Mobile debugging component - only show in development
 function MobileDebugInfo() {
   const [showDebug, setShowDebug] = useState(false);
+
+  // Only show debug button in development
+  if (process.env.NODE_ENV !== 'development') return null;
 
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   

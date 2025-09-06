@@ -491,8 +491,21 @@ const MultiAI: React.FC = () => {
     };
 
     if (modalOpen) {
+      // Prevent body scrolling when modal is open
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+      
       document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
+      return () => {
+        document.removeEventListener('keydown', handleKeyDown);
+        // Restore body scrolling when modal closes
+        document.body.style.overflow = '';
+        document.body.style.position = '';
+        document.body.style.width = '';
+        document.body.style.height = '';
+      };
     }
   }, [modalOpen, navigateToResponse]);
 
@@ -2060,7 +2073,8 @@ const MultiAI: React.FC = () => {
               zIndex: 9999,
               margin: 0,
               padding: '1rem',
-              overflow: 'hidden'
+              overflow: 'auto',
+              WebkitOverflowScrolling: 'touch'
             }}
             onClick={closeModal}
           >
@@ -2076,11 +2090,13 @@ const MultiAI: React.FC = () => {
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 maxWidth: '800px',
                 width: '90%',
-                maxHeight: '85vh',
+                maxHeight: '90vh',
+                minHeight: '60vh',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
-                margin: '0 auto'
+                margin: '2rem auto',
+                transform: 'translateY(0)'
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -2143,7 +2159,10 @@ const MultiAI: React.FC = () => {
                 padding: '1.5rem 2rem',
                 flex: 1,
                 overflowY: 'auto',
-                maxHeight: 'calc(85vh - 120px)'
+                overflowX: 'hidden',
+                maxHeight: 'calc(85vh - 120px)',
+                WebkitOverflowScrolling: 'touch',
+                scrollBehavior: 'smooth'
               }}>
                 <div style={{ color: 'white', marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
                   Modal Content Area - Content should be visible here
