@@ -259,18 +259,16 @@ const MultiAI: React.FC = () => {
       // Use regular API
       try {
         console.log('Using non-streaming API...');
-        const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://chatbot-1-u7m0.onrender.com';
-
         // Add timeout to prevent infinite loading
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout
 
-        const response = await fetch(`${backendUrl}/api/ask`, {
+        const response = await fetch('/.netlify/functions/multi-ai', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ prompt: prompt.trim() }),
+          body: JSON.stringify({ query: prompt.trim() }),
           signal: controller.signal
         });
 
