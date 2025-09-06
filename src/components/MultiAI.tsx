@@ -492,26 +492,24 @@ const MultiAI: React.FC = () => {
 
     if (modalOpen) {
       // Prevent body scrolling when modal is open
-      const originalStyle = window.getComputedStyle(document.body).overflow;
-      const originalPosition = window.getComputedStyle(document.body).position;
+      const scrollY = window.scrollY;
       
-      document.body.style.overflow = 'hidden';
       document.body.style.position = 'fixed';
-      document.body.style.top = '0';
+      document.body.style.top = `-${scrollY}px`;
       document.body.style.left = '0';
-      document.body.style.width = '100%';
-      document.body.style.height = '100%';
+      document.body.style.right = '0';
+      document.body.style.overflow = 'hidden';
       
       document.addEventListener('keydown', handleKeyDown);
       return () => {
         document.removeEventListener('keydown', handleKeyDown);
         // Restore body scrolling when modal closes
-        document.body.style.overflow = originalStyle;
-        document.body.style.position = originalPosition;
+        document.body.style.position = '';
         document.body.style.top = '';
         document.body.style.left = '';
-        document.body.style.width = '';
-        document.body.style.height = '';
+        document.body.style.right = '';
+        document.body.style.overflow = '';
+        window.scrollTo(0, scrollY);
       };
     }
   }, [modalOpen, navigateToResponse]);
@@ -2075,13 +2073,12 @@ const MultiAI: React.FC = () => {
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
               display: 'flex',
-              alignItems: 'flex-start',
+              alignItems: 'center',
               justifyContent: 'center',
               zIndex: 9999,
               margin: 0,
-              padding: '2rem 1rem',
-              overflow: 'auto',
-              WebkitOverflowScrolling: 'touch'
+              padding: '1rem',
+              overflow: 'hidden'
             }}
             onClick={closeModal}
           >
@@ -2097,8 +2094,8 @@ const MultiAI: React.FC = () => {
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 maxWidth: '800px',
                 width: '90%',
-                maxHeight: '85vh',
-                minHeight: '500px',
+                maxHeight: '90vh',
+                minHeight: '400px',
                 border: '1px solid rgba(255, 255, 255, 0.2)',
                 display: 'flex',
                 flexDirection: 'column',
@@ -2168,10 +2165,11 @@ const MultiAI: React.FC = () => {
                 flex: 1,
                 overflowY: 'auto',
                 overflowX: 'hidden',
-                maxHeight: 'calc(80vh - 200px)',
+                maxHeight: 'calc(90vh - 200px)',
                 WebkitOverflowScrolling: 'touch',
                 scrollBehavior: 'smooth',
-                minHeight: '300px'
+                minHeight: '200px',
+                zIndex: 1
               }}>
                 <div style={{ color: 'white', marginBottom: '1rem', fontSize: '1.2rem', fontWeight: 'bold' }}>
                   Modal Content Area - Content should be visible here
@@ -2185,10 +2183,11 @@ const MultiAI: React.FC = () => {
                   >
                     <div style={{
                       background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(51, 65, 85, 0.6))',
-                      borderRadius: '0.75rem',
+                      borderRadius: '1rem',
                       padding: '1.5rem',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      backdropFilter: 'blur(4px)'
+                      backdropFilter: 'blur(4px)',
+                      overflow: 'hidden'
                     }}>
                       <h3 style={{
                         fontWeight: '600',
@@ -2224,7 +2223,13 @@ const MultiAI: React.FC = () => {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 }}
-                    className="bg-gradient-to-br from-red-900/60 to-pink-900/60 border border-red-400/30 rounded-xl sm:rounded-2xl p-4 sm:p-6"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(153, 27, 27, 0.6), rgba(190, 24, 93, 0.6))',
+                      border: '1px solid rgba(248, 113, 113, 0.3)',
+                      borderRadius: '1rem',
+                      padding: '1.5rem',
+                      overflow: 'hidden'
+                    }}
                   >
                     <div className="flex items-center space-x-3 text-red-300 mb-4">
                       <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 20 20">
