@@ -27,11 +27,18 @@ function Protected({ children }: { children: React.ReactNode }) {
   
   // Debug logging for mobile issues
   useEffect(() => {
-    console.log('Protected component - initialized:', initialized, 'session:', !!session);
+    console.log('Protected component - initialized:', initialized, 'session:', !!session, 'session details:', session);
   }, [initialized, session]);
   
-  if (!initialized) return <LoadingSplash />;
-  if (!session) return <Navigate to="/auth" replace />;
+  if (!initialized) {
+    console.log('Protected: Not initialized, showing loading splash');
+    return <LoadingSplash />;
+  }
+  if (!session) {
+    console.log('Protected: No session, redirecting to auth');
+    return <Navigate to="/auth" replace />;
+  }
+  console.log('Protected: Has session, rendering children');
   return <>{children}</>;
 }
 
@@ -332,16 +339,21 @@ function MobileDebugInfo() {
 function AppContent() {
   const location = useLocation();
   
+  // Debug logging
+  console.log('AppContent - Current location:', location.pathname, 'Hash:', window.location.hash);
+  
   // If on auth page, render AuthPage outside of main container
-  if (location.pathname === '/auth') {
+  if (location.pathname === '/auth' || window.location.hash === '#/auth') {
+    console.log('Rendering AuthPage');
     return (
-      <>
+      <div className="min-h-screen bg-[#0A0A0F]">
         <AuthPage />
         <MobileDebugInfo />
-      </>
+      </div>
     );
   }
   
+  console.log('Rendering main app content');
   return (
     <div className="App w-screen min-h-screen overflow-hidden bg-[#0A0A0F]">
       <Nav />
@@ -362,6 +374,8 @@ function AppContent() {
 function App() {
   // Add mobile-specific error boundary and debugging
   useEffect(() => {
+    console.log('App component mounted');
+    
     // Mobile debugging
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     if (isMobile) {
@@ -392,11 +406,13 @@ function App() {
   }, []);
 
   return (
-    <AuthProvider>
-      <HashRouter>
-        <AppContent />
-      </HashRouter>
-    </AuthProvider>
+    <div className="min-h-screen bg-[#0A0A0F]">
+      <AuthProvider>
+        <HashRouter>
+          <AppContent />
+        </HashRouter>
+      </AuthProvider>
+    </div>
   );
 }
 
