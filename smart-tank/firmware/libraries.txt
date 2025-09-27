@@ -1,0 +1,166 @@
+# Required Libraries for ESP32 Smart Tank Firmware
+
+## Arduino IDE Library Manager
+Install these libraries through Tools → Manage Libraries:
+
+### Core Libraries
+- **WiFi** (built-in with ESP32)
+- **PubSubClient** by Nick O'Leary (version 2.8.0+)
+- **ArduinoJson** by Benoit Blanchon (version 6.21.0+)
+- **RTClib** by Adafruit (version 2.1.1+)
+
+### Optional Libraries
+- **SD** (built-in with ESP32)
+- **SPI** (built-in with ESP32)
+- **Wire** (built-in with ESP32)
+- **EEPROM** (built-in with ESP32)
+
+## PlatformIO Configuration
+
+If using PlatformIO, add to `platformio.ini`:
+
+```ini
+[env:esp32dev]
+platform = espressif32
+board = esp32dev
+framework = arduino
+
+lib_deps = 
+    knolleary/PubSubClient@^2.8
+    bblanchon/ArduinoJson@^6.21.0
+    adafruit/RTClib@^2.1.1
+    adafruit/Adafruit Unified Sensor@^1.1.4
+```
+
+## Manual Installation
+
+If library manager doesn't work, download from GitHub:
+
+### PubSubClient
+```bash
+git clone https://github.com/knolleary/pubsubclient.git
+```
+
+### ArduinoJson
+```bash
+git clone https://github.com/bblanchon/ArduinoJson.git
+```
+
+### RTClib
+```bash
+git clone https://github.com/adafruit/RTClib.git
+```
+
+## Library Versions and Compatibility
+
+| Library | Version | ESP32 Support | Notes |
+|---------|---------|---------------|-------|
+| PubSubClient | 2.8.0+ | ✅ | MQTT client |
+| ArduinoJson | 6.21.0+ | ✅ | JSON parsing |
+| RTClib | 2.1.1+ | ✅ | RTC support |
+| WiFi | Built-in | ✅ | WiFi connectivity |
+| Wire | Built-in | ✅ | I2C communication |
+| SPI | Built-in | ✅ | SPI communication |
+| EEPROM | Built-in | ✅ | Configuration storage |
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Compilation Errors**
+   - Ensure all libraries are installed
+   - Check ESP32 board package is updated
+   - Verify library versions are compatible
+
+2. **WiFi Connection Issues**
+   - Check SSID and password
+   - Ensure 2.4GHz network (ESP32 doesn't support 5GHz)
+   - Verify network security settings
+
+3. **MQTT Connection Issues**
+   - Check broker address and port
+   - Verify credentials
+   - Ensure broker is accessible from network
+
+4. **RTC Issues**
+   - Check I2C wiring (SDA/SCL)
+   - Verify RTC module is working
+   - Check power supply to RTC
+
+5. **Sensor Reading Issues**
+   - Verify pin connections
+   - Check voltage levels (3.3V vs 5V)
+   - Test sensors individually
+
+### Library Dependencies
+
+Some libraries have dependencies:
+- **RTClib** requires **Adafruit Unified Sensor**
+- **PubSubClient** may need **WiFi** library
+- **ArduinoJson** is standalone
+
+### Version Conflicts
+
+If you encounter version conflicts:
+1. Uninstall conflicting libraries
+2. Install specific versions
+3. Check library documentation for compatibility
+
+## Alternative Libraries
+
+### MQTT Alternatives
+- **AsyncMqttClient** - For async operations
+- **MQTT** - Lightweight MQTT client
+
+### JSON Alternatives
+- **ArduinoJson** (recommended)
+- **JSON** - Simple JSON library
+
+### RTC Alternatives
+- **DS3231** - Direct DS3231 library
+- **TimeLib** - Time management
+
+## Development Setup
+
+### Arduino IDE
+1. Install ESP32 board package
+2. Install required libraries
+3. Select correct board and port
+4. Upload firmware
+
+### PlatformIO
+1. Create new project
+2. Add libraries to `platformio.ini`
+3. Copy firmware code
+4. Build and upload
+
+### VS Code with PlatformIO
+1. Install PlatformIO extension
+2. Create new project
+3. Configure libraries
+4. Use integrated terminal for commands
+
+## Testing Libraries
+
+Test each library individually:
+
+```cpp
+// Test WiFi
+#include <WiFi.h>
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin("SSID", "PASSWORD");
+}
+
+// Test MQTT
+#include <PubSubClient.h>
+PubSubClient client;
+
+// Test JSON
+#include <ArduinoJson.h>
+StaticJsonDocument<200> doc;
+
+// Test RTC
+#include <RTClib.h>
+RTC_DS3231 rtc;
+```
